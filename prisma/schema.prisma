@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+model Workspace {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  brandProfiles BrandProfile[]
+  users         User[]
+}
+
+model User {
+  id          String      @id @default(cuid())
+  email       String      @unique
+  name        String?
+  workspaceId String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model BrandProfile {
+  id               String            @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace         @relation(fields: [workspaceId], references: [id])
+  name             String
+  description      String?
+  toneOfVoice      String?
+  writingRules     String[]
+  audienceSegments AudienceSegment[]
+  editorialPillars EditorialPillar[]
+  voiceGuides      VoiceGuide[]
+  offers           Offer[]
+  knowledgeItems   KnowledgeItem[]
+  topics           TopicCandidate[]
+  contentPieces    ContentPiece[]
+  assets           Asset[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model VoiceGuide {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  platform       String // Instagram, LinkedIn
+  rules          String[]
+  examples       Json?
+}
+
+model EditorialPillar {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  title          String
+  description    String
+  priority       Int          @default(1)
+}
+
+model AudienceSegment {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  name           String
+  painPoints     String[]
+  desires        String[]
+}
+
+model Offer {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  name           String
+  description    String
+  ctaStyles      String[]
+}
+
+model KnowledgeItem {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  title          String
+  content        String
+  sourceUrl      String?
+  type           String // article, note, transcript, etc.
+  tags           String[]
+  metadata       Json?
+  embedding      Unsupported("vector(1536)")?
+  createdAt      DateTime     @default(now())
+}
+
+model TopicCandidate {
+  id             String         @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile   @relation(fields: [brandProfileId], references: [id])
+  title          String
+  summary        String
+  relevanceScore Float?
+  alignmentScore Float?
+  platform       String
+  format         String
+  status         String // suggestion, approved, rejected, used
+  contentPieces  ContentPiece[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model ContentPiece {
+  id               String          @id @default(cuid())
+  brandProfileId   String
+  brandProfile     BrandProfile    @relation(fields: [brandProfileId], references: [id])
+  topicId          String?
+  topic            TopicCandidate? @relation(fields: [topicId], references: [id])
+  title            String
+  goal             String?
+  platform         String
+  format           String
+  status           String // idea, research, draft, review, approved, scheduled, published
+  currentVersionId String?
+  versions         ContentVersion[]
+  assets           Asset[]
+  approvalLogs     ApprovalLog[]
+  publishingJob    PublishingJob?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model ContentVersion {
+  id             String       @id @default(cuid())
+  contentPieceId String
+  contentPiece   ContentPiece @relation(fields: [contentPieceId], references: [id])
+  headline       String?
+  hook           String?
+  body           String?
+  caption        String?
+  cta            String?
+  hashtags       String[]
+  imagePrompt    String?
+  visualConcept  String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+}
+
+model Asset {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  contentPieceId String?
+  contentPiece   ContentPiece? @relation(fields: [contentPieceId], references: [id])
+  type           String // image, video, document
+  url            String
+  key            String
+  prompt         String?
+  model          String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+}
+
+model ApprovalLog {
+  id             String       @id @default(cuid())
+  contentPieceId String
+  contentPiece   ContentPiece @relation(fields: [contentPieceId], references: [id])
+  statusFrom     String
+  statusTo       String
+  userId         String?
+  comment        String?
+  createdAt      DateTime     @default(now())
+}
+
+model PublishingJob {
+  id             String       @id @default(cuid())
+  contentPieceId String       @unique
+  contentPiece   ContentPiece @relation(fields: [contentPieceId], references: [id])
+  scheduledAt    DateTime
+  publishedAt    DateTime?
+  status         String // pending, success, failed
+  error          String?
+  platformUrl    String?
+}
