@@ -17,7 +17,7 @@ export class MultiplexerService {
         const brand = knowledge.brandProfile;
 
         const prompt = `
-            Você é o Mestre Clonador de Conteúdo para a marca "${brand.name}".
+            Você é o Mestre Clonador de Conteúdo e Diretor de Arte para a marca "${brand.name}".
             O DNA da marca (Tom de voz e posicionamento): ${brand.description}
             
             O usuário fez upload do seguinte material base (Transcrição/Palestra/Nota):
@@ -28,17 +28,36 @@ export class MultiplexerService {
             SUA TAREFA DE MULTIPLICAÇÃO: 
             Despedace, mastigue e transforme esse "texto único" em exatas 3 peças formatadas e distintas para Redes Sociais que devem soar naturalmente como o posicionamento da marca, em PORTUGUÊS DO BRASIL.
             
-            - Peça 1: Um Carrossel denso e educativo de Alto Impacto para **Instagram** focado na audiência B2C. (Formato: carousel)
-            - Peça 2: Um Roteiro de Vídeo Curto, ágil, com um Gancho Hipnótico no início, para **Reels/TikTok**. (Formato: video script)
-            - Peça 3: Um Artigo/Postagem Executiva aprofundada para **LinkedIn** focada em liderança e Business-to-Person (B2P). (Formato: article)
-
+            - Peça 1: Um Carrossel denso e educativo de Alto Impacto para **Instagram** focado na audiência B2C. (Formato: carousel). DEVE CONTER: Roteiro de slides com texto para imagem e prompt para cada imagem.
+            - Peça 2: Um Roteiro de Vídeo Curto, ágil, com um Gancho Hipnótico no início, para **Reels/TikTok**. (Formato: video script). DEVE CONTER: Instruções visuais de cena.
+            - Peça 3: Um Artigo/Postagem Executiva aprofundada para **LinkedIn** focada em liderança e Business-to-Person (B2P). (Formato: article).
+            
             Retorne estritamente um JSON com a chave "pieces" que contém um array dos 3 objetos gerados na exata matriz abaixo:
             [{
                "title": "Title Interno do Dashboard",
                "platform": "Instagram" | "LinkedIn" | "TikTok",
                "format": "carousel" | "video script" | "article",
-               "headline": "A copy da manchete/imagem de capa",
-               "body": "Todo o conteúdo da legenda/roteiro destrinchado"
+               "headline": "A manchete principal (capa)",
+               "hook": "Gancho hipnótico de primeira linha",
+               "body": "Legenda completa (incluindo quebras de linha)",
+               "cta": "Chamada para ação matadora",
+               "hashtags": ["tag1", "tag2"],
+               "visualConcept": "Conceito visual premium para esta peça",
+               "imagePrompt": "Prompt Mestre para o DALL-E 3 gerar a imagem de CAPA",
+               "slides": [ // APENAS para carrosseis - Mínimo 5 slides
+                  {
+                    "slideNumber": 1,
+                    "textOnImage": "Texto curto e impactante para o slide",
+                    "imagePrompt": "Prompt específico para a arte deste slide"
+                  }
+               ],
+               "videoScenes": [ // APENAS para video script
+                  {
+                    "time": "0s-5s",
+                    "action": "Descrição da cena",
+                    "audio": "O que deve ser falado ou áudio de fundo"
+                  }
+               ]
             }]
         `;
 
@@ -89,9 +108,17 @@ export class MultiplexerService {
                         versions: {
                             create: {
                                 headline: headline,
+                                hook: p.hook || "Criado no Multiplicador de Conteúdo",
                                 body: body,
-                                hook: "Criado no Multiplicador de Conteúdo",
-                                metadata: { sourceKnowledge: knowledgeItemId }
+                                cta: p.cta || "",
+                                hashtags: p.hashtags || [],
+                                visualConcept: p.visualConcept || "Conceito a ser refinado",
+                                imagePrompt: p.imagePrompt || "",
+                                metadata: {
+                                    sourceKnowledge: knowledgeItemId,
+                                    slides: p.slides || [],
+                                    videoScenes: p.videoScenes || []
+                                }
                             }
                         }
                     }

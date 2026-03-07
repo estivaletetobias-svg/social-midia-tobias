@@ -371,6 +371,63 @@ export default function ContentEditor() {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Carousel Slides Specific Section */}
+                            {piece.format === 'carousel' && version.metadata?.slides && version.metadata.slides.length > 0 && (
+                                <div className="mt-12 space-y-6 pt-12 border-t border-black/5">
+                                    <h4 className="text-lg font-black text-gray-900 flex items-center">
+                                        <ImageIcon className="mr-2 h-5 w-5 text-primary-500" />
+                                        Estrutura de Slides (Carrossel)
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {version.metadata.slides.map((slide: any, idx: number) => (
+                                            <div key={idx} className="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm hover:border-primary-200 transition-all group">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary-500 bg-primary-50 px-2 py-1 rounded">
+                                                        Slide {slide.slideNumber || idx + 1}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm font-black text-gray-800 mb-3 leading-tight">{slide.textOnImage}</p>
+                                                <div className="text-[10px] font-medium text-gray-400 italic line-clamp-2 group-hover:line-clamp-none transition-all">
+                                                    Prompt: {slide.imagePrompt}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Video Script Specific Section */}
+                            {piece.format === 'video script' && version.metadata?.videoScenes && version.metadata.videoScenes.length > 0 && (
+                                <div className="mt-12 space-y-6 pt-12 border-t border-black/5">
+                                    <h4 className="text-lg font-black text-gray-900 flex items-center">
+                                        <Wand2 className="mr-2 h-5 w-5 text-primary-500" />
+                                        Roteiro de Cenas
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {version.metadata.videoScenes.map((scene: any, idx: number) => (
+                                            <div key={idx} className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                                                <div className="flex items-center space-x-3 mb-4">
+                                                    <span className="text-[10px] font-black text-white bg-gray-900 px-3 py-1 rounded-full uppercase">
+                                                        {scene.time}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Ação & Áudio</span>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="text-sm font-medium text-gray-600">
+                                                        <span className="block text-[8px] font-black uppercase text-gray-400 mb-1">Visual</span>
+                                                        {scene.action}
+                                                    </div>
+                                                    <div className="text-sm font-bold text-gray-800">
+                                                        <span className="block text-[8px] font-black uppercase text-gray-400 mb-1">Áudio / Fala</span>
+                                                        {scene.audio}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
