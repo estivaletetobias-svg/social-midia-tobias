@@ -33,32 +33,43 @@ export async function POST(req: Request) {
         if (!brand) return NextResponse.json({ error: 'DNA não configurado.' }, { status: 400 });
 
         let transcript;
+        const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
+
+        // Custom fetch handler to bypass Next.js fetch patches and add standard headers
+        const customFetch = async (params: any) => {
+            return nodeFetch(params.url, {
+                method: params.method || 'GET',
+                body: params.body,
+                headers: {
+                    ...params.headers,
+                    'User-Agent': CHROME_UA,
+                    'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                }
+            }) as any;
+        };
+
         const config = {
-            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            lang: 'pt'
+            lang: 'pt',
+            userAgent: CHROME_UA,
+            videoFetch: customFetch,
+            transcriptFetch: customFetch,
+            playerFetch: customFetch,
         };
 
         try {
-            console.log(`[YouTube] Fetching transcript for ${videoId} (DNA Tobias)...`);
+            console.log(`[YouTube] Trying dedicated node-fetch for ${videoId}...`);
             try {
-                // Tenta com o DNA e User-Agent
+                // Tenta com o DNA e node-fetch
                 transcript = await fetchTranscript(videoId, config);
             } catch (ptErr: any) {
-                console.warn(`[YouTube] PT attempt failed (${ptErr.message}), trying default fallback...`);
-                transcript = await fetchTranscript(videoId, { userAgent: config.userAgent });
+                console.warn(`[YouTube] PT attempt failed (${ptErr.message}), trying default fallback (node-fetch)...`);
+                transcript = await fetchTranscript(videoId, { ...config, lang: undefined });
             }
         } catch (scrapeErr: any) {
-            console.error("Youtube library error (DNA Tobias):", scrapeErr);
-            // Log do erro real no console para debug
-            if (scrapeErr.response) {
-                try {
-                    const errorText = await scrapeErr.response.text();
-                    console.error("YouTube error response body:", errorText);
-                } catch (e) { }
-            }
+            console.error("Youtube library error (DNA Tobias):", scrapeErr.message);
 
             return NextResponse.json({
-                error: `Desculpe, o YouTube bloqueou a leitura temporária desse vídeo. Isso acontece às vezes com vídeos muito protegidos.`,
+                error: `O YouTube bloqueou a leitura temporária desse vídeo. Isso acontece às vezes por segurança deles.`,
                 details: scrapeErr.message,
                 videoId
             }, { status: 400 });
