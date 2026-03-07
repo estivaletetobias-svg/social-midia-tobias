@@ -17,7 +17,7 @@ export class KnowledgeService {
     }) {
         const embedding = await VectorService.generateEmbedding(data.content);
 
-        return prisma.knowledgeItem.create({
+        const item = await prisma.knowledgeItem.create({
             data: {
                 brandProfileId: data.brandProfileId,
                 title: data.title,
@@ -26,9 +26,18 @@ export class KnowledgeService {
                 type: data.type,
                 tags: data.tags || [],
                 metadata: data.metadata || {},
-                embedding: embedding as any // prisma doesn't support vector types directly, we cast or use raw SQL
             },
         });
+
+        // Prisma doesn't support vector types directly, so we update it via raw SQL
+        const vectorString = `[${embedding.join(',')}]`;
+        await prisma.$executeRawUnsafe(
+            `UPDATE "KnowledgeItem" SET embedding = $1::vector WHERE id = $2`,
+            vectorString,
+            item.id
+        );
+
+        return item;
     }
 
     /**

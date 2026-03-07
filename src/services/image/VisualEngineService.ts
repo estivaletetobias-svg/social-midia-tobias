@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import prisma from '@/lib/prisma';
 import { helpers, PredictionServiceClient } from '@google-cloud/aiplatform';
 import { VectorService } from '../knowledge/VectorService';
+import { AssetService } from './AssetService';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -175,17 +176,12 @@ export class VisualEngineService {
      * Helper to persist assets
      */
     private static async saveGeneratedAsset(version: any, url: string, model: string) {
-        return prisma.asset.create({
-            data: {
-                brandProfileId: version.contentPiece.brandProfileId,
-                contentPieceId: version.contentPieceId,
-                type: 'image',
-                url: url,
-                key: `generated/${version.id}-${Date.now()}.png`,
-                prompt: version.imagePrompt,
-                model: model,
-                metadata: { versionId: version.id }
-            }
+        return AssetService.uploadAndPersist(url, {
+            brandProfileId: version.contentPiece.brandProfileId,
+            contentPieceId: version.contentPieceId,
+            prompt: version.imagePrompt,
+            model: model,
+            versionId: version.id,
         });
     }
 }
