@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-// @ts-ignore
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 export async function POST(req: Request) {
     try {
+        // Dynamic require to bypass Turbopack build time ESM/CJS resolution issues
+        const pdfParse = require('pdf-parse');
         const formData = await req.formData();
         const file = formData.get('file') as Blob | null;
 
