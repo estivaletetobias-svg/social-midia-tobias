@@ -5,6 +5,7 @@ import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw } from "
 
 export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
+    const [rssUrl, setRssUrl] = useState("https://techcrunch.com/feed/");
     const [topics, setTopics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isApproveLoading, setIsApproveLoading] = useState<Record<string, boolean>>({});
@@ -92,7 +93,7 @@ export default function IdeasLibrary() {
             const res = await fetch('/api/discovery/sync-rss', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ feedUrl: 'https://techcrunch.com/feed/' })
+                body: JSON.stringify({ feedUrl: rssUrl })
             });
             const data = await res.json();
             if (data.success) {
@@ -144,15 +145,23 @@ export default function IdeasLibrary() {
                         Sugestões de tópicos conduzidas por Inteligência Artificial, baseadas no DNA da sua marca e nas tendências do mercado.
                     </p>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={handleSyncRSS}
-                        disabled={isSyncing}
-                        className={`h-14 px-6 glass-panel text-gray-700 text-sm font-black rounded-[20px] hover:bg-white/80 transition-all flex items-center hover:shadow-xl hover:shadow-black/5 disabled:opacity-50 hover:-translate-y-1 duration-300`}
-                    >
-                        <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
-                        {isSyncing ? "Lendo Notícias..." : "Forçar Leitura RSS"}
-                    </button>
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            value={rssUrl}
+                            onChange={(e) => setRssUrl(e.target.value)}
+                            placeholder="URL do RSS (ex: g1.globo...)"
+                            className="h-14 px-4 w-52 glass-panel border border-white/60 text-sm font-bold text-gray-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
+                        />
+                        <button
+                            onClick={handleSyncRSS}
+                            disabled={isSyncing}
+                            className={`h-14 px-6 glass-panel text-gray-700 text-sm font-black rounded-[20px] hover:bg-white/80 transition-all flex items-center hover:shadow-xl hover:shadow-black/5 disabled:opacity-50 hover:-translate-y-1 duration-300`}
+                        >
+                            <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
+                            {isSyncing ? "Lendo Notícias..." : "Forçar Leitura RSS"}
+                        </button>
+                    </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300"

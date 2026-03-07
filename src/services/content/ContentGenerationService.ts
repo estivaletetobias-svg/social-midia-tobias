@@ -148,7 +148,7 @@ export class ContentGenerationService {
       - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
       - Sound human, opinionated, and authoritative.
       - Use short sentences. Use active voice.
-      - If you are presenting scientific data, studies, or important facts, YOU MUST cite the source (e.g. "According to a 2023 study by Harvard...", or "[Fonte: Journal of Sports Science]").
+      - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL, EXISTING sources. If you don't know the exact source, do not quote the data, or use a placeholder like "[INSERIR FONTE REAL DO SEU ESTUDO]".
 
       Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
       {
