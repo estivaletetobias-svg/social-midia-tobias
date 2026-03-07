@@ -32,24 +32,39 @@ export async function POST(req: Request) {
         if (!brand) return NextResponse.json({ error: 'DNA não configurado.' }, { status: 400 });
 
         let transcript;
+        const config = {
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+            lang: 'pt'
+        };
+
         try {
-            // Tenta primeiro em português, depois tenta o padrão
+            console.log(`[YouTube] Fetching transcript for ${videoId} (DNA Tobias)...`);
             try {
-                transcript = await fetchTranscript(videoId, { lang: 'pt' });
-            } catch (ptErr) {
-                console.log("PT Transcript fail, trying default...");
-                transcript = await fetchTranscript(videoId);
+                // Tenta com o DNA e User-Agent
+                transcript = await fetchTranscript(videoId, config);
+            } catch (ptErr: any) {
+                console.warn(`[YouTube] PT attempt failed (${ptErr.message}), trying default fallback...`);
+                transcript = await fetchTranscript(videoId, { userAgent: config.userAgent });
             }
         } catch (scrapeErr: any) {
-            console.error("Youtube library error:", scrapeErr);
+            console.error("Youtube library error (DNA Tobias):", scrapeErr);
+            // Log do erro real no console para debug
+            if (scrapeErr.response) {
+                try {
+                    const errorText = await scrapeErr.response.text();
+                    console.error("YouTube error response body:", errorText);
+                } catch (e) { }
+            }
+
             return NextResponse.json({
-                error: `O YouTube bloqueou a leitura temporariamente ou este vídeo não tem legendas habilitadas.`,
-                details: scrapeErr.message
+                error: `Desculpe, o YouTube bloqueou a leitura temporária desse vídeo. Isso acontece às vezes com vídeos muito protegidos.`,
+                details: scrapeErr.message,
+                videoId
             }, { status: 400 });
         }
 
         if (!transcript || transcript.length === 0) {
-            return NextResponse.json({ error: 'Nenhuma legenda encontrada. Verifique se o vídeo possui legendas (CC) ativadas no YouTube.' }, { status: 400 });
+            return NextResponse.json({ error: 'Nenhuma legenda encontrada. Verifique se o vídeo possui legendas (CC) no YouTube.' }, { status: 400 });
         }
 
         // Unir todos os pedaços de texto da legenda em uma string
