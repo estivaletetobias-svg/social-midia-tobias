@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,6 +12,7 @@ import {
     Settings,
     BarChart2,
     PlusCircle,
+    Plus,
     Zap
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
@@ -33,13 +35,32 @@ const navigation = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const [profileImg, setProfileImg] = useState<string>("https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
+
+    useEffect(() => {
+        const saved = localStorage.getItem('user_profile_img');
+        if (saved) setProfileImg(saved);
+    }, []);
+
+    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = reader.result as string;
+            setProfileImg(base64);
+            localStorage.setItem('user_profile_img', base64);
+        };
+        reader.readAsDataURL(file);
+    };
 
     return (
         <div className="hidden lg:flex lg:w-72 lg:flex-col lg:relative p-6">
             <div className="flex flex-col flex-1 glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 overflow-hidden">
                 <div className="flex items-center h-20 flex-shrink-0 px-8 border-b border-white/40">
                     <span className="text-xl font-black text-gray-900 tracking-tighter">
-                        Motor<span className="text-primary-500">.</span>IA
+                        Social <span className="text-primary-500">Midia</span>
                     </span>
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
@@ -72,13 +93,17 @@ export function Sidebar() {
                 </div>
                 <div className="flex-shrink-0 flex border-t border-white/40 p-5 bg-white/20">
                     <div className="flex-shrink-0 w-full group block">
-                        <div className="flex items-center group cursor-pointer hover:bg-white/40 p-2 rounded-2xl transition-all">
-                            <div>
+                        <label className="flex items-center group cursor-pointer hover:bg-white/40 p-2 rounded-2xl transition-all">
+                            <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
+                            <div className="relative">
                                 <img
-                                    className="inline-block h-10 w-10 rounded-full border-2 border-white shadow-sm"
-                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                    alt=""
+                                    className="inline-block h-14 w-14 rounded-full border-2 border-white shadow-sm object-cover"
+                                    src={profileImg}
+                                    alt="Tobias Estivalete"
                                 />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Plus className="h-6 w-6 text-white" />
+                                </div>
                             </div>
                             <div className="ml-3">
                                 <p className="text-sm font-black text-gray-900">
@@ -88,7 +113,7 @@ export function Sidebar() {
                                     Administrador
                                 </p>
                             </div>
-                        </div>
+                        </label>
                     </div>
                 </div>
             </div>
