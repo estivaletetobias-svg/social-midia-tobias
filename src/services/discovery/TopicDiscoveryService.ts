@@ -25,12 +25,12 @@ export class TopicDiscoveryService {
       You are a high-level content strategist for ${brand.name}.
       
       Business Description: ${brand.description}
-      Target Audience: ${brand.audienceSegments.map(s => s.name).join(', ')}
-      Editorial Pillars: ${brand.editorialPillars.map(p => p.title).join(', ')}
+      Target Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
+      Editorial Pillars: ${brand.editorialPillars.map((p: any) => p.title).join(', ')}
       Tone of Voice: ${brand.toneOfVoice}
       
       Recent Knowledge Reference:
-      ${brand.knowledgeItems.map(k => `- ${k.title}: ${k.content.substring(0, 300)}`).join('\n')}
+      ${brand.knowledgeItems.map((k: any) => `- ${k.title}: ${k.content.substring(0, 300)}`).join('\n')}
       
       TASK: Generate ${count} unique social media topic suggestions.
       Each topic must be strategically aligned with the brand and non-generic.
@@ -72,6 +72,59 @@ export class TopicDiscoveryService {
         );
 
         return savedCandidates;
+    }
+
+    /**
+     * Evaluates external news (e.g. from RSS) against the Brand DNA.
+     * Acts as an AI Filter to discard irrelevant news and translate good ones into Brand Topics.
+     */
+    static async evaluateNewsAgainstBrand(brandProfileId: string, newsSnippet: string) {
+        const brand = await prisma.brandProfile.findUnique({
+            where: { id: brandProfileId },
+            include: {
+                editorialPillars: true,
+                audienceSegments: true,
+            }
+        });
+
+        if (!brand) throw new Error('Brand profile not found');
+
+        const prompt = `
+            You are the ultimate Gatekeeper & Content Strategist for ${brand.name}.
+            
+            Brand DNA: ${brand.description}
+            Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
+            Editorial Pillars: ${brand.editorialPillars.map((p: any) => p.title).join(', ')}
+
+            EXTERNAL NEWS/EVENT:
+            """
+            ${newsSnippet}
+            """
+
+            TASK:
+            1. Determine if this news is RELEVANT to the audience and pillars (true/false).
+            2. If true, translate this external news into a specific Topic Idea for the brand. How can the brand talk about this?
+            
+            Return JSON:
+            {
+                "isRelevant": boolean,
+                "reasoning": "Why it fits or doesn't",
+                "proposedHeadline": "Catchy title if relevant",
+                "proposedSummary": "Strategic angle on how the brand should cover this",
+                "score": 0.0 to 1.0 (float),
+                "recommendedPlatform": "LinkedIn" or "Instagram",
+                "recommendedFormat": "short post" or "article" or "carousel"
+            }
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'system', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.3 // Lower temp for more analytical filtering
+        });
+
+        return JSON.parse(response.choices[0].message.content || '{"isRelevant": false}');
     }
 
     static async approveTopic(topicId: string) {
