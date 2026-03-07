@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2 } from "lucide-react";
+import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search } from "lucide-react";
 import Link from "next/link";
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -16,6 +16,13 @@ export default function ContentEditor() {
     const [asset, setAsset] = useState<any>(null); // Store generated or existing image
     const [isLoading, setIsLoading] = useState(true);
     const [isGeneratingImg, setIsGeneratingImg] = useState(false);
+
+    // Google Image states
+    const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+    const [googleQuery, setGoogleQuery] = useState("");
+    const [googleResults, setGoogleResults] = useState<any[]>([]);
+    const [isSearchingGoogle, setIsSearchingGoogle] = useState(false);
+    const [isSavingGoogle, setIsSavingGoogle] = useState(false);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -56,6 +63,53 @@ export default function ContentEditor() {
             alert("Falha ao se conectar com o Estúdio Visual.");
         } finally {
             setIsGeneratingImg(false);
+        }
+    };
+
+    const handleSearchGoogle = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!googleQuery.trim()) return;
+        setIsSearchingGoogle(true);
+        try {
+            const res = await fetch(`/api/content/${id}/search-image`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "search", query: googleQuery })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setGoogleResults(data.results || []);
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to search google", error);
+            alert("Falha ao buscar imagens.");
+        } finally {
+            setIsSearchingGoogle(false);
+        }
+    };
+
+    const handleSaveGoogleImage = async (url: string) => {
+        setIsSavingGoogle(true);
+        try {
+            const res = await fetch(`/api/content/${id}/search-image`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "save", imageUrl: url, query: googleQuery })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAsset(data.asset);
+                setIsGoogleModalOpen(false);
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to save google image", error);
+            alert("Falha ao salvar a imagem.");
+        } finally {
+            setIsSavingGoogle(false);
         }
     };
 
@@ -124,22 +178,30 @@ export default function ContentEditor() {
                                 <ImageIcon className="mr-3 h-6 w-6 text-primary-500" />
                                 Estúdio Visual IA
                             </h3>
-                            <button
-                                onClick={handleGenerateImage}
-                                disabled={isGeneratingImg}
-                                className="h-10 px-4 bg-primary-50 text-primary-600 text-xs font-black rounded-lg hover:bg-primary-500 hover:text-white transition-colors flex items-center disabled:opacity-50">
-                                {isGeneratingImg ? (
-                                    <>
-                                        <Wand2 className="mr-2 h-3 w-3 animate-spin" />
-                                        Gerando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Wand2 className="mr-2 h-3 w-3" />
-                                        DALL-E 3
-                                    </>
-                                )}
-                            </button>
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={() => setIsGoogleModalOpen(true)}
+                                    className="h-10 px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg hover:bg-gray-50 transition-colors flex items-center shadow-sm">
+                                    <Search className="mr-2 h-3 w-3" />
+                                    Google Imagens
+                                </button>
+                                <button
+                                    onClick={handleGenerateImage}
+                                    disabled={isGeneratingImg}
+                                    className="h-10 px-4 bg-primary-50 text-primary-600 text-xs font-black rounded-lg hover:bg-primary-500 hover:text-white transition-colors flex items-center disabled:opacity-50">
+                                    {isGeneratingImg ? (
+                                        <>
+                                            <Wand2 className="mr-2 h-3 w-3 animate-spin" />
+                                            Gerando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wand2 className="mr-2 h-3 w-3" />
+                                            DALL-E 3
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="space-y-4 relative z-10">
@@ -253,6 +315,65 @@ export default function ContentEditor() {
                     </div>
                 </div>
             </div>
+            {/* Google Image Search Modal */}
+            {isGoogleModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+                    <div className="bg-white rounded-[40px] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+                        <div className="p-8 border-b border-gray-100 flex items-center justify-between">
+                            <h2 className="text-2xl font-black text-gray-900 flex items-center">
+                                <Search className="mr-3 h-6 w-6 text-primary-500" />
+                                Buscar Foto Real (Google Images)
+                            </h2>
+                            <button onClick={() => setIsGoogleModalOpen(false)} className="text-gray-400 hover:text-gray-900">
+                                Fechar
+                            </button>
+                        </div>
+
+                        <div className="p-8 space-y-6 overflow-y-auto flex-1 bg-gray-50/50">
+                            <form onSubmit={handleSearchGoogle} className="flex gap-4">
+                                <input
+                                    value={googleQuery}
+                                    onChange={(e) => setGoogleQuery(e.target.value)}
+                                    placeholder="Ex: mulher treinando academia hipertrofia"
+                                    className="flex-1 h-14 px-5 bg-white border border-gray-200 rounded-[20px] focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 shadow-sm"
+                                    autoFocus
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isSearchingGoogle}
+                                    className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-2xl shadow-xl hover:bg-black transition-all flex items-center disabled:opacity-50">
+                                    {isSearchingGoogle ? "Buscando..." : "Buscar Imagens"}
+                                </button>
+                            </form>
+
+                            {googleResults.length > 0 && (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
+                                    {googleResults.map((img, i) => (
+                                        <div
+                                            key={i}
+                                            onClick={() => handleSaveGoogleImage(img.url)}
+                                            className="relative aspect-square rounded-2xl overflow-hidden group cursor-pointer border border-gray-200 bg-white"
+                                        >
+                                            <img src={img.url} alt="Result" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <span className="text-white text-xs font-bold uppercase tracking-widest border border-white px-3 py-1 rounded-full">
+                                                    Selecionar
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {!isSearchingGoogle && googleResults.length === 0 && googleQuery && (
+                                <div className="text-center text-gray-500 font-medium py-10">
+                                    Nenhuma imagem encontrada.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
