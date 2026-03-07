@@ -5,7 +5,7 @@ import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw } from "
 
 export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
-    const [rssUrl, setRssUrl] = useState("https://techcrunch.com/feed/");
+    const [rssUrl, setRssUrl] = useState("Hipertrofia e Performance");
     const [topics, setTopics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isApproveLoading, setIsApproveLoading] = useState<Record<string, boolean>>({});
@@ -150,8 +150,8 @@ export default function IdeasLibrary() {
                         <input
                             value={rssUrl}
                             onChange={(e) => setRssUrl(e.target.value)}
-                            placeholder="URL do RSS (ex: g1.globo...)"
-                            className="h-14 px-4 w-52 glass-panel border border-white/60 text-sm font-bold text-gray-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
+                            placeholder="Tema de interesse ou URL RSS..."
+                            className="h-14 px-4 w-64 glass-panel border border-white/60 text-sm font-bold text-gray-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm placeholder:font-medium"
                         />
                         <button
                             onClick={handleSyncRSS}

@@ -20,10 +20,15 @@ export async function POST(req: Request) {
             brandProfileId = firstBrand.id;
         }
 
-        feedUrl = feedUrl || DEFAULT_FEED_URL;
+        let finalFeedUrl = feedUrl || DEFAULT_FEED_URL;
+
+        // Se o usuário digitou uma palavra chave em vez de URL, a gente constrói um RSS do Google News BR
+        if (finalFeedUrl && !finalFeedUrl.startsWith('http')) {
+            finalFeedUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(finalFeedUrl)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+        }
 
         // Trigger the AI Discovery Engine
-        const result = await RssDiscoveryService.ingestNews(brandProfileId, feedUrl);
+        const result = await RssDiscoveryService.ingestNews(brandProfileId, finalFeedUrl);
 
         return NextResponse.json({
             success: true,
