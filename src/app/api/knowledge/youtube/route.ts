@@ -12,6 +12,21 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Insira um link válido do YouTube' }, { status: 400 });
         }
         const videoId = videoIdMatch[1];
+        let videoTitle = title;
+
+        // Tentar buscar o título real do vídeo no YouTube se nenhum título for passado
+        if (!videoTitle || videoTitle === "Transcrição YT Temporária") {
+            try {
+                const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+                const html = await response.text();
+                const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+                if (titleMatch && titleMatch[1]) {
+                    videoTitle = titleMatch[1].replace(' - YouTube', '').trim();
+                }
+            } catch (titleErr) {
+                console.error("Erro ao buscar título do vídeo:", titleErr);
+            }
+        }
 
         const brand = await prisma.brandProfile.findFirst();
         if (!brand) return NextResponse.json({ error: 'DNA não configurado.' }, { status: 400 });
@@ -35,7 +50,7 @@ export async function POST(req: Request) {
         const knowledgeItem = await prisma.knowledgeItem.create({
             data: {
                 brandProfileId: brand.id,
-                title: title || 'Transcrição de Vídeo do YouTube',
+                title: videoTitle || 'Transcrição de Vídeo do YouTube',
                 content: `(Resumo Extraído do YouTube: ${url})\n\n${fullText}`,
                 type: type || 'Vídeo Transcrito',
                 tags: tags ? tags.split(',').map((t: string) => t.trim()) : ['YOUTUBE', 'VÍDEO']

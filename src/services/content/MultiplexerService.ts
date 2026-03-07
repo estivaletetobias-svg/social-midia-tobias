@@ -22,7 +22,7 @@ export class MultiplexerService {
             
             O usuário fez upload do seguinte material base (Transcrição/Palestra/Nota):
             """
-            ${knowledge.content}
+            ${knowledge.content.substring(0, 40000)}${knowledge.content.length > 40000 ? '... [Conteúdo truncado para caber no limite da IA]' : ''}
             """
             
             SUA TAREFA DE MULTIPLICAÇÃO: 
