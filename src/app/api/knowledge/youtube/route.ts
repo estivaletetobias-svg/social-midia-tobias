@@ -43,15 +43,17 @@ export async function POST(req: Request) {
         const xmlRes = await fetch(captionUrl);
         const xmlContent = await xmlRes.text();
 
-        // Extrair textos do XML
-        const textRegex = /<text[^>]*>(.*?)<\/text>/g;
+        // Extrair textos do XML permitindo quebra de linhas (dotAll equivalent)
+        const textRegex = /<text[^>]*>([\s\S]*?)<\/text>/gi;
         let pieces = [];
         let r;
         while ((r = textRegex.exec(xmlContent)) !== null) {
             let piece = r[1];
+            // Remove lingering HTML/XML tags inside the text node
+            piece = piece.replace(/<[^>]*>?/gm, '');
             // Unescape basic XML entities
-            piece = piece.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-            pieces.push(piece);
+            piece = piece.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+            if (piece) pieces.push(piece);
         }
 
         const fullText = pieces.join(' ');
