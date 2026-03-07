@@ -3,9 +3,6 @@ import prisma from '@/lib/prisma';
 // @ts-ignore
 import { YoutubeTranscript } from 'youtube-transcript';
 
-// @ts-ignore
-import { YoutubeTranscript } from 'youtube-transcript';
-
 export async function POST(req: Request) {
     try {
         const { url, title, tags, type } = await req.json();
