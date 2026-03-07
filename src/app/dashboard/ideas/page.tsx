@@ -87,6 +87,25 @@ export default function IdeasLibrary() {
         }
     };
 
+    const handleDailyNews = async () => {
+        setIsSyncing(true);
+        try {
+            const res = await fetch('/api/discovery/daily-trends', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert(`Motor Diário: Analisei as principais notícias dos seus pilares e gerei ${data.data.savedToLibrary} novas pautas quentes para você hoje.`);
+                loadTopics();
+            } else {
+                alert(`Aviso: Algumas fontes podem estar fora do ar. (${data.error})`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Falha na comunicação com o Motor de Notícias.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     const handleSyncRSS = async () => {
         setIsSyncing(true);
         try {
@@ -98,7 +117,6 @@ export default function IdeasLibrary() {
             const data = await res.json();
             if (data.success) {
                 alert(`Sucesso! Li ${data.data.scraped} notícias e gerei ${data.data.savedToLibrary} novas Ideias Customizadas no formato da sua marca.`);
-                // Refresh the list after the AI finishes creating new concepts!
                 loadTopics();
             } else {
                 alert(`Erro: ${data.error}`);
@@ -121,10 +139,10 @@ export default function IdeasLibrary() {
         if (!matchesSearch) return false;
 
         if (activeCategory === "Todos os Tópicos") return true;
-        if (activeCategory === "Tendências") return t.relevanceScore >= 0.8;
-        if (activeCategory === "Ganchos Virais") return t.format === 'short video script' || t.format === 'short post';
-        if (activeCategory === "Atemporal") return t.alignmentScore >= 0.8;
-        if (activeCategory === "Novidades do Produto") return t.platform === 'LinkedIn'; // Mock condition
+        if (activeCategory === "Tendências") return (t.relevanceScore || 0) >= 0.8;
+        if (activeCategory === "Ganchos Virais") return t.format === 'video script' || t.format === 'short post' || t.format === 'short video script';
+        if (activeCategory === "Atemporal") return (t.alignmentScore || 0) >= 0.8;
+        if (activeCategory === "Novidades do Produto") return t.platform === 'LinkedIn';
 
         return true;
     });
@@ -136,40 +154,56 @@ export default function IdeasLibrary() {
                 <div>
                     <div className="flex items-center space-x-3 mb-3 animate-fade-in">
                         <Sparkles className="h-5 w-5 text-primary-500 fill-primary-500/20" />
-                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-[0.2em] shadow-sm">Motor de Descoberta de Notícias</span>
+                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-[0.2em] shadow-sm">Business Intelligence & Trends</span>
                     </div>
-                    <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-gradient animate-slide-up">
-                        Biblioteca de Ideias
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-gray-900 leading-tight">
+                        Ideas <span className="text-primary-500">Library</span>
                     </h1>
                     <p className="mt-5 text-xl text-gray-500/80 max-w-3xl font-medium leading-relaxed">
-                        Sugestões de tópicos conduzidas por Inteligência Artificial, baseadas no DNA da sua marca e nas tendências do mercado.
+                        Curadoria inteligente de pautas baseadas no seu DNA e tendências em tempo real.
                     </p>
                 </div>
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                    <div className="flex items-center space-x-2">
-                        <input
-                            value={rssUrl}
-                            onChange={(e) => setRssUrl(e.target.value)}
-                            placeholder="Tema de interesse ou URL RSS..."
-                            className="h-14 px-4 w-64 glass-panel border border-white/60 text-sm font-bold text-gray-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm placeholder:font-medium"
-                        />
-                        <button
-                            onClick={handleSyncRSS}
-                            disabled={isSyncing}
-                            className={`h-14 px-6 glass-panel text-gray-700 text-sm font-black rounded-[20px] hover:bg-white/80 transition-all flex items-center hover:shadow-xl hover:shadow-black/5 disabled:opacity-50 hover:-translate-y-1 duration-300`}
-                        >
-                            <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
-                            {isSyncing ? "Lendo Notícias..." : "Forçar Leitura RSS"}
-                        </button>
-                    </div>
+                <div className="flex items-center space-x-4">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300"
+                        className="h-16 px-10 bg-gray-900 text-white text-sm font-black rounded-3xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300"
                     >
                         <Plus className="mr-3 h-5 w-5" />
-                        Nova Ideia Manual
+                        Ideia Manual
+                    </button>
+                    <button
+                        onClick={handleDailyNews}
+                        disabled={isSyncing}
+                        className="h-16 px-10 bg-primary-500 text-white text-sm font-black rounded-3xl shadow-2xl hover:bg-primary-600 transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/30 duration-300 disabled:opacity-50"
+                    >
+                        {isSyncing ? (
+                            <RefreshCcw className="mr-3 h-5 w-5 animate-spin" />
+                        ) : (
+                            <Zap className="mr-3 h-5 w-5 fill-white/20" />
+                        )}
+                        Pautas do Dia
                     </button>
                 </div>
+            </div>
+
+            {/* Ingestion Bar (Advanced) */}
+            <div className="glass-panel p-2 rounded-[32px] border-white/60 shadow-lg shadow-black/5 flex flex-col md:flex-row items-center gap-2">
+                <div className="flex-1 flex items-center px-6 space-x-4 w-full">
+                    <Search className="h-5 w-5 text-gray-400" />
+                    <input
+                        value={rssUrl}
+                        onChange={(e) => setRssUrl(e.target.value)}
+                        placeholder="Pesquisar por Tópico ou URL RSS customizada..."
+                        className="bg-transparent border-none focus:outline-none w-full h-12 text-sm font-bold text-gray-700 placeholder:text-gray-400"
+                    />
+                </div>
+                <button
+                    onClick={handleSyncRSS}
+                    disabled={isSyncing}
+                    className="h-14 px-8 bg-white border border-gray-100 text-gray-700 text-xs font-black rounded-[24px] hover:bg-gray-50 transition-all flex items-center uppercase tracking-widest disabled:opacity-50"
+                >
+                    Explorar Tópico
+                </button>
             </div>
 
             {/* Tabs & Search */}
