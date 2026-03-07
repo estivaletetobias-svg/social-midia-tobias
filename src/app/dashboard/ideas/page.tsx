@@ -1,6 +1,33 @@
-import { Search, Plus, Sparkles, Zap, ArrowUpRight, CheckCircle2, XCircle } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw } from "lucide-react";
 
 export default function IdeasLibrary() {
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    const handleSyncRSS = async () => {
+        setIsSyncing(true);
+        try {
+            const res = await fetch('/api/discovery/sync-rss', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ feedUrl: 'https://techcrunch.com/feed/' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`Success! Found ${data.data.scraped} news and generated ${data.data.savedToLibrary} new Custom Topic Ideas.`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Failed to trigger background RSS sync.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     const categories = ["All Topics", "Trends", "Viral Hooks", "Evergreen", "Product Updates"];
     const topics = [
         { title: "The Death of Generic AI Copy", summary: "Why brand voice is the only moat left in content marketing.", score: 0.94, pillar: "AI Automation", platform: "LinkedIn" },
@@ -23,6 +50,14 @@ export default function IdeasLibrary() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-3">
+                    <button
+                        onClick={handleSyncRSS}
+                        disabled={isSyncing}
+                        className={`h-14 px-6 bg-white border border-gray-200 text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center shadow-sm disabled:opacity-50`}
+                    >
+                        <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
+                        {isSyncing ? "Scraping & Thinking..." : "Force RSS Sync"}
+                    </button>
                     <button className="h-14 px-8 bg-black text-white text-sm font-black rounded-2xl shadow-2xl hover:bg-gray-800 transition-all flex items-center transform hover:scale-[1.02] active:scale-100">
                         <Plus className="mr-3 h-5 w-5" />
                         New Manual Idea

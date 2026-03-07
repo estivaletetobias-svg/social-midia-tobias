@@ -56,12 +56,42 @@ export const startWorkers = () => {
     );
 
     contentWorker.on('completed', (job) => {
-        console.log(`Job ${job.id} content-generation completed!`);
+        console.log(`[Worker] Job ${job.id} content-generation completed!`);
     });
 
     contentWorker.on('failed', (job, err) => {
-        console.error(`Job ${job?.id} failed with ${err.message}`);
+        console.error(`[Worker] Job ${job?.id} failed with ${err.message}`);
     });
 
-    console.log('Workers started successfully');
+    // 2. Automated RSS Topic Discovery Worker
+    const discoveryWorker = new Worker(
+        'topic-discovery',
+        async (job: Job) => {
+            if (job.name === 'daily-rss-sync') {
+                console.log(`[Worker] Starting Daily RSS Sync...`);
+                import('@/services/discovery/RssDiscoveryService').then(async ({ RssDiscoveryService }) => {
+                    const firstBrand = await prisma.brandProfile.findFirst();
+                    if (firstBrand) {
+                        try {
+                            const result = await RssDiscoveryService.ingestNews(firstBrand.id, job.data?.feedUrl || 'https://techcrunch.com/feed/');
+                            console.log(`[Worker] RSS Sync Success: ${result.savedToLibrary} topics saved from ${result.feedTitle}`);
+                        } catch (error: any) {
+                            console.error(`[Worker] RSS Sync Failed:`, error.message);
+                        }
+                    } else {
+                        console.log(`[Worker] No brand profile found for RSS sync.`);
+                    }
+                });
+            }
+        },
+        { connection }
+    );
+
+    // Schedule the 5 AM daily CRON job
+    queues.discovery.add('daily-rss-sync',
+        { feedUrl: 'https://techcrunch.com/feed/' },
+        { repeat: { pattern: '0 5 * * *', tz: 'America/Sao_Paulo' } }
+    ).then(() => console.log('[Cron] Scheduled daily RSS sync at 5:00 AM (BRT)'));
+
+    console.log('[Worker] All Queues and Workers started successfully.');
 };
