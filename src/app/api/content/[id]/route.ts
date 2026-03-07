@@ -32,8 +32,13 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     try {
         const { id } = await params;
 
-        // Ensure we delete dependencies like content versions if needed
-        // Since we have an MVP, let's delete the content piece (cascade should handle or we do it manually, let's check prisma schema)
+        // Limpeza em cascata manual das tabelas dependentes
+        await prisma.contentVersion.deleteMany({ where: { contentPieceId: id } });
+        await prisma.asset.deleteMany({ where: { contentPieceId: id } });
+        await prisma.approvalLog.deleteMany({ where: { contentPieceId: id } });
+        await prisma.publishingJob.deleteMany({ where: { contentPieceId: id } });
+
+        // Apagar a peça original
         await prisma.contentPiece.delete({
             where: { id }
         });
