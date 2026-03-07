@@ -21,14 +21,14 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navigation = [
-    { name: "Overview", href: "/dashboard", icon: Home },
-    { name: "Editorial Calendar", href: "/dashboard/calendar", icon: Calendar },
-    { name: "Ideas Library", href: "/dashboard/ideas", icon: Zap },
-    { name: "Content Pipeline", href: "/dashboard/content", icon: PenTool },
-    { name: "Visual Assets", href: "/dashboard/assets", icon: ImageIcon },
-    { name: "Knowledge Base", href: "/dashboard/knowledge", icon: BookOpen },
-    { name: "Automations", href: "/dashboard/automations", icon: Zap },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
+    { name: "Visão Geral", href: "/dashboard", icon: Home },
+    { name: "Calendário Editorial", href: "/dashboard/calendar", icon: Calendar },
+    { name: "Biblioteca de Ideias", href: "/dashboard/ideas", icon: Zap },
+    { name: "Esteira de Produção", href: "/dashboard/content", icon: PenTool },
+    { name: "Ativos Visuais", href: "/dashboard/assets", icon: ImageIcon },
+    { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
+    { name: "Automações", href: "/dashboard/automations", icon: Zap },
+    { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
 ];
 
 export function Sidebar() {
@@ -39,7 +39,7 @@ export function Sidebar() {
             <div className="flex flex-col flex-1 glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 overflow-hidden">
                 <div className="flex items-center h-20 flex-shrink-0 px-8 border-b border-white/40">
                     <span className="text-xl font-black text-gray-900 tracking-tighter">
-                        AI Content<span className="text-primary-500">.</span>Engine
+                        Motor<span className="text-primary-500">.</span>IA
                     </span>
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
@@ -85,7 +85,7 @@ export function Sidebar() {
                                     Tobias Estivalete
                                 </p>
                                 <p className="text-xs font-bold text-primary-600/70 tracking-wide uppercase">
-                                    Administrator
+                                    Administrador
                                 </p>
                             </div>
                         </div>

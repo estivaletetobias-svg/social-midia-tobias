@@ -16,23 +16,23 @@ export default function IdeasLibrary() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(`Success! Found ${data.data.scraped} news and generated ${data.data.savedToLibrary} new Custom Topic Ideas.`);
+                alert(`Sucesso! Li ${data.data.scraped} notícias e gerei ${data.data.savedToLibrary} novas Ideias Customizadas no formato da sua marca.`);
             } else {
-                alert(`Error: ${data.error}`);
+                alert(`Erro: ${data.error}`);
             }
         } catch (error) {
             console.error(error);
-            alert('Failed to trigger background RSS sync.');
+            alert('Falha ao acionar a sincronização em segundo plano.');
         } finally {
             setIsSyncing(false);
         }
     };
 
-    const categories = ["All Topics", "Trends", "Viral Hooks", "Evergreen", "Product Updates"];
+    const categories = ["Todos os Tópicos", "Tendências", "Ganchos Virais", "Atemporal", "Novidades do Produto"];
     const topics = [
-        { title: "The Death of Generic AI Copy", summary: "Why brand voice is the only moat left in content marketing.", score: 0.94, pillar: "AI Automation", platform: "LinkedIn" },
-        { title: "3 Prompt Hacks for DALL-E 3", summary: "Strategic ways to get consistent brand imagery.", score: 0.88, pillar: "Visual Strategy", platform: "Instagram" },
-        { title: "Modular Architecture for Teams", summary: "How to scale content production systems in 2026.", score: 0.91, pillar: "Productivity", platform: "LinkedIn" },
+        { title: "A Morte da Copy Genérica de IA", summary: "Por que a voz da marca é o único diferencial que sobrou no marketing de conteúdo.", score: 0.94, pillar: "Automação com IA", platform: "LinkedIn" },
+        { title: "3 Hacks de Prompt para DALL-E 3", summary: "Formas estratégicas de obter imagens de marca consistentes.", score: 0.88, pillar: "Estratégia Visual", platform: "Instagram" },
+        { title: "Arquitetura Modular para Equipes", summary: "Como escalar sistemas de produção de conteúdo em 2026.", score: 0.91, pillar: "Produtividade", platform: "LinkedIn" },
     ];
 
     return (
@@ -42,13 +42,13 @@ export default function IdeasLibrary() {
                 <div>
                     <div className="flex items-center space-x-3 mb-3 animate-fade-in">
                         <Sparkles className="h-5 w-5 text-primary-500 fill-primary-500/20" />
-                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-[0.2em] shadow-sm">Topic Discovery Engine</span>
+                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-[0.2em] shadow-sm">Motor de Descoberta de Notícias</span>
                     </div>
                     <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-gradient animate-slide-up">
-                        Ideas Library
+                        Biblioteca de Ideias
                     </h1>
                     <p className="mt-5 text-xl text-gray-500/80 max-w-3xl font-medium leading-relaxed">
-                        AI-driven topic suggestions based on your brand DNA and recent industry trends.
+                        Sugestões de tópicos conduzidas por Inteligência Artificial, baseadas no DNA da sua marca e nas tendências do mercado.
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -58,11 +58,11 @@ export default function IdeasLibrary() {
                         className={`h-14 px-6 glass-panel text-gray-700 text-sm font-black rounded-[20px] hover:bg-white/80 transition-all flex items-center hover:shadow-xl hover:shadow-black/5 disabled:opacity-50 hover:-translate-y-1 duration-300`}
                     >
                         <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
-                        {isSyncing ? "Scraping..." : "Force RSS Sync"}
+                        {isSyncing ? "Lendo Notícias..." : "Forçar Leitura RSS"}
                     </button>
                     <button className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
                         <Plus className="mr-3 h-5 w-5" />
-                        New Manual Idea
+                        Nova Ideia Manual
                     </button>
                 </div>
             </div>
@@ -83,7 +83,7 @@ export default function IdeasLibrary() {
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                     <input
                         className="w-full h-16 pl-14 pr-6 glass-panel rounded-[24px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all font-bold text-gray-700 placeholder:text-gray-400/70"
-                        placeholder="Search topics, keywords, tags..."
+                        placeholder="Buscar tópicos, palavras-chave..."
                     />
                 </div>
             </div>
@@ -98,7 +98,7 @@ export default function IdeasLibrary() {
                         <div className="relative z-10 flex items-center justify-between mb-8">
                             <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-primary-600 px-4 py-2 rounded-2xl border border-primary-100/50 shadow-sm shadow-primary-500/5">
                                 <Zap className="h-4 w-4 fill-primary-600/20" />
-                                <span className="text-xs font-black tracking-widest uppercase truncate">{item.score * 100}% Relevance</span>
+                                <span className="text-xs font-black tracking-widest uppercase truncate">{item.score * 100}% Relevância</span>
                             </div>
                             <span className="text-[10px] font-black tracking-[0.2em] text-gray-400/80 bg-black/5 px-4 py-2 rounded-full uppercase border border-white/50">
                                 {item.platform}
@@ -111,7 +111,7 @@ export default function IdeasLibrary() {
                         <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/5 space-x-3">
                             <button className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn">
                                 <CheckCircle2 className="mr-2 h-5 w-5 group-hover/btn:scale-110 transition-transform" />
-                                Approve
+                                Aprovar Ideia
                             </button>
                             <button className="h-16 w-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-2xl transition-all duration-300 flex items-center justify-center">
                                 <XCircle className="h-6 w-6" />
@@ -126,8 +126,8 @@ export default function IdeasLibrary() {
                         <Plus className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-xl font-black text-gray-900">Custom Idea</p>
-                        <p className="text-sm font-bold text-gray-400/80 mt-2 tracking-wide">Add your own creative spark</p>
+                        <p className="text-xl font-black text-gray-900">Ideia Customizada</p>
+                        <p className="text-sm font-bold text-gray-400/80 mt-2 tracking-wide">Adicione sua própria faísca criativa</p>
                     </div>
                 </button>
             </div>

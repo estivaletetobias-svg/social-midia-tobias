@@ -6,8 +6,8 @@ import { Sidebar } from "@/components/Sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "AI Content Engine | Tobias Estivalete",
-    description: "Automated editorial operating system for social media.",
+    title: "Motor de Conteúdo AI | Tobias Estivalete",
+    description: "Sistema operacional editorial automatizado para redes sociais.",
 };
 
 export default function RootLayout({
