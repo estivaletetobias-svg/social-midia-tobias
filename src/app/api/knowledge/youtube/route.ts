@@ -33,14 +33,23 @@ export async function POST(req: Request) {
 
         let transcript;
         try {
-            transcript = await fetchTranscript(videoId);
+            // Tenta primeiro em português, depois tenta o padrão
+            try {
+                transcript = await fetchTranscript(videoId, { lang: 'pt' });
+            } catch (ptErr) {
+                console.log("PT Transcript fail, trying default...");
+                transcript = await fetchTranscript(videoId);
+            }
         } catch (scrapeErr: any) {
             console.error("Youtube library error:", scrapeErr);
-            return NextResponse.json({ error: `O YouTube bloqueou a leitura ou não há legendas disponíveis. (${scrapeErr.message})` }, { status: 400 });
+            return NextResponse.json({
+                error: `O YouTube bloqueou a leitura temporariamente ou este vídeo não tem legendas habilitadas.`,
+                details: scrapeErr.message
+            }, { status: 400 });
         }
 
         if (!transcript || transcript.length === 0) {
-            return NextResponse.json({ error: 'Nenhuma palavra encontrada nas legendas deste vídeo.' }, { status: 400 });
+            return NextResponse.json({ error: 'Nenhuma legenda encontrada. Verifique se o vídeo possui legendas (CC) ativadas no YouTube.' }, { status: 400 });
         }
 
         // Unir todos os pedaços de texto da legenda em uma string
