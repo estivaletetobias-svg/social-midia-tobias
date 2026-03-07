@@ -1,10 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw } from "lucide-react";
 
 export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
+    const [topics, setTopics] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const loadTopics = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/discovery/topics');
+            const data = await res.json();
+            if (data.success) {
+                setTopics(data.data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadTopics();
+    }, []);
 
     const handleSyncRSS = async () => {
         setIsSyncing(true);
@@ -17,6 +38,8 @@ export default function IdeasLibrary() {
             const data = await res.json();
             if (data.success) {
                 alert(`Sucesso! Li ${data.data.scraped} notícias e gerei ${data.data.savedToLibrary} novas Ideias Customizadas no formato da sua marca.`);
+                // Refresh the list after the AI finishes creating new concepts!
+                loadTopics();
             } else {
                 alert(`Erro: ${data.error}`);
             }
@@ -29,11 +52,6 @@ export default function IdeasLibrary() {
     };
 
     const categories = ["Todos os Tópicos", "Tendências", "Ganchos Virais", "Atemporal", "Novidades do Produto"];
-    const topics = [
-        { title: "A Morte da Copy Genérica de IA", summary: "Por que a voz da marca é o único diferencial que sobrou no marketing de conteúdo.", score: 0.94, pillar: "Automação com IA", platform: "LinkedIn" },
-        { title: "3 Hacks de Prompt para DALL-E 3", summary: "Formas estratégicas de obter imagens de marca consistentes.", score: 0.88, pillar: "Estratégia Visual", platform: "Instagram" },
-        { title: "Arquitetura Modular para Equipes", summary: "Como escalar sistemas de produção de conteúdo em 2026.", score: 0.91, pillar: "Produtividade", platform: "LinkedIn" },
-    ];
 
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
@@ -90,15 +108,28 @@ export default function IdeasLibrary() {
 
             {/* Topics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-                {topics.map((item, i) => (
-                    <div key={i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">
+
+                {isLoading && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 animate-pulse text-gray-500 font-bold">
+                        Buscando o cérebro da Inteligência Artificial...
+                    </div>
+                )}
+
+                {!isLoading && topics.length === 0 && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 text-gray-500 font-bold glass-panel rounded-[40px]">
+                        O cofre está vazio. Clique em "Forçar Leitura RSS" ou adicione uma Ideia Manual.
+                    </div>
+                )}
+
+                {!isLoading && topics.map((item, i) => (
+                    <div key={item.id || i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">
                         {/* Glow effect on hover */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                         <div className="relative z-10 flex items-center justify-between mb-8">
                             <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-primary-600 px-4 py-2 rounded-2xl border border-primary-100/50 shadow-sm shadow-primary-500/5">
                                 <Zap className="h-4 w-4 fill-primary-600/20" />
-                                <span className="text-xs font-black tracking-widest uppercase truncate">{item.score * 100}% Relevância</span>
+                                <span className="text-xs font-black tracking-widest uppercase truncate">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Relevância</span>
                             </div>
                             <span className="text-[10px] font-black tracking-[0.2em] text-gray-400/80 bg-black/5 px-4 py-2 rounded-full uppercase border border-white/50">
                                 {item.platform}
