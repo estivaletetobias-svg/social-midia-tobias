@@ -37,8 +37,49 @@ export default function EditorialCalendar() {
         }
     };
 
+    const handleDragStart = (e: React.DragEvent, postId: string) => {
+        e.dataTransfer.setData('postId', postId);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Necessary to allow dropping
+    };
+
+    const handleDrop = async (e: React.DragEvent, targetDay: number, month: number, year: number) => {
+        e.preventDefault();
+        const postId = e.dataTransfer.getData('postId');
+        if (!postId) return;
+
+        // Optimistic UI update
+        const currentPost = posts.find(p => p.id === postId);
+        if (!currentPost) return;
+
+        // Update local state temporarily
+        setPosts(posts.map(p => p.id === postId ? { ...p, day: targetDay, month: month, year: year } : p));
+
+        // Create new target date 
+        // Simple logic for the current display year/month
+        const newDate = new Date(year, month, targetDay, 12, 0, 0).toISOString();
+
+        try {
+            const res = await fetch(`/api/calendar/posts/${postId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newDate })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert(`Erro ao regendar: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Move item error:", error);
+            alert("Erro fatal ao mover arquivo");
+        }
+    };
+
     const days = Array.from({ length: 35 }, (_, i) => i - 3); // Previous month trailing days
     const today = new Date();
+    const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -88,42 +129,58 @@ export default function EditorialCalendar() {
 
                 {/* Grid Days */}
                 <div className="grid grid-cols-7 gap-px bg-gray-100">
-                    {days.map((day, i) => (
-                        <div key={i} className={`min-h-[160px] bg-white p-4 transition-all hover:bg-gray-200/20 group ${day < 1 || day > 31 ? 'bg-gray-50/50' : ''}`}>
-                            <div className="flex items-center justify-between mb-2">
-                                <span className={`text-sm font-bold ${day === 6 ? 'text-primary-600 bg-primary-50 ring-4 ring-primary-50 rounded-full h-7 w-7 flex items-center justify-center' : 'text-gray-400'}`}>
-                                    {day < 1 ? 31 + day : (day > 31 ? day - 31 : day)}
-                                </span>
-                                {day === today.getDate() && <div className="h-1.5 w-1.5 rounded-full bg-primary-600 shadow-sm" />}
-                            </div>
+                    {days.map((day, i) => {
+                        const cellDay = day < 1 ? 31 + day : (day > 31 ? day - 31 : day);
+                        const isCurrentMonth = day >= 1 && day <= 31;
 
-                            <div className="space-y-2 mt-2">
-                                {/* Actual Database Posts */}
-                                {posts.filter(p => p.day === (day < 1 ? 31 + day : (day > 31 ? day - 31 : day)) && p.month === currentMonth).map(post => (
-                                    <Link href={`/dashboard/content/${post.id}`} key={post.id}>
-                                        <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all cursor-pointer ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
-                                            post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
-                                                'border-gray-500 bg-gray-50 hover:bg-gray-100'
-                                            }`}>
-                                            <div className="flex justify-between items-start">
-                                                <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
-                                                        post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
-                                                            'text-gray-600'
+                        return (
+                            <div
+                                key={i}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => isCurrentMonth && handleDrop(e, cellDay, currentMonth, currentYear)}
+                                className={`min-h-[160px] bg-white p-4 transition-all hover:bg-gray-200/20 group ${!isCurrentMonth ? 'bg-gray-50/50' : ''}`}
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className={`text-sm font-bold ${day === today.getDate() && isCurrentMonth ? 'text-primary-600 bg-primary-50 ring-4 ring-primary-50 rounded-full h-7 w-7 flex items-center justify-center' : 'text-gray-400'}`}>
+                                        {cellDay}
+                                    </span>
+                                    {day === today.getDate() && isCurrentMonth && <div className="h-1.5 w-1.5 rounded-full bg-primary-600 shadow-sm" />}
+                                </div>
+
+                                <div className="space-y-2 mt-2">
+                                    {/* Actual Database Posts */}
+                                    {posts.filter(p => p.day === cellDay && p.month === currentMonth && isCurrentMonth).map(post => (
+                                        <div
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, post.id)}
+                                            key={post.id}
+                                            className="transform transition-transform hover:scale-[1.02] active:scale-95 z-10 relative cursor-grab active:cursor-grabbing"
+                                        >
+                                            <Link href={`/dashboard/content/${post.id}`}>
+                                                <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
+                                                    post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
+                                                        'border-gray-500 bg-gray-50 hover:bg-gray-100'
                                                     }`}>
-                                                    {post.platform}
-                                                </p>
-                                                <button onClick={(e) => handleDeletePost(e, post.id)} className="text-gray-400 hover:text-red-500 transition-colors">
-                                                    <Trash2 className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                            <p className="mt-1 text-xs font-bold text-gray-900 line-clamp-2" title={post.title}>{post.title}</p>
+                                                    <div className="flex justify-between items-start">
+                                                        <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
+                                                            post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
+                                                                'text-gray-600'
+                                                            }`}>
+                                                            {post.platform}
+                                                        </p>
+                                                        <button onClick={(e) => handleDeletePost(e, post.id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                    <p className="mt-1 text-xs font-bold text-gray-900 line-clamp-2" title={post.title}>{post.title}</p>
+                                                </div>
+                                            </Link>
                                         </div>
-                                    </Link>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
