@@ -7,6 +7,12 @@ export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
     const [topics, setTopics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isApproveLoading, setIsApproveLoading] = useState<Record<string, boolean>>({});
+
+    // Modal definitions
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [manualIdea, setManualIdea] = useState("");
+    const [isGeneratingManual, setIsGeneratingManual] = useState(false);
 
     const loadTopics = async () => {
         setIsLoading(true);
@@ -26,6 +32,55 @@ export default function IdeasLibrary() {
     useEffect(() => {
         loadTopics();
     }, []);
+
+    const handleApprove = async (topicId: string) => {
+        setIsApproveLoading(prev => ({ ...prev, [topicId]: true }));
+        try {
+            const res = await fetch(`/api/discovery/topics/${topicId}/approve`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                // remove from UI instantly
+                setTopics(topics.filter(t => t.id !== topicId));
+                alert(`Ideia "${data.piece.title}" enviada para Produção! Vá para "Esteira de Produção" para gerá-la.`);
+            } else {
+                alert(`Erro ao aprovar: ${data.error}`);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Falha na comunicação.');
+        } finally {
+            setIsApproveLoading(prev => ({ ...prev, [topicId]: false }));
+        }
+    };
+
+    const handleReject = (topicId: string) => {
+        setTopics(topics.filter(t => t.id !== topicId));
+    };
+
+    const handleManualIdeaSubmit = async () => {
+        if (!manualIdea.trim()) return;
+        setIsGeneratingManual(true);
+        try {
+            const res = await fetch('/api/discovery/manual-idea', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: manualIdea })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setIsModalOpen(false);
+                setManualIdea("");
+                loadTopics(); // Atualiza a tela com o card da nova ideia formatada pela IA
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Falha ao acionar Inteligência Artificial para refinar o pedido.');
+        } finally {
+            setIsGeneratingManual(false);
+        }
+    };
 
     const handleSyncRSS = async () => {
         setIsSyncing(true);
@@ -78,7 +133,10 @@ export default function IdeasLibrary() {
                         <RefreshCcw className={`mr-3 h-5 w-5 ${isSyncing ? "animate-spin text-primary-500" : ""}`} />
                         {isSyncing ? "Lendo Notícias..." : "Forçar Leitura RSS"}
                     </button>
-                    <button className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300"
+                    >
                         <Plus className="mr-3 h-5 w-5" />
                         Nova Ideia Manual
                     </button>
@@ -140,11 +198,18 @@ export default function IdeasLibrary() {
                         <p className="relative z-10 mt-5 text-gray-500/80 font-medium leading-relaxed flex-grow text-lg">{item.summary}</p>
 
                         <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/5 space-x-3">
-                            <button className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn">
-                                <CheckCircle2 className="mr-2 h-5 w-5 group-hover/btn:scale-110 transition-transform" />
-                                Aprovar Ideia
+                            <button
+                                onClick={() => handleApprove(item.id)}
+                                disabled={isApproveLoading[item.id]}
+                                className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50"
+                            >
+                                <CheckCircle2 className={`mr-2 h-5 w-5 ${isApproveLoading[item.id] ? "animate-pulse" : "group-hover/btn:scale-110 transition-transform"}`} />
+                                {isApproveLoading[item.id] ? "Movendo..." : "Aprovar Ideia"}
                             </button>
-                            <button className="h-16 w-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-2xl transition-all duration-300 flex items-center justify-center">
+                            <button
+                                onClick={() => handleReject(item.id)}
+                                className="h-16 w-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-2xl transition-all duration-300 flex items-center justify-center"
+                            >
                                 <XCircle className="h-6 w-6" />
                             </button>
                         </div>
@@ -152,7 +217,9 @@ export default function IdeasLibrary() {
                 ))}
 
                 {/* Create Card */}
-                <button className="group relative p-8 rounded-[40px] border-4 border-dashed border-primary-500/10 hover:border-primary-400/30 hover:bg-white/40 transition-all duration-500 flex flex-col items-center justify-center text-center space-y-5 h-full min-h-[400px]">
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="group relative p-8 rounded-[40px] border-4 border-dashed border-primary-500/10 hover:border-primary-400/30 hover:bg-white/40 transition-all duration-500 flex flex-col items-center justify-center text-center space-y-5 h-full min-h-[400px]">
                     <div className="h-20 w-20 bg-white shadow-xl shadow-black/5 rounded-full flex items-center justify-center text-gray-300 group-hover:bg-primary-500 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                         <Plus className="h-8 w-8" />
                     </div>
@@ -162,6 +229,51 @@ export default function IdeasLibrary() {
                     </div>
                 </button>
             </div>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden transform animate-in fade-in slide-in-from-bottom-10">
+                        <div className="p-8 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900">Nova Ideia</h3>
+                                <p className="text-sm text-gray-500 font-medium mt-1">Acione o filtro da Inteligência Artificial sobre o seu prompt</p>
+                            </div>
+                            <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
+                                <XCircle className="w-8 h-8" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <textarea
+                                value={manualIdea}
+                                onChange={(e) => setManualIdea(e.target.value)}
+                                placeholder="Coloque aqui um link de youtube, de post de concorrente, ou apenas escreva: 'Quero falar sobre os 3 piores erros ao correr em jejum'."
+                                className="w-full h-40 p-5 rounded-3xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-gray-900 resize-none font-medium leading-relaxed"
+                            ></textarea>
+
+                            <div className="flex justify-end pt-4">
+                                <button
+                                    onClick={handleManualIdeaSubmit}
+                                    disabled={!manualIdea.trim() || isGeneratingManual}
+                                    className="h-14 px-8 bg-primary-600 text-white text-sm font-black rounded-2xl hover:bg-primary-700 transition-all flex items-center shadow-lg shadow-primary-500/25 disabled:opacity-50"
+                                >
+                                    {isGeneratingManual ? (
+                                        <>
+                                            <RefreshCcw className="mr-3 h-5 w-5 animate-spin" />
+                                            Analisando DNA...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="mr-3 h-5 w-5" />
+                                            Gerar Cartão de Ideia
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
