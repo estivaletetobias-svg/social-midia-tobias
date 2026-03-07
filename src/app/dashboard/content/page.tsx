@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Search, PenTool, LayoutTemplate, MessageSquare, FastForward, Play, Activity } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ContentPipeline() {
+    const router = useRouter();
     const [pieces, setPieces] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("All");
@@ -146,7 +148,7 @@ export default function ContentPipeline() {
                                         <span className="uppercase tracking-wider">{statusLabels[piece.status] || piece.status}</span>
                                     </div>
                                     <button
-                                        onClick={() => piece.status === 'idea' ? handleGenerate(piece.id) : alert('Editor visual em desenvolvimento!')}
+                                        onClick={() => piece.status === 'idea' ? handleGenerate(piece.id) : router.push(`/dashboard/content/${piece.id}`)}
                                         disabled={isGenerating[piece.id]}
                                         className="h-12 px-6 bg-white border border-white/60 shadow-sm shadow-black/5 text-primary-600 text-sm font-black rounded-xl hover:bg-primary-50 hover:border-primary-100 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50">
 
