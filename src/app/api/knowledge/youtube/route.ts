@@ -49,3 +49,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: `Erro ao baixar legenda: ${e.message || 'Desconhecido'}` }, { status: 500 });
     }
 }
+// trigger rebuild
