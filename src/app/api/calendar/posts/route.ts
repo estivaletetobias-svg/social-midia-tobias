@@ -16,7 +16,8 @@ export async function GET() {
                 brandProfileId: brand.id,
             },
             include: {
-                publishingJob: true
+                publishingJob: true,
+                assets: true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -36,6 +37,7 @@ export async function GET() {
                 platform: piece.platform,
                 format: piece.format,
                 status: piece.status,
+                image: piece.assets?.[0]?.url || null,
                 day: date.getDate(),
                 month: date.getMonth(),
                 year: date.getFullYear()

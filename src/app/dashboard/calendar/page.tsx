@@ -172,6 +172,17 @@ export default function EditorialCalendar() {
                                                             <Trash2 className="w-3 h-3" />
                                                         </button>
                                                     </div>
+
+                                                    {post.image && (
+                                                        <div className="w-full h-16 mt-2 mb-2 rounded-lg bg-gray-200 overflow-hidden relative border border-black/5">
+                                                            <img
+                                                                src={post.image}
+                                                                alt="Post thumbnail"
+                                                                className="absolute inset-0 w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+
                                                     <p className="mt-1 text-xs font-bold text-gray-900 line-clamp-2" title={post.title}>{post.title}</p>
                                                 </div>
                                             </Link>
