@@ -145,10 +145,12 @@ export class ContentGenerationService {
       
       Constraints:
       - ALWAYS write in Brazilian Portuguese (PT-BR). This is mandatory.
+      - ZERO FLUFF: Do not write generic introductory sentences like "O treinamento X é muito importante" or "Muitas pessoas acham Y". Start immediately with the core technical hook or counter-intuitive insight.
+      - BE PROFOUND & TECHNICAL: Act as a high-level specialist writing for a smart audience. Use advanced terminology correctly. Explain the physiological, mechanical, or business reasons behind the concept (the deep "WHY" and "HOW").
       - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
       - DO NOT use generic hypothetical stories or fictional characters (e.g., "Maria de 68 anos sentiu...", "João melhorou seu..."). Use only factual concepts, objective arguments, and professional insights.
-      - Sound human, opinionated, analytical, and authoritative. Provide deep insights, not shallow summaries.
-      - Use short sentences. Use active voice.
+      - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
+      - Use active voice and assertive tone.
       - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
 
       Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
