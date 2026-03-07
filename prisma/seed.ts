@@ -18,31 +18,31 @@ async function main() {
         create: {
             id: 'tobias-brand',
             workspaceId: workspace.id,
-            name: 'Tobias Estivalete - AI Strategist',
-            description: 'Expert in AI-driven content automation and digital strategy.',
-            toneOfVoice: 'Professional, Authoritative, Innovative, yet Accessible.',
+            name: 'Tobias Estivalete | Performance & Saúde',
+            description: 'Especialista em Performance, Saúde, Fitness e Musculação. www.tobiasestivalete.com.br',
+            toneOfVoice: 'Autoritário, embasado cientificamente, motivador, direto e voltado para excelência.',
             writingRules: [
-                'Avoid generic buzzwords like "game-changer"',
-                'Use specific data points or real-world examples',
-                'Maintain a professional expert voice',
-                'End with a clear, strategic CTA'
+                'Evite jargões marombeiros exagerados (ex: "frango", "tá pago").',
+                'Use dados ou princípios fisiológicos para justificar as orientações.',
+                'Mantenha uma postura de mentor de alta performance.',
+                'O objetivo final é entregar valor prático (o que comer, como treinar, como descansar).'
             ],
             editorialPillars: {
                 create: [
-                    { title: 'AI Automation', description: 'Practical ways to use AI in business workflows.' },
-                    { title: 'Content Strategy', description: 'Deep dives into building sustainable digital brands.' },
-                    { title: 'Productivity', description: 'Systems for high-performance creative output.' }
+                    { title: 'Nutrição e Saúde', description: 'Orientações sobre alimentação para hipertrofia, emagrecimento e longevidade.' },
+                    { title: 'Treinamento de Força', description: 'Técnicas, biomecânica e planejamento de musculação.' },
+                    { title: 'Alta Performance', description: 'Mentalidade, biohacking, sono e rotina de alto rendimento.' }
                 ]
             },
             voiceGuides: {
                 create: [
                     {
                         platform: 'Instagram',
-                        rules: ['Visual-first storytelling', 'Concise but punchy captions', 'Uses relevant hooks']
+                        rules: ['Estética prime', 'Textos quebrados em tópicos curtos', 'Foco no visual e no gancho inicial rápido (Hook)']
                     },
                     {
                         platform: 'LinkedIn',
-                        rules: ['Thought leadership focus', 'Long-form insights', 'Professional networking tone']
+                        rules: ['Foco na disciplina, rotina e como a saúde reflete no sucesso corporativo', 'Reflexões longas e bem estruturadas']
                     }
                 ]
             }
