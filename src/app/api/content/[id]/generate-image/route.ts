@@ -28,16 +28,24 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
             return NextResponse.json({ error: 'Nenhum prompt visual gerado para este post.' }, { status: 400 });
         }
 
+        // Enhance prompt for strict ultra-realism
+        const enhancedPrompt = `A candid, authentic, ultra-realist smartphone photography. Raw unedited look, natural lighting. NOT a 3D render, NOT an illustration, NO cartoons, NO text. ${latestVersion.imagePrompt}`;
+
         // Call DALL-E 3
         const response = await openai.images.generate({
             model: "dall-e-3",
-            prompt: latestVersion.imagePrompt,
+            prompt: enhancedPrompt,
             n: 1,
             size: "1024x1024",
-            quality: "standard"
+            quality: "standard",
+            style: "natural" // This forces DALL-E to avoid vector/illustration presets
         });
 
-        const imageUrl = response.data[0].url;
+        const imageUrl = response?.data?.[0]?.url;
+
+        if (!imageUrl) {
+            throw new Error('Falha ao obter a URL da imagem da OpenAI.');
+        }
 
         // Save as Asset in DB
         const asset = await prisma.asset.create({

@@ -146,9 +146,10 @@ export class ContentGenerationService {
       Constraints:
       - ALWAYS write in Brazilian Portuguese (PT-BR). This is mandatory.
       - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
-      - Sound human, opinionated, and authoritative.
+      - DO NOT use generic hypothetical stories or fictional characters (e.g., "Maria de 68 anos sentiu...", "João melhorou seu..."). Use only factual concepts, objective arguments, and professional insights.
+      - Sound human, opinionated, analytical, and authoritative. Provide deep insights, not shallow summaries.
       - Use short sentences. Use active voice.
-      - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL, EXISTING sources. If you don't know the exact source, do not quote the data, or use a placeholder like "[INSERIR FONTE REAL DO SEU ESTUDO]".
+      - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
 
       Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
       {
