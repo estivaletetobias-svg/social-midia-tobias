@@ -13,7 +13,9 @@ export default function ContentEditor() {
 
     const [piece, setPiece] = useState<any>(null);
     const [version, setVersion] = useState<any>(null);
+    const [asset, setAsset] = useState<any>(null); // Store generated or existing image
     const [isLoading, setIsLoading] = useState(true);
+    const [isGeneratingImg, setIsGeneratingImg] = useState(false);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -25,6 +27,10 @@ export default function ContentEditor() {
                     if (data.piece.versions && data.piece.versions.length > 0) {
                         setVersion(data.piece.versions[0]);
                     }
+                    if (data.piece.assets && data.piece.assets.length > 0) {
+                        // For MVP, just get the first generated image for this piece
+                        setAsset(data.piece.assets[0]);
+                    }
                 }
             } catch (e) {
                 console.error("Failed to load content", e);
@@ -34,6 +40,24 @@ export default function ContentEditor() {
         };
         fetchContent();
     }, [id]);
+
+    const handleGenerateImage = async () => {
+        setIsGeneratingImg(true);
+        try {
+            const res = await fetch(`/api/content/${id}/generate-image`, { method: "POST" });
+            const data = await res.json();
+            if (data.success) {
+                setAsset(data.asset);
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to generate image", error);
+            alert("Falha ao se conectar com o Estúdio Visual.");
+        } finally {
+            setIsGeneratingImg(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -100,9 +124,21 @@ export default function ContentEditor() {
                                 <ImageIcon className="mr-3 h-6 w-6 text-primary-500" />
                                 Estúdio Visual IA
                             </h3>
-                            <button className="h-10 px-4 bg-primary-50 text-primary-600 text-xs font-black rounded-lg hover:bg-primary-500 hover:text-white transition-colors flex items-center">
-                                <Wand2 className="mr-2 h-3 w-3" />
-                                Gerar Imagem
+                            <button
+                                onClick={handleGenerateImage}
+                                disabled={isGeneratingImg}
+                                className="h-10 px-4 bg-primary-50 text-primary-600 text-xs font-black rounded-lg hover:bg-primary-500 hover:text-white transition-colors flex items-center disabled:opacity-50">
+                                {isGeneratingImg ? (
+                                    <>
+                                        <Wand2 className="mr-2 h-3 w-3 animate-spin" />
+                                        Gerando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wand2 className="mr-2 h-3 w-3" />
+                                        DALL-E 3
+                                    </>
+                                )}
                             </button>
                         </div>
 
@@ -123,9 +159,20 @@ export default function ContentEditor() {
                             </div>
                         </div>
 
-                        <div className="mt-8 aspect-square bg-gray-100 rounded-3xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 space-y-3 relative z-10">
-                            <ImageIcon className="h-10 w-10 opacity-50" />
-                            <span className="text-sm font-bold">Nenhuma imagem gerada ainda</span>
+                        <div className="mt-8 aspect-square bg-gray-100 rounded-3xl border border-gray-200 flex flex-col items-center justify-center text-gray-400 space-y-3 relative z-10 overflow-hidden shadow-inner">
+                            {asset ? (
+                                <img src={asset.url} alt="Generated visual" className="w-full h-full object-cover" />
+                            ) : isGeneratingImg ? (
+                                <div className="flex flex-col items-center justify-center animate-pulse">
+                                    <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
+                                    <span className="text-sm font-bold text-primary-600">Pintando sua obra de arte...</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <ImageIcon className="h-10 w-10 opacity-50" />
+                                    <span className="text-sm font-bold">Nenhuma imagem gerada ainda</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
