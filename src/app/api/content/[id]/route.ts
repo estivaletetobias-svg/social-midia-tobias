@@ -49,3 +49,23 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+        const body = await req.json();
+
+        if (body.status) {
+            const updated = await prisma.contentPiece.update({
+                where: { id },
+                data: { status: body.status }
+            });
+            return NextResponse.json({ success: true, piece: updated });
+        }
+
+        return NextResponse.json({ error: 'Status is required' }, { status: 400 });
+    } catch (e: any) {
+        console.error('Update Content Error:', e.message);
+        return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+}

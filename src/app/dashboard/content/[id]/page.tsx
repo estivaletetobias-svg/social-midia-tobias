@@ -148,6 +148,26 @@ export default function ContentEditor() {
         reader.readAsDataURL(file);
     };
 
+    const handleApprove = async () => {
+        try {
+            const res = await fetch(`/api/content/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "approved" })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Conteúdo Aprovado! Ele acaba de entrar no funil de publicação.");
+                router.push("/dashboard/content");
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to approve", error);
+            alert("Falha ao aprovar.");
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-[60vh] text-primary-500 animate-pulse font-black text-xl">
@@ -194,7 +214,7 @@ export default function ContentEditor() {
                         Salvar
                     </button>
                     <button
-                        onClick={() => alert("Aprovado! Na próxima versão esse texto irá direto para as Redes Sociais.")}
+                        onClick={handleApprove}
                         className="h-12 px-8 bg-gray-900 text-white text-sm font-black rounded-xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
                         <CheckCircle2 className="mr-2 h-4 w-4" />
                         Aprovar e Avançar

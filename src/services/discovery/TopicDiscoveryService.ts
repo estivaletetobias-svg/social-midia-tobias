@@ -39,7 +39,7 @@ export class TopicDiscoveryService {
       - summary: Brief strategic reasoning (PT-BR).
       - relevanceScore: 0-1.
       - alignmentScore: 0-1.
-      - recommendedPipeline: "Instagram" or "LinkedIn".
+      - recommendedPipeline: "Instagram" or "LinkedIn". (CRITICAL: Remember that Instagram is more B2C oriented, while LinkedIn is more B2P/Business-to-Person oriented. Classify the topic based on this logic).
       - recommendedFormat: "carousel", "short post", "article", or "video script".
 
       Return strictly as JSON array of objects.
@@ -113,7 +113,7 @@ export class TopicDiscoveryService {
                 "proposedHeadline": "Título atraente (PT-BR)",
                 "proposedSummary": "Por que a marca deve falar sobre isso de forma estratégica (PT-BR)",
                 "score": 0.0 to 1.0 (float),
-                "recommendedPlatform": "LinkedIn" or "Instagram",
+                "recommendedPlatform": "LinkedIn" or "Instagram" (Lembre-se: Instagram é B2C, LinkedIn é B2P/Business-to-Person. Escolha sabiamente a rede),
                 "recommendedFormat": "short post" or "article" or "carousel"
             }
         `;
