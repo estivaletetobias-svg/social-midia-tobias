@@ -9,6 +9,10 @@ export default function IdeasLibrary() {
     const [isLoading, setIsLoading] = useState(true);
     const [isApproveLoading, setIsApproveLoading] = useState<Record<string, boolean>>({});
 
+    // Filtros e Pesquisa
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeCategory, setActiveCategory] = useState("Todos os Tópicos");
+
     // Modal definitions
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [manualIdea, setManualIdea] = useState("");
@@ -108,6 +112,22 @@ export default function IdeasLibrary() {
 
     const categories = ["Todos os Tópicos", "Tendências", "Ganchos Virais", "Atemporal", "Novidades do Produto"];
 
+    const filteredTopics = topics.filter(t => {
+        const titleMatch = t.title ? t.title.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+        const summaryMatch = t.summary ? t.summary.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+        const matchesSearch = titleMatch || summaryMatch;
+
+        if (!matchesSearch) return false;
+
+        if (activeCategory === "Todos os Tópicos") return true;
+        if (activeCategory === "Tendências") return t.relevanceScore >= 0.8;
+        if (activeCategory === "Ganchos Virais") return t.format === 'short video script' || t.format === 'short post';
+        if (activeCategory === "Atemporal") return t.alignmentScore >= 0.8;
+        if (activeCategory === "Novidades do Produto") return t.platform === 'LinkedIn'; // Mock condition
+
+        return true;
+    });
+
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* Header */}
@@ -149,7 +169,8 @@ export default function IdeasLibrary() {
                     {categories.map((cat, i) => (
                         <button
                             key={cat}
-                            className={`px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider ${i === 0 ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60" : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"}`}
+                            onClick={() => setActiveCategory(cat)}
+                            className={`px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider ${activeCategory === cat ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60" : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"}`}
                         >
                             {cat}
                         </button>
@@ -158,6 +179,8 @@ export default function IdeasLibrary() {
                 <div className="relative w-full xl:w-96 group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                     <input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full h-16 pl-14 pr-6 glass-panel rounded-[24px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all font-bold text-gray-700 placeholder:text-gray-400/70"
                         placeholder="Buscar tópicos, palavras-chave..."
                     />
@@ -179,7 +202,13 @@ export default function IdeasLibrary() {
                     </div>
                 )}
 
-                {!isLoading && topics.map((item, i) => (
+                {!isLoading && topics.length > 0 && filteredTopics.length === 0 && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 text-gray-500 font-bold glass-panel rounded-[40px]">
+                        Nenhuma ideia encontrada com esses filtros.
+                    </div>
+                )}
+
+                {!isLoading && filteredTopics.map((item, i) => (
                     <div key={item.id || i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">
                         {/* Glow effect on hover */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
