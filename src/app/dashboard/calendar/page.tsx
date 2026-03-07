@@ -1,7 +1,26 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Filter, Layers, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function EditorialCalendar() {
+    const [posts, setPosts] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetch("/api/calendar/posts")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setPosts(data.posts);
+                }
+            })
+            .catch(console.error);
+    }, []);
+
     const days = Array.from({ length: 35 }, (_, i) => i - 3); // Previous month trailing days
+    const today = new Date();
+    const currentMonth = today.getMonth();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return (
@@ -56,23 +75,29 @@ export default function EditorialCalendar() {
                                 <span className={`text-sm font-bold ${day === 6 ? 'text-primary-600 bg-primary-50 ring-4 ring-primary-50 rounded-full h-7 w-7 flex items-center justify-center' : 'text-gray-400'}`}>
                                     {day < 1 ? 31 + day : (day > 31 ? day - 31 : day)}
                                 </span>
-                                {day === 6 && <div className="h-1.5 w-1.5 rounded-full bg-primary-600 shadow-sm" />}
+                                {day === today.getDate() && <div className="h-1.5 w-1.5 rounded-full bg-primary-600 shadow-sm" />}
                             </div>
 
-                            {/* Sample Post Entry */}
-                            {day === 6 && (
-                                <div className="mt-2 p-2.5 rounded-xl border-l-[3px] border-primary-500 bg-primary-50/50 group-hover:shadow-md transition-all cursor-pointer">
-                                    <p className="text-[10px] font-black text-primary-600 uppercase tracking-wide">Instagram</p>
-                                    <p className="mt-1 text-xs font-bold text-gray-900 truncate">AI Strategies for 2026</p>
-                                </div>
-                            )}
+                            <div className="space-y-2 mt-2">
+                                {/* Actual Database Posts */}
+                                {posts.filter(p => p.day === (day < 1 ? 31 + day : (day > 31 ? day - 31 : day)) && p.month === currentMonth).map(post => (
+                                    <Link href={`/dashboard/content/${post.id}`} key={post.id}>
+                                        <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all cursor-pointer ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
+                                                post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
+                                                    'border-gray-500 bg-gray-50 hover:bg-gray-100'
+                                            }`}>
+                                            <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
+                                                    post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
+                                                        'text-gray-600'
+                                                }`}>
+                                                {post.platform}
+                                            </p>
+                                            <p className="mt-1 text-xs font-bold text-gray-900 truncate" title={post.title}>{post.title}</p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
 
-                            {day === 8 && (
-                                <div className="mt-2 p-2.5 rounded-xl border-l-[3px] border-blue-500 bg-blue-50/50 group-hover:shadow-md transition-all cursor-pointer">
-                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-wide">LinkedIn</p>
-                                    <p className="mt-1 text-xs font-bold text-gray-900 truncate">Future of Workflow</p>
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
