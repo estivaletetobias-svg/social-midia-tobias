@@ -20,11 +20,16 @@ export class ContentGenerationService {
      * Multi-step pipeline: Topic -> Goal -> Platform -> Structure -> Draft -> Validation
      */
     static async generateDraft(request: GenerationRequest) {
+        // Fetch brand profile with tone of voice and knowledge base
         const brand = await prisma.brandProfile.findUnique({
             where: { id: request.brandProfileId },
             include: {
                 editorialPillars: true,
                 voiceGuides: { where: { platform: request.platform } },
+                knowledgeItems: {
+                    take: 10,
+                    orderBy: { createdAt: 'desc' }
+                }
             },
         });
 
@@ -140,6 +145,11 @@ export class ContentGenerationService {
       Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Maintain high professional standards.'}
       Format: ${request.format}
       Structure to Follow: ${JSON.stringify(structure.sections)}
+      
+      INTERNAL KNOWLEDGE BASE (Use these insights and guidelines to sound genuinely like the brand and cross-reference data if applicable):
+      ${brand.knowledgeItems && brand.knowledgeItems.length > 0
+                ? brand.knowledgeItems.map((item: any) => `[${item.type}] ${item.title}:\n${item.content}`).join('\n\n')
+                : 'No internal knowledge base available.'}
       
       TASK: Write the actual final copy. Make it ready to publish.
       
