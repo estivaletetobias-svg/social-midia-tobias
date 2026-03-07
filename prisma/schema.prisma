@@ -38,6 +38,7 @@ model BrandProfile {
   workspaceId      String
   workspace        Workspace         @relation(fields: [workspaceId], references: [id])
   name             String
+  avatarUrl        String?
   description      String?
   toneOfVoice      String?
   writingRules     String[]

@@ -35,22 +35,44 @@ const navigation = [
 
 export function Sidebar() {
     const pathname = usePathname();
-    const [profileImg, setProfileImg] = useState<string>("https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
+    const defaultAvatar = "https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+    const [profileImg, setProfileImg] = useState<string>(defaultAvatar);
 
     useEffect(() => {
         const saved = localStorage.getItem('user_profile_img');
         if (saved) setProfileImg(saved);
+
+        // Sincronizar com o banco de dados para persistência real em outros dispositivos
+        fetch('/api/brand/avatar')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.avatarUrl) {
+                    setProfileImg(data.avatarUrl);
+                    localStorage.setItem('user_profile_img', data.avatarUrl);
+                }
+            });
     }, []);
 
-    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
             const base64 = reader.result as string;
             setProfileImg(base64);
             localStorage.setItem('user_profile_img', base64);
+
+            // Persistir no banco de dados
+            try {
+                await fetch('/api/brand/avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatarUrl: base64 })
+                });
+            } catch (err) {
+                console.error("Falha ao salvar avatar no banco:", err);
+            }
         };
         reader.readAsDataURL(file);
     };
