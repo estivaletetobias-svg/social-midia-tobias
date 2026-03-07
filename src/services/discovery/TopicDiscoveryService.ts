@@ -33,10 +33,10 @@ export class TopicDiscoveryService {
       ${brand.knowledgeItems.map((k: any) => `- ${k.title}: ${k.content.substring(0, 300)}`).join('\n')}
       
       TASK: Generate ${count} unique social media topic suggestions.
-      Each topic must be strategically aligned with the brand and non-generic.
+      Each topic must be strategically aligned with the brand and non-generic. ALL content must be written in Brazilian Portuguese (PT-BR).
       Provide:
-      - title: Short and hooky.
-      - summary: Brief strategic reasoning.
+      - title: Short and hooky (PT-BR).
+      - summary: Brief strategic reasoning (PT-BR).
       - relevanceScore: 0-1.
       - alignmentScore: 0-1.
       - recommendedPipeline: "Instagram" or "LinkedIn".
@@ -104,13 +104,14 @@ export class TopicDiscoveryService {
             TASK:
             1. Determine if this news is RELEVANT to the audience and pillars (true/false).
             2. If true, translate this external news into a specific Topic Idea for the brand. How can the brand talk about this?
+            3. ALL OUTPUT MUST BE IN BRAZILIAN PORTUGUESE (PT-BR).
             
             Return JSON:
             {
                 "isRelevant": boolean,
-                "reasoning": "Why it fits or doesn't",
-                "proposedHeadline": "Catchy title if relevant",
-                "proposedSummary": "Strategic angle on how the brand should cover this",
+                "reasoning": "Por que se encaixa ou não (PT-BR)",
+                "proposedHeadline": "Título atraente (PT-BR)",
+                "proposedSummary": "Por que a marca deve falar sobre isso de forma estratégica (PT-BR)",
                 "score": 0.0 to 1.0 (float),
                 "recommendedPlatform": "LinkedIn" or "Instagram",
                 "recommendedFormat": "short post" or "article" or "carousel"

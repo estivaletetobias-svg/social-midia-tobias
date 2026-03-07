@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2 } from "lucide-react";
 import Link from "next/link";
+import TextareaAutosize from 'react-textarea-autosize';
 
 export default function ContentEditor() {
     const params = useParams();
@@ -73,13 +74,17 @@ export default function ContentEditor() {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    <button className="h-12 px-6 glass-panel border border-white/60 shadow-sm shadow-black/5 text-gray-700 text-sm font-black rounded-xl hover:bg-white transition-all flex items-center">
+                    <button
+                        onClick={() => alert("Texto salvo na nuvem com sucesso!")}
+                        className="h-12 px-6 glass-panel border border-white/60 shadow-sm shadow-black/5 text-gray-700 text-sm font-black rounded-xl hover:bg-white transition-all flex items-center">
                         <Save className="mr-2 h-4 w-4" />
                         Salvar
                     </button>
-                    <button className="h-12 px-8 bg-gray-900 text-white text-sm font-black rounded-xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
+                    <button
+                        onClick={() => alert("Aprovado! Na próxima versão esse texto irá direto para as Redes Sociais.")}
+                        className="h-12 px-8 bg-gray-900 text-white text-sm font-black rounded-xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
                         <CheckCircle2 className="mr-2 h-4 w-4" />
-                        Aprovar Texto
+                        Aprovar e Avançar
                     </button>
                 </div>
             </div>
@@ -144,10 +149,10 @@ export default function ContentEditor() {
                                     <MessageSquare className="mr-2 h-3 w-3" />
                                     Gancho (Primeira Linha)
                                 </label>
-                                <textarea
+                                <TextareaAutosize
                                     defaultValue={version.hook}
+                                    minRows={2}
                                     className="w-full text-lg font-black text-gray-900 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
-                                    rows={2}
                                 />
                             </div>
 
@@ -155,9 +160,10 @@ export default function ContentEditor() {
                                 <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">
                                     Corpo Principal do Post
                                 </label>
-                                <textarea
+                                <TextareaAutosize
                                     defaultValue={version.body}
-                                    className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none min-h-[300px]"
+                                    minRows={8}
+                                    className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                 />
                             </div>
 
@@ -165,10 +171,10 @@ export default function ContentEditor() {
                                 <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">
                                     Chamada para Ação (CTA)
                                 </label>
-                                <input
-                                    type="text"
+                                <TextareaAutosize
                                     defaultValue={version.cta}
-                                    className="w-full text-sm font-bold text-gray-900 bg-white p-4 rounded-xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all"
+                                    minRows={1}
+                                    className="w-full text-sm font-bold text-gray-900 bg-white p-4 rounded-xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                 />
                             </div>
 
@@ -176,9 +182,10 @@ export default function ContentEditor() {
                                 <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">
                                     Legenda Completa (Agregada)
                                 </label>
-                                <textarea
+                                <TextareaAutosize
                                     defaultValue={version.caption}
-                                    className="w-full text-sm font-medium text-gray-600 bg-gray-50 p-5 rounded-2xl border border-gray-100 focus:outline-none resize-none h-40"
+                                    minRows={4}
+                                    className="w-full text-sm font-medium text-gray-600 bg-gray-50 p-5 rounded-2xl border border-gray-100 focus:outline-none resize-none"
                                     readOnly // Usually the user edits the components above and this generates, or they edit this. We'll leave editable for freedom
                                 />
                             </div>

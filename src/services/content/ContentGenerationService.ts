@@ -144,11 +144,13 @@ export class ContentGenerationService {
       TASK: Write the actual final copy. Make it ready to publish.
       
       Constraints:
-      - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload).
+      - ALWAYS write in Brazilian Portuguese (PT-BR). This is mandatory.
+      - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
       - Sound human, opinionated, and authoritative.
       - Use short sentences. Use active voice.
+      - If you are presenting scientific data, studies, or important facts, YOU MUST cite the source (e.g. "According to a 2023 study by Harvard...", or "[Fonte: Journal of Sports Science]").
 
-      Return strictly a JSON object matching this interface:
+      Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
       {
         "headline": "String - the main title or first slide",
         "hook": "String - the first lines designed to catch attention instantly",
