@@ -10,6 +10,7 @@ export default function KnowledgeBase() {
 
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isChatAlertOpen, setIsChatAlertOpen] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newContent, setNewContent] = useState("");
     const [newType, setNewType] = useState("Nota Rápida");
@@ -96,7 +97,7 @@ export default function KnowledgeBase() {
                             Importar Fonte Manual
                         </button>
                         <button
-                            onClick={() => alert("Evolução: Em breve você poderá pesquisar ou perguntar ao seu avatar sobre seus próprios dados como no NotebookLM.")}
+                            onClick={() => setIsChatAlertOpen(true)}
                             className="h-14 px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-black rounded-[20px] hover:bg-white/20 transition-all flex items-center transform hover:-translate-y-1 duration-300">
                             <Zap className="mr-3 h-5 w-5" />
                             Pesquisa AI / Chat
@@ -254,6 +255,26 @@ export default function KnowledgeBase() {
                                 {isSubmitting ? "Memorizando Base..." : "Salvar no Cérebro da Marca"}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Chat Alert Modal */}
+            {isChatAlertOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+                    <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col items-center p-12 text-center text-gray-900 space-y-6">
+                        <div className="w-20 h-20 rounded-full bg-primary-50 flex items-center justify-center text-primary-500 mb-2">
+                            <Zap className="w-10 h-10" />
+                        </div>
+                        <h2 className="text-3xl font-black">Em Evolução</h2>
+                        <p className="text-gray-500 font-medium text-lg leading-relaxed">
+                            Em breve, nesta tela, você poderá conversar diretamente com o seu Avatar. Ele vasculhará sua base de conhecimento para responder às suas perguntas de maneira idêntica ao que o NotebookLM faz hoje!
+                        </p>
+                        <button
+                            onClick={() => setIsChatAlertOpen(false)}
+                            className="mt-4 h-14 px-10 bg-gray-900 text-white text-sm font-black rounded-2xl shadow-xl hover:bg-black transition-all transform hover:-translate-y-1 duration-300">
+                            Entendi!
+                        </button>
                     </div>
                 </div>
             )}
