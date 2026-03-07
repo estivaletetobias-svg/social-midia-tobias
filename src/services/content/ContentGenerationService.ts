@@ -103,25 +103,100 @@ export class ContentGenerationService {
     }
 
     private static async generateStructure(request: GenerationRequest, brand: any, strategy: any) {
-        // Pipeline logic for structure...
-        return { sections: ['Hook', 'Main Value', 'Deep Dive', 'CTA'] };
+        const prompt = `
+      You are an elite Content Architect for ${brand.name}.
+      
+      Platform: ${request.platform}
+      Format: ${request.format}
+      Strategy: ${JSON.stringify(strategy)}
+      
+      TASK: Create a structural outline for this content piece based on the platform's best practices.
+      
+      Guidelines:
+      - LinkedIn: Focus on thought leadership, logical flow, data points, and professional hooks.
+      - Instagram: Focus on high visual hook, emotional connection, short digestible chunks, and clear CTA.
+      - Carousel: Needs a slide-by-slide outline.
+      - Article: Needs introduction, headers, deeper exploration, conclusion.
+      - Short Post/Video: Needs intense hook, quick value delivery, and punchy outtro.
+
+      Return strictly as JSON with a "sections" array (strings describing each structural part).
+    `;
+
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'system', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.5
+        });
+
+        return JSON.parse(response.choices[0].message.content || '{"sections": []}');
     }
 
     private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any) {
-        // Pipeline logic for copy generation using brand voice guides...
-        return {
-            headline: 'The Future of Content',
-            hook: 'Tired of generic AI posts?',
-            body: 'Content deep dive here...',
-            caption: 'Initial automated caption based on brand voice rules.',
-            cta: 'Sign up now.',
-            hashtags: ['#AI', '#Strategy'],
-            imagePrompt: 'Professional desk setup with a futuristic glass monitor, soft sunset light, 8k resolution.',
-            visualConcept: 'Minimalist tech workspace'
-        };
+        const prompt = `
+      You are a world-class senior copywriter specializing in ${request.platform}.
+      
+      Brand Voice: ${brand.toneOfVoice}
+      Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Maintain high professional standards.'}
+      Format: ${request.format}
+      Structure to Follow: ${JSON.stringify(structure.sections)}
+      
+      TASK: Write the actual final copy. Make it ready to publish.
+      
+      Constraints:
+      - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload).
+      - Sound human, opinionated, and authoritative.
+      - Use short sentences. Use active voice.
+
+      Return strictly a JSON object matching this interface:
+      {
+        "headline": "String - the main title or first slide",
+        "hook": "String - the first lines designed to catch attention instantly",
+        "body": "String - the main content, can be long-form depending on format",
+        "caption": "String - the text that goes in the social media caption box",
+        "cta": "String - the final call to action",
+        "hashtags": ["Array", "of", "Strings"],
+        "imagePrompt": "String - A highly detailed visual description to be fed to an AI Image Generator for this post's aesthetic",
+        "visualConcept": "String - A conceptual description of the visual mood"
+      }
+    `;
+
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'system', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.7
+        });
+
+        return JSON.parse(response.choices[0].message.content || '{}');
     }
 
     private static async validateBrandVoice(copy: any, brand: any) {
-        return { isValid: true, feedback: 'Tone matches Brand Voice Guide' };
+        const prompt = `
+      You are the strictest Brand Guardian and Quality Assurance Editor for ${brand.name}.
+      
+      Brand Tone: ${brand.toneOfVoice}
+      
+      Content to Review:
+      Hook: ${copy.hook}
+      Body: ${copy.body}
+      
+      TASK: Does this content sound like a generic AI wrote it, or does it sound natively tailored to the brand tone? Is it overusing emojis or cliche phrases?
+      
+      Return JSON:
+      {
+        "isValid": boolean,
+        "feedback": "Short critique on tone, formatting, and AI-like clichés."
+      }
+    `;
+
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'system', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.2
+        });
+
+        return JSON.parse(response.choices[0].message.content || '{"isValid": false, "feedback": "Validation failed to run."}');
     }
 }
