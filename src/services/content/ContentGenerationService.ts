@@ -160,6 +160,7 @@ export class ContentGenerationService {
       - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
       - DO NOT use generic hypothetical stories or fictional characters (e.g., "Maria de 68 anos sentiu...", "João melhorou seu..."). Use only factual concepts, objective arguments, and professional insights.
       - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
+      - DO NOT use Markdown formatting (like **bold**, *italics*, or # headers). Output purely plain text suitable for direct copy-pasting into Instagram/LinkedIn text boxes. Use standard spacing and line breaks instead.
       - Use active voice and assertive tone.
       - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
 
