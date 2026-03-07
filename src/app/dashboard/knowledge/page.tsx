@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus } from "lucide-react";
+import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus, Youtube } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function KnowledgeBase() {
@@ -82,35 +82,61 @@ export default function KnowledgeBase() {
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
-
-        if (file.type !== "application/pdf") {
-            alert("Apenas arquivos PDF são suportados no momento.");
-            return;
-        }
 
         setIsUploading(true);
         try {
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append('file', file);
 
-            const res = await fetch("/api/knowledge/upload", {
-                method: "POST",
-                body: formData,
+            const res = await fetch('/api/knowledge/upload', {
+                method: 'POST',
+                body: formData
             });
 
             const data = await res.json();
             if (data.success) {
                 setNewContent(data.text);
-                if (!newTitle) setNewTitle(file.name.replace(".pdf", ""));
             } else {
-                alert(`Erro ao ler PDF: ${data.error}`);
+                alert(`Erro: ${data.error}`);
             }
         } catch (error) {
             console.error(error);
-            alert("Erro fatal ao enviar o arquivo.");
+            alert("Falha no upload do arquivo");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleYouTubeSync = async () => {
+        const url = prompt("Cole o Link completo do Vídeo do YouTube publico:");
+        if (!url) return;
+
+        setIsUploading(true);
+        try {
+            const res = await fetch('/api/knowledge/youtube', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    url,
+                    title: newTitle || "Transcrição YT Temporária",
+                    type: newType || "Vídeo Transcrito",
+                    tags: newTags || "YOUTUBE"
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("YouTube Transcrito e Salvo no Cérebro com sucesso! Feche este modal e veja na lista.");
+                setItems([data.item, ...items]);
+                setIsModalOpen(false); // fechar pois ele ja salvou no banco direto no endpoint
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Falha na sincronização com YouTube.");
         } finally {
             setIsUploading(false);
         }
@@ -352,12 +378,18 @@ export default function KnowledgeBase() {
                                 <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 flex justify-between items-center">
                                     <span>Conteúdo Base</span>
                                     <div className="flex items-center space-x-3 text-sm normal-case font-bold">
+                                        <button
+                                            onClick={handleYouTubeSync}
+                                            disabled={isUploading}
+                                            className="cursor-pointer flex items-center text-red-500 hover:text-red-600 border border-red-500 hover:bg-red-50 px-3 py-1 rounded-full transition-all">
+                                            <Youtube className="w-4 h-4 mr-2" />
+                                            Extrair do YouTube
+                                        </button>
                                         <label className="cursor-pointer flex items-center text-primary-500 hover:text-primary-600 border border-primary-500 hover:bg-primary-50 px-3 py-1 rounded-full transition-all">
                                             <UploadCloud className="w-4 h-4 mr-2" />
                                             Fazer upload de PDF
                                             <input type="file" accept="application/pdf" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
                                         </label>
-                                        <span className="text-gray-300 font-normal">ou cole o texto bruto aqui</span>
                                     </div>
                                 </label>
                                 {isUploading && (
@@ -366,7 +398,7 @@ export default function KnowledgeBase() {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Lendo páginas do PDF e extraindo texto. Aguarde...
+                                        Conectando... Baixando texto e processando na nuvem.
                                     </div>
                                 )}
                                 <textarea
