@@ -49,37 +49,47 @@ export class MultiplexerService {
             temperature: 0.7
         });
 
-        const result = JSON.parse(response.choices[0].message.content || '{"pieces": []}').pieces;
+        const rawContent = response.choices[0].message.content || '{"pieces": []}';
+        const result = JSON.parse(rawContent).pieces;
+
+        console.log("GPT Multiplex Result:", result);
 
         // Salvar as 3 novas peças de base na Esteira de Conteúdos
         const createdPieces = await Promise.all(
             result.map(async (p: any) => {
+                const title = p.title || 'Novo Conteúdo Multiplicado';
+                const platform = p.platform || 'Instagram';
+                const format = p.format || 'carousel';
+
                 // Criar Tópico Fake para dar sustentação caso o modelo use
                 const topic = await prisma.topicCandidate.create({
                     data: {
                         brandProfileId: brand.id,
-                        title: p.title,
+                        title: title,
                         summary: "Gerado automaticamente via Liquidificador de Conhecimento.",
                         relevanceScore: 1.0,
                         alignmentScore: 1.0,
-                        platform: p.platform,
-                        format: p.format,
+                        platform: platform,
+                        format: format,
                         status: 'used'
                     }
                 });
+
+                const body = Array.isArray(p.body) ? p.body.join('\n') : (p.body || 'Conteúdo em geração...');
+                const headline = Array.isArray(p.headline) ? p.headline.join(' ') : (p.headline || 'Sem Título');
 
                 const contentPiece = await prisma.contentPiece.create({
                     data: {
                         brandProfileId: brand.id,
                         topicId: topic.id,
-                        title: p.title,
-                        platform: p.platform,
-                        format: p.format,
+                        title: title,
+                        platform: platform,
+                        format: format,
                         status: 'draft',
                         versions: {
                             create: {
-                                headline: p.headline,
-                                body: p.body,
+                                headline: headline,
+                                body: body,
                                 hook: "Criado no Multiplicador de Conteúdo",
                                 metadata: { sourceKnowledge: knowledgeItemId }
                             }

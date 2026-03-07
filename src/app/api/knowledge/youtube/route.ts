@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 // @ts-ignore
-import { YoutubeTranscript } from 'youtube-transcript';
+import { fetchTranscript } from 'youtube-transcript-plus';
 
 export async function POST(req: Request) {
     try {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
         let transcript;
         try {
-            transcript = await YoutubeTranscript.fetchTranscript(videoId);
+            transcript = await fetchTranscript(videoId);
         } catch (scrapeErr: any) {
             console.error("Youtube library error:", scrapeErr);
             return NextResponse.json({ error: `O YouTube bloqueou a leitura ou não há legendas disponíveis. (${scrapeErr.message})` }, { status: 400 });
