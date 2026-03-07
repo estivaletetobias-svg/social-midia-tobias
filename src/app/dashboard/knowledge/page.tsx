@@ -10,11 +10,16 @@ export default function KnowledgeBase() {
 
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isChatAlertOpen, setIsChatAlertOpen] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newContent, setNewContent] = useState("");
     const [newType, setNewType] = useState("Nota Rápida");
     const [newTags, setNewTags] = useState("");
+
+    // Chat states
+    const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([]);
+    const [currentMsg, setCurrentMsg] = useState("");
+    const [isChatLoading, setIsChatLoading] = useState(false);
 
     const loadItems = async () => {
         setIsLoading(true);
@@ -73,6 +78,37 @@ export default function KnowledgeBase() {
         }
     };
 
+    const handleChatSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!currentMsg.trim()) return;
+
+        const newUserMsg = { role: 'user', content: currentMsg };
+        const updatedHistory = [...chatMessages, newUserMsg];
+        setChatMessages(updatedHistory);
+        setCurrentMsg("");
+        setIsChatLoading(true);
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: updatedHistory })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setChatMessages([...updatedHistory, { role: 'assistant', content: data.reply }]);
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erro de conexão ao conversar com a IA.");
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* Dark Banner */}
@@ -97,7 +133,7 @@ export default function KnowledgeBase() {
                             Importar Fonte Manual
                         </button>
                         <button
-                            onClick={() => setIsChatAlertOpen(true)}
+                            onClick={() => setIsChatOpen(true)}
                             className="h-14 px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-black rounded-[20px] hover:bg-white/20 transition-all flex items-center transform hover:-translate-y-1 duration-300">
                             <Zap className="mr-3 h-5 w-5" />
                             Pesquisa AI / Chat
@@ -259,26 +295,82 @@ export default function KnowledgeBase() {
                 </div>
             )}
 
-            {/* Chat Alert Modal */}
-            {isChatAlertOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
-                    <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col items-center p-12 text-center text-gray-900 space-y-6">
-                        <div className="w-20 h-20 rounded-full bg-primary-50 flex items-center justify-center text-primary-500 mb-2">
-                            <Zap className="w-10 h-10" />
+            {/* AI Chat Drawer */}
+            {isChatOpen && (
+                <div className="fixed inset-0 z-50 flex justify-end bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="w-full max-w-xl h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-500 overflow-hidden">
+
+                        {/* Header do Chat */}
+                        <div className="h-20 bg-gray-900 flex items-center justify-between px-8 shrink-0">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center">
+                                    <Zap className="h-5 w-5 text-primary-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-white font-black">Avatar IA</h2>
+                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Baseado no seu cérebro</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsChatOpen(false)} className="text-gray-400 hover:text-white transition-colors">Fechar</button>
                         </div>
-                        <h2 className="text-3xl font-black">Em Evolução</h2>
-                        <p className="text-gray-500 font-medium text-lg leading-relaxed">
-                            Em breve, nesta tela, você poderá conversar diretamente com o seu Avatar. Ele vasculhará sua base de conhecimento para responder às suas perguntas de maneira idêntica ao que o NotebookLM faz hoje!
-                        </p>
-                        <button
-                            onClick={() => setIsChatAlertOpen(false)}
-                            className="mt-4 h-14 px-10 bg-gray-900 text-white text-sm font-black rounded-2xl shadow-xl hover:bg-black transition-all transform hover:-translate-y-1 duration-300">
-                            Entendi!
-                        </button>
+
+                        {/* Mensagens */}
+                        <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-gray-50 flex flex-col no-scrollbar">
+                            {chatMessages.length === 0 && (
+                                <div className="my-auto text-center space-y-4">
+                                    <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
+                                        <Zap className="h-8 w-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-900">Olá! Eu sou sua cópia.</h3>
+                                    <p className="text-sm font-medium text-gray-500 max-w-sm mx-auto">
+                                        Estou escaneando os {items.length} itens do seu cérebro de marca. Pergunte sobre uma ideia ou me force a cruzar informações das suas notas.
+                                    </p>
+                                </div>
+                            )}
+
+                            {chatMessages.map((msg, i) => (
+                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === 'user'
+                                        ? 'bg-gray-900 text-white rounded-tr-sm'
+                                        : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
+                                        }`}>
+                                        {msg.content}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {isChatLoading && (
+                                <div className="flex justify-start">
+                                    <div className="px-5 py-4 bg-white border border-gray-200 rounded-2xl rounded-tl-sm shadow-sm flex space-x-2">
+                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
+                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-100" />
+                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-200" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="p-6 bg-white border-t border-gray-100 shrink-0">
+                            <form onSubmit={handleChatSubmit} className="relative">
+                                <input
+                                    value={currentMsg}
+                                    onChange={e => setCurrentMsg(e.target.value)}
+                                    placeholder="Pergunte sobre seus arquivos..."
+                                    className="w-full h-14 pl-6 pr-14 bg-gray-50 border border-transparent rounded-full focus:outline-none focus:bg-white focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 placeholder:text-gray-400"
+                                    disabled={isChatLoading}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!currentMsg.trim() || isChatLoading}
+                                    className="absolute right-2 top-2 bottom-2 w-10 bg-gray-900 rounded-full flex items-center justify-center text-white hover:bg-black transition-colors disabled:opacity-50">
+                                    <Zap className="h-4 w-4" />
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

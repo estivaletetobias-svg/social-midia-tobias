@@ -21,11 +21,14 @@
     "@aws-sdk/client-s3": "^3.1004.0",
     "@google-cloud/aiplatform": "^6.5.0",
     "@google-cloud/storage": "^7.19.0",
+    "@langchain/openai": "^1.2.12",
+    "@pinecone-database/pinecone": "^7.1.0",
     "@prisma/client": "^5.22.0",
     "axios": "^1.13.6",
     "bullmq": "^5.70.4",
     "clsx": "^2.1.1",
     "googlethis": "^1.8.0",
+    "langchain": "^1.2.30",
     "lucide-react": "^0.577.0",
     "next": "^16.1.6",
     "node-fetch": "^2.7.0",
@@ -36,6 +39,7 @@
     "react-textarea-autosize": "^8.5.9",
     "rss-parser": "^3.13.0",
     "tailwind-merge": "^3.5.0",
+    "use-debounce": "^10.1.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
