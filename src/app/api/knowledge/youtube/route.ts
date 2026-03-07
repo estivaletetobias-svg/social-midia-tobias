@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+// @ts-ignore
 import nodeFetch from 'node-fetch';
 // @ts-ignore
 import { fetchTranscript } from 'youtube-transcript-plus';
