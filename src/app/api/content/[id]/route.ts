@@ -27,3 +27,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+
+        // Ensure we delete dependencies like content versions if needed
+        // Since we have an MVP, let's delete the content piece (cascade should handle or we do it manually, let's check prisma schema)
+        await prisma.contentPiece.delete({
+            where: { id }
+        });
+
+        return NextResponse.json({ success: true, message: "Deleted" });
+    } catch (e: any) {
+        console.error('Delete Content Error:', e.message);
+        return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+}

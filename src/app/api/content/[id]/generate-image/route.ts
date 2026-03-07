@@ -29,7 +29,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
         }
 
         // Enhance prompt for strict ultra-realism
-        const enhancedPrompt = `A candid, authentic, ultra-realist smartphone photography. Raw unedited look, natural lighting. NOT a 3D render, NOT an illustration, NO cartoons, NO text. ${latestVersion.imagePrompt}`;
+        const enhancedPrompt = `A candid, authentic, ultra-realist photography. Raw unedited look, natural lighting, looking like a real post. NOT a 3D render, NOT an illustration, NO cartoons, NO text. ${latestVersion.imagePrompt}`;
 
         // Call DALL-E 3
         const response = await openai.images.generate({

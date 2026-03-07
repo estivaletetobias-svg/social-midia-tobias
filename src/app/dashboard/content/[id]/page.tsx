@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search } from "lucide-react";
+import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -113,6 +113,41 @@ export default function ContentEditor() {
         }
     };
 
+    const handleManualImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Apenas imagens são permitidas.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64Data = reader.result as string;
+            setIsSavingGoogle(true);
+            try {
+                const res = await fetch(`/api/content/${id}/search-image`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "save", imageUrl: base64Data, query: "Manual Upload" })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setAsset(data.asset);
+                } else {
+                    alert(`Erro: ${data.error}`);
+                }
+            } catch (error) {
+                console.error("Failed to upload manual image", error);
+                alert("Falha ao salvar a imagem.");
+            } finally {
+                setIsSavingGoogle(false);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-[60vh] text-primary-500 animate-pulse font-black text-xl">
@@ -179,6 +214,11 @@ export default function ContentEditor() {
                                 Estúdio Visual IA
                             </h3>
                             <div className="flex space-x-2">
+                                <label className="cursor-pointer h-10 px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg hover:bg-gray-50 transition-colors flex items-center shadow-sm">
+                                    <UploadCloud className="mr-2 h-3 w-3" />
+                                    Upload
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleManualImageUpload} />
+                                </label>
                                 <button
                                     onClick={() => setIsGoogleModalOpen(true)}
                                     className="h-10 px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg hover:bg-gray-50 transition-colors flex items-center shadow-sm">

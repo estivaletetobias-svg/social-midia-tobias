@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar as CalendarIcon, Filter, Layers, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, Layers, Users, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default function EditorialCalendar() {
@@ -17,6 +17,25 @@ export default function EditorialCalendar() {
             })
             .catch(console.error);
     }, []);
+
+    const handleDeletePost = async (e: React.MouseEvent, postId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!confirm("Tem certeza que deseja apagar essa ideia/post para sempre?")) return;
+
+        try {
+            const res = await fetch(`/api/content/${postId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPosts(posts.filter(p => p.id !== postId));
+            }
+        } catch (error) {
+            console.error("Failed to delete", error);
+        }
+    };
 
     const days = Array.from({ length: 35 }, (_, i) => i - 3); // Previous month trailing days
     const today = new Date();
@@ -83,16 +102,21 @@ export default function EditorialCalendar() {
                                 {posts.filter(p => p.day === (day < 1 ? 31 + day : (day > 31 ? day - 31 : day)) && p.month === currentMonth).map(post => (
                                     <Link href={`/dashboard/content/${post.id}`} key={post.id}>
                                         <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all cursor-pointer ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
-                                                post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
-                                                    'border-gray-500 bg-gray-50 hover:bg-gray-100'
+                                            post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
+                                                'border-gray-500 bg-gray-50 hover:bg-gray-100'
                                             }`}>
-                                            <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
-                                                    post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
-                                                        'text-gray-600'
-                                                }`}>
-                                                {post.platform}
-                                            </p>
-                                            <p className="mt-1 text-xs font-bold text-gray-900 truncate" title={post.title}>{post.title}</p>
+                                            <div className="flex justify-between items-start">
+                                                <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
+                                                        post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
+                                                            'text-gray-600'
+                                                    }`}>
+                                                    {post.platform}
+                                                </p>
+                                                <button onClick={(e) => handleDeletePost(e, post.id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                            <p className="mt-1 text-xs font-bold text-gray-900 line-clamp-2" title={post.title}>{post.title}</p>
                                         </div>
                                     </Link>
                                 ))}
