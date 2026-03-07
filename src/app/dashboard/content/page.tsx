@@ -7,6 +7,7 @@ export default function ContentPipeline() {
     const [pieces, setPieces] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("All");
+    const [isGenerating, setIsGenerating] = useState<Record<string, boolean>>({});
 
     const tabs = ["All", "idea", "draft", "review", "approved", "published"];
     const statusLabels: Record<string, string> = {
@@ -33,6 +34,25 @@ export default function ContentPipeline() {
         }
     };
 
+    const handleGenerate = async (pieceId: string) => {
+        setIsGenerating(prev => ({ ...prev, [pieceId]: true }));
+        try {
+            const res = await fetch(`/api/content/${pieceId}/generate`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert('Mágica feita! IA acabou de criar sua imagem, copy e ganchos!');
+                loadContent(); // Refresh the pipeline
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Falha ao conectar com o motor de Inteligência Artificial.');
+        } finally {
+            setIsGenerating(prev => ({ ...prev, [pieceId]: false }));
+        }
+    };
+
     useEffect(() => {
         loadContent();
     }, [activeTab]);
@@ -54,7 +74,9 @@ export default function ContentPipeline() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <button className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
+                    <button
+                        onClick={() => alert("Em breve! Por enquanto deixe a Inteligência Artificial trabalhar por você aprovando ideias!")}
+                        className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
                         <PenTool className="mr-3 h-5 w-5" />
                         Escrever Post do Zero
                     </button>
@@ -69,8 +91,8 @@ export default function ContentPipeline() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-3 text-xs font-black rounded-2xl transition-all uppercase tracking-wider ${activeTab === tab
-                                    ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60 scale-105"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"
+                                ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60 scale-105"
+                                : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"
                                 }`}
                         >
                             {tab === "All" ? "Todos" : tab}
@@ -123,9 +145,20 @@ export default function ContentPipeline() {
                                         <div className={`h-2.5 w-2.5 rounded-full ${piece.status === 'idea' ? 'bg-amber-400' : 'bg-primary-500'}`}></div>
                                         <span className="uppercase tracking-wider">{statusLabels[piece.status] || piece.status}</span>
                                     </div>
-                                    <button className="h-12 px-6 bg-white border border-white/60 shadow-sm shadow-black/5 text-primary-600 text-sm font-black rounded-xl hover:bg-primary-50 hover:border-primary-100 transition-all duration-300 flex items-center justify-center group/btn">
-                                        <Play className="mr-2 h-4 w-4 fill-primary-600/20 group-hover/btn:scale-110 transition-transform" />
-                                        {piece.status === 'idea' ? 'Gerar IA' : 'Editar'}
+                                    <button
+                                        onClick={() => piece.status === 'idea' ? handleGenerate(piece.id) : alert('Editor visual em desenvolvimento!')}
+                                        disabled={isGenerating[piece.id]}
+                                        className="h-12 px-6 bg-white border border-white/60 shadow-sm shadow-black/5 text-primary-600 text-sm font-black rounded-xl hover:bg-primary-50 hover:border-primary-100 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50">
+
+                                        {isGenerating[piece.id] ? (
+                                            <Activity className="mr-2 h-4 w-4 animate-spin text-primary-500" />
+                                        ) : (
+                                            <Play className="mr-2 h-4 w-4 fill-primary-600/20 group-hover/btn:scale-110 transition-transform" />
+                                        )}
+
+                                        {isGenerating[piece.id]
+                                            ? 'Gerando...'
+                                            : piece.status === 'idea' ? 'Gerar IA' : 'Editar'}
                                     </button>
                                 </div>
                             </div>
