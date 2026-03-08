@@ -126,7 +126,7 @@ export class VisualEngineService {
             n: 1,
             size: "1024x1024",
             quality: "hd",
-            style: "vivid"
+            style: "natural"
         });
 
         const url = response.data?.[0]?.url;
