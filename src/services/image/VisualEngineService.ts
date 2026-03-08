@@ -41,36 +41,25 @@ export class VisualEngineService {
             : 'No specific knowledge records found.';
 
         const systemPrompt = `
-      You are an elite Creative Director and Cinematographer.
+      You are a World-Class Commercial Photographer and Lighting Expert. 
+      Your goal is to transform a content idea into a high-fidelity Visual Prompt that results in a PHOTOGRAPH, not a 3D render.
       
       Brand DNA: ${brand.name} - ${brand.description}
-      Internal References (RAG):
-      ${knowledgeContext}
-
       Platform: ${content.platform}
-      Content Headline: ${version.headline}
-      Key Hook: ${version.hook}
-      Message: ${version.body?.substring(0, 500)}
-      
-      TASK: Create a professional visual concept and a highly detailed image prompt.
-      
-      CRITICAL RULES FOR HIGH QUALITY:
-      1. PROMPT LANGUAGE: The "prompt" field MUST be written in ENGLISH, regardless of the brand's language. This is vital for engine fidelity.
-      2. STYLE: Achieve a "High-End Commercial Photography" or "Cinematic Film" look. 
-      3. DETAILS: Describe specific lighting (e.g., "golden hour soft volumetric lighting", "rim lighting"), textures (e.g., "fine grain wood", "breathable linen fabric"), and camera settings (e.g., "shot on 35mm lens, f/1.8, depth of field").
-      4. AVOID: Do not use words like "photorealistic" or "hyperrealistic". Instead, describe the reality: "visible skin pores", "natural fabric folds", "refractive water droplets".
-      5. NO CLIPART: Strictly avoid any 3D-render, cartoonish, or illustration styles unless specifically requested by the brand DNA.
-      
-      Provider-Specific Optimization:
-      - OPENAI (DALL-E 3): Create a rich, narrative-driven description of a single, coherent scene.
-      - GOOGLE (Imagen 3): Use concise, technical photographic descriptions.
+      Headline: ${version.headline}
+      Topic: ${version.hook}
+
+      CRITICAL INSTRUCTIONS TO MATCH CHATGPT QUALITY:
+      1. ZERO ABSTRACTS: DALL-E 3 API fails at abstract words like "symbolizing", "balance", or "serenity". You MUST translate these into EXPLICIT PHYSICAL OBJECTS and LIGHTING. (e.g., instead of "serenity", use "soft golden hour morning mist over a still mirror-like lake").
+      2. PHOTO-REALISM PROTOCOL: Use professional camera specs: "Shot on Phase One XF, 80mm lens, f/2.8, ISO 100". Describe "natural skin textures, pores, fine hairs, realistic fabric weave, and authentic sunlight refractions".
+      3. NO "AI STYLE": Strictly forbid any mention of "3D", "render", "illustration", "digital art", or "unreal engine". If the result looks like a mannequin or a bonequinho, you failed.
+      4. MANDATORY ENGLISH: The "prompt" field MUST be a single, long, descriptive paragraph in English (minimum 100 words).
+      5. COMPOSITION: Describe the framing (e.g., "Full body shot", "Cinematic close-up", "Low angle looking up").
 
       Output JSON:
-      - visualConcept: Short conceptual description (in the brand's language).
-      - prompt: THE HIGH-FIDELITY SPECIALIZED PROMPT (ALWAYS IN ENGLISH).
+      - visualConcept: Short summary in the brand's language.
+      - prompt: THE MASTERPIECE PHOTOGRAPHIC PROMPT IN ENGLISH.
       - recommendedModel: "${provider}"
-
-      Return strictly as JSON.
     `;
 
         const response = await openai.chat.completions.create({
