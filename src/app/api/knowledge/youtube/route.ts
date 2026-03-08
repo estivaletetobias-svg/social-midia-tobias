@@ -16,13 +16,17 @@ export async function POST(req: Request) {
         const videoId = videoIdMatch[1];
         let videoTitle = title;
 
-        const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+        // NEW STEALTH UI: Mimicking a Mobile iPhone (YouTube is more permissive with mobile)
+        const MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
 
-        // Tentar buscar o título real do vídeo no YouTube se nenhum título for passado
+        // Tentar buscar o título real do vídeo no YouTube
         if (!videoTitle || videoTitle === "Transcrição YT Temporária") {
             try {
                 const response = await nodeFetch(`https://www.youtube.com/watch?v=${videoId}`, {
-                    headers: { 'User-Agent': CHROME_UA }
+                    headers: {
+                        'User-Agent': MOBILE_UA,
+                        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                    }
                 });
                 const html = await response.text();
                 const titleMatch = html.match(/<title>(.*?)<\/title>/i);
@@ -39,41 +43,45 @@ export async function POST(req: Request) {
 
         let transcript;
 
-        // Custom fetch handler to bypass Next.js fetch patches and add standard headers
+        // HIGH-RESILIENCE FETCH: Specialized headers for bypassing server-side detection
         const customFetch = async (params: any) => {
             return nodeFetch(params.url, {
                 method: params.method || 'GET',
                 body: params.body,
                 headers: {
                     ...params.headers,
-                    'User-Agent': CHROME_UA,
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                    'User-Agent': MOBILE_UA,
+                    'Accept': '*/*',
                     'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Sec-Fetch-Dest': 'empty',
+                    'Sec-Fetch-Mode': 'cors',
+                    'Sec-Fetch-Site': 'same-origin',
                     'Referer': `https://www.youtube.com/watch?v=${videoId}`,
-                    'Cookie': 'CONSENT=YES+cb.20210328-17-p0.en+FX+999' // Helps avoid consent redirects
+                    'Cookie': 'CONSENT=YES+cb.20210328-17-p0.en+FX+999'
                 }
             }) as any;
         };
 
         const config = {
             lang: 'pt',
-            userAgent: CHROME_UA,
+            userAgent: MOBILE_UA,
             videoFetch: customFetch,
             transcriptFetch: customFetch,
             playerFetch: customFetch,
         };
 
         try {
-            console.log(`[YouTube] Trying dedicated node-fetch for ${videoId}...`);
+            console.log(`[YouTube Alpha] Attempting ultra-stealth scrape for ${videoId}...`);
             try {
-                // Tenta com o DNA e node-fetch
                 transcript = await fetchTranscript(videoId, config);
             } catch (ptErr: any) {
-                console.warn(`[YouTube] PT attempt failed (${ptErr.message}), trying default fallback (node-fetch)...`);
+                console.warn(`[YouTube Alpha] PT failed, falling back to auto-detect...`);
                 transcript = await fetchTranscript(videoId, { ...config, lang: undefined });
             }
         } catch (scrapeErr: any) {
-            console.error("Youtube library error (DNA Tobias):", scrapeErr.message);
+            console.error("Youtube Alpha Error:", scrapeErr.message);
 
             return NextResponse.json({
                 error: `O YouTube bloqueou a leitura temporária desse vídeo. Isso acontece às vezes por segurança deles.`,
