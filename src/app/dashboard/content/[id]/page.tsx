@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search, UploadCloud } from "lucide-react";
+import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search, UploadCloud, Copy } from "lucide-react";
 import Link from "next/link";
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -54,6 +54,12 @@ export default function ContentEditor() {
         };
         fetchContent();
     }, [id]);
+
+    const copyToClipboard = (text: string) => {
+        if (!text) return;
+        navigator.clipboard.writeText(text);
+        alert("Prompt copiado! Cole no Midjourney ou ChatGPT.");
+    };
 
     const handleGenerateImage = async () => {
         setIsGeneratingImg(true);
@@ -241,6 +247,12 @@ export default function ContentEditor() {
                                 Biblioteca de Mídia
                             </h3>
                             <div className="flex space-x-2">
+                                <button
+                                    onClick={() => copyToClipboard(version.imagePrompt)}
+                                    title="Copiar prompt para usar em outra IA"
+                                    className="h-10 px-3 bg-white border-2 border-gray-100 text-gray-500 rounded-lg hover:border-primary-500 hover:text-primary-600 transition-all flex items-center shadow-sm">
+                                    <Copy className="h-4 w-4" />
+                                </button>
                                 <label className="cursor-pointer h-10 px-4 bg-primary-500 text-white text-xs font-black rounded-lg hover:bg-black transition-all flex items-center shadow-lg transform hover:-translate-y-0.5">
                                     <UploadCloud className="mr-2 h-4 w-4" />
                                     Subir Foto
@@ -296,11 +308,18 @@ export default function ContentEditor() {
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt Técnico (DALL-E 3)</label>
-                                    <textarea
-                                        readOnly
-                                        className="w-full text-[10px] font-mono text-gray-500 bg-gray-50 p-3 rounded-xl border border-transparent focus:outline-none resize-none h-24"
-                                        value={version.imagePrompt || "Prompt ainda não gerado."}
-                                    />
+                                    <div className="relative group">
+                                        <textarea
+                                            readOnly
+                                            className="w-full text-[10px] font-mono text-gray-500 bg-gray-50 p-3 rounded-xl border border-transparent focus:outline-none resize-none h-24"
+                                            value={version.imagePrompt || "Prompt ainda não gerado."}
+                                        />
+                                        <button
+                                            onClick={() => copyToClipboard(version.imagePrompt)}
+                                            className="absolute top-2 right-2 p-2 bg-white border border-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                            <Copy className="h-3 w-3 text-gray-400" />
+                                        </button>
+                                    </div>
                                     <button
                                         onClick={handleGenerateImage}
                                         disabled={isGeneratingImg}
