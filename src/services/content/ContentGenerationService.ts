@@ -25,11 +25,7 @@ export class ContentGenerationService {
             where: { id: request.brandProfileId },
             include: {
                 editorialPillars: true,
-                voiceGuides: { where: { platform: request.platform } },
-                knowledgeItems: {
-                    take: 10,
-                    orderBy: { createdAt: 'desc' }
-                }
+                voiceGuides: { where: { platform: request.platform } }
             },
         });
 
@@ -39,14 +35,25 @@ export class ContentGenerationService {
             ? await prisma.topicCandidate.findUnique({ where: { id: request.topicId } })
             : null;
 
+        // Step 0: RAG - Fetch relevant knowledge
+        const contextResults = await VectorService.searchKnowledge(
+            brand.id,
+            `${topic?.title || ''} ${request.goal || ''} ${brand.editorialPillars.map((p: any) => p.title).join(' ')}`,
+            4 // Limit to 4 relevant items to stay within TPM limits
+        );
+
+        const knowledgeContext = contextResults.length > 0
+            ? contextResults.map((k: any) => `[${k.title}]\n${k.content.substring(0, 3000)}...`).join('\n\n')
+            : 'No direct reference materials found.';
+
         // Step 1: Define Goal & Audience Strategy (System-driven)
-        const strategy = await this.generateStrategy(request, brand, topic);
+        const strategy = await this.generateStrategy(request, brand, topic, knowledgeContext);
 
         // Step 2: Generate Content Structure
         const structure = await this.generateStructure(request, brand, strategy);
 
         // Step 3: Generate Final Copy
-        const copy = await this.generateFinalCopy(request, brand, structure);
+        const copy = await this.generateFinalCopy(request, brand, structure, knowledgeContext);
 
         // Step 4: Validate against brand voice
         const validationResult = await this.validateBrandVoice(copy, brand);
@@ -64,18 +71,7 @@ export class ContentGenerationService {
         };
     }
 
-    private static async generateStrategy(request: GenerationRequest, brand: any, topic: any) {
-        // RAG: Fetch relevant knowledge
-        const contextResults = await VectorService.searchKnowledge(
-            brand.id,
-            `${topic?.title || ''} ${brand.editorialPillars.map((p: any) => p.title).join(' ')}`,
-            5
-        );
-
-        const knowledgeContext = contextResults.length > 0
-            ? contextResults.map((k: any) => `- ${k.title}: ${k.content}`).join('\n')
-            : 'No direct reference materials found.';
-
+    private static async generateStrategy(request: GenerationRequest, brand: any, topic: any, knowledgeContext: string) {
         const prompt = `
       You are a senior social media strategist. 
       Brand: ${brand.name}
@@ -137,7 +133,7 @@ export class ContentGenerationService {
         return JSON.parse(response.choices[0].message.content || '{"sections": []}');
     }
 
-    private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any) {
+    private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any, knowledgeContext: string) {
         const prompt = `
       You are a world-class senior copywriter specializing in ${request.platform}.
       
@@ -147,9 +143,7 @@ export class ContentGenerationService {
       Structure to Follow: ${JSON.stringify(structure.sections)}
       
       INTERNAL KNOWLEDGE BASE (Use these insights and guidelines to sound genuinely like the brand and cross-reference data if applicable):
-      ${brand.knowledgeItems && brand.knowledgeItems.length > 0
-                ? brand.knowledgeItems.map((item: any) => `[${item.type}] ${item.title}:\n${item.content}`).join('\n\n')
-                : 'No internal knowledge base available.'}
+      ${knowledgeContext}
       
       TASK: Write the actual final copy. Make it ready to publish.
       

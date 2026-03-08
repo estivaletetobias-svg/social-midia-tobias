@@ -37,7 +37,7 @@ export class VisualEngineService {
             3
         );
         const knowledgeContext = contextResults.length > 0
-            ? `INTERNAL KNOWLEDGE (RAG): ${contextResults.map((k: any) => `- ${k.title}: ${k.content}`).join('\n')}`
+            ? `INTERNAL KNOWLEDGE (RAG): ${contextResults.map((k: any) => `- ${k.title}: ${k.content.substring(0, 2000)}`).join('\n')}`
             : 'No specific knowledge records found.';
 
         const systemPrompt = `
