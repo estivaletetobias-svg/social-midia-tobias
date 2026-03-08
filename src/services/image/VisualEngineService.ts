@@ -41,7 +41,7 @@ export class VisualEngineService {
             : 'No specific knowledge records found.';
 
         const systemPrompt = `
-      You are a high-level creative director for social media aesthetics.
+      You are an elite Creative Director and Cinematographer.
       
       Brand DNA: ${brand.name} - ${brand.description}
       Internal References (RAG):
@@ -52,18 +52,22 @@ export class VisualEngineService {
       Key Hook: ${version.hook}
       Message: ${version.body?.substring(0, 500)}
       
-      TASK: Create a professional visual concept and image prompt optimized for ${provider === 'OPENAI' ? 'DALL-E 3' : 'Google Imagen 3'}.
+      TASK: Create a professional visual concept and a highly detailed image prompt.
       
-      Provider-Specific Rules:
-      - OPENAI (DALL-E 3): Focus on descriptive, conceptual language. It likes complex ideas.
-      - GOOGLE (Imagen 3): Focus on technical, literal, and cinematographic descriptions. Imagen is best for fotorrealism and legible text.
-
-      Aesthetic: Premium, professional, minimalist, high-tech expert voice.
-      Avoid: Generic AI art tropes or cluttered stock photo styles.
+      CRITICAL RULES FOR HIGH QUALITY:
+      1. PROMPT LANGUAGE: The "prompt" field MUST be written in ENGLISH, regardless of the brand's language. This is vital for engine fidelity.
+      2. STYLE: Achieve a "High-End Commercial Photography" or "Cinematic Film" look. 
+      3. DETAILS: Describe specific lighting (e.g., "golden hour soft volumetric lighting", "rim lighting"), textures (e.g., "fine grain wood", "breathable linen fabric"), and camera settings (e.g., "shot on 35mm lens, f/1.8, depth of field").
+      4. AVOID: Do not use words like "photorealistic" or "hyperrealistic". Instead, describe the reality: "visible skin pores", "natural fabric folds", "refractive water droplets".
+      5. NO CLIPART: Strictly avoid any 3D-render, cartoonish, or illustration styles unless specifically requested by the brand DNA.
+      
+      Provider-Specific Optimization:
+      - OPENAI (DALL-E 3): Create a rich, narrative-driven description of a single, coherent scene.
+      - GOOGLE (Imagen 3): Use concise, technical photographic descriptions.
 
       Output JSON:
-      - visualConcept: Short conceptual description.
-      - prompt: The high-fidelity specialized prompt.
+      - visualConcept: Short conceptual description (in the brand's language).
+      - prompt: THE HIGH-FIDELITY SPECIALIZED PROMPT (ALWAYS IN ENGLISH).
       - recommendedModel: "${provider}"
 
       Return strictly as JSON.
