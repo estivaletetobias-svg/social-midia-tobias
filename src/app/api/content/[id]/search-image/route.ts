@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import google from 'googlethis';
 import prisma from '@/lib/prisma';
+import { VisualSearchService } from '@/services/image/VisualSearchService';
 
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await context.params;
         const body = await req.json().catch(() => ({}));
-        const { query, action, imageUrl } = body;
+        const { query, action, imageUrl, source } = body;
 
         // Ensure the post exists
         const contentPiece = await prisma.contentPiece.findUnique({
@@ -21,10 +21,19 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
         if (action === 'search') {
             if (!query) return NextResponse.json({ error: 'Falta o termo de busca.' }, { status: 400 });
 
-            // Search Google Images safely
-            const images = await google.image(query, { safe: false });
+            // Perform searches in parallel
+            const [googleResults, unsplashResults] = await Promise.all([
+                VisualSearchService.searchGoogle(query),
+                VisualSearchService.searchUnsplash(query)
+            ]);
 
-            return NextResponse.json({ success: true, results: images.slice(0, 15) });
+            // Combine and prioritize high-quality Unsplash results
+            const combinedResults = [...unsplashResults, ...googleResults];
+
+            return NextResponse.json({
+                success: true,
+                results: combinedResults.slice(0, 30)
+            });
         }
 
         // Save Action

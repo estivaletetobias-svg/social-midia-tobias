@@ -20,9 +20,16 @@ export default function ContentEditor() {
     // Google Image states
     const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
     const [googleQuery, setGoogleQuery] = useState("");
-    const [googleResults, setGoogleResults] = useState<any[]>([]);
     const [isSearchingGoogle, setIsSearchingGoogle] = useState(false);
     const [isSavingGoogle, setIsSavingGoogle] = useState(false);
+    const [googleResults, setGoogleResults] = useState<any[]>([]);
+
+    // Pre-populate search when opening modal
+    useEffect(() => {
+        if (isGoogleModalOpen && piece && !googleQuery) {
+            setGoogleQuery(piece.title);
+        }
+    }, [isGoogleModalOpen, piece, googleQuery]);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -231,71 +238,78 @@ export default function ContentEditor() {
                         <div className="relative z-10 flex items-center justify-between mb-6">
                             <h3 className="text-xl font-black text-gray-900 flex items-center">
                                 <ImageIcon className="mr-3 h-6 w-6 text-primary-500" />
-                                Estúdio Visual IA
+                                Biblioteca de Mídia
                             </h3>
                             <div className="flex space-x-2">
-                                <label className="cursor-pointer h-10 px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg hover:bg-gray-50 transition-colors flex items-center shadow-sm">
-                                    <UploadCloud className="mr-2 h-3 w-3" />
-                                    Upload
+                                <label className="cursor-pointer h-10 px-4 bg-primary-500 text-white text-xs font-black rounded-lg hover:bg-black transition-all flex items-center shadow-lg transform hover:-translate-y-0.5">
+                                    <UploadCloud className="mr-2 h-4 w-4" />
+                                    Subir Foto
                                     <input type="file" accept="image/*" className="hidden" onChange={handleManualImageUpload} />
                                 </label>
                                 <button
                                     onClick={() => setIsGoogleModalOpen(true)}
-                                    className="h-10 px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg hover:bg-gray-50 transition-colors flex items-center shadow-sm">
-                                    <Search className="mr-2 h-3 w-3" />
-                                    Google Imagens
-                                </button>
-                                <button
-                                    onClick={handleGenerateImage}
-                                    disabled={isGeneratingImg}
-                                    className="h-10 px-4 bg-primary-50 text-primary-600 text-xs font-black rounded-lg hover:bg-primary-500 hover:text-white transition-colors flex items-center disabled:opacity-50">
-                                    {isGeneratingImg ? (
-                                        <>
-                                            <Wand2 className="mr-2 h-3 w-3 animate-spin" />
-                                            Gerando...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Wand2 className="mr-2 h-3 w-3" />
-                                            DALL-E 3
-                                        </>
-                                    )}
+                                    className="h-10 px-4 bg-white border-2 border-gray-100 text-gray-700 text-xs font-black rounded-lg hover:border-primary-500 hover:text-primary-600 transition-all flex items-center shadow-sm">
+                                    <Search className="mr-2 h-4 w-4" />
+                                    Buscar Real
                                 </button>
                             </div>
                         </div>
 
-                        <div className="space-y-4 relative z-10">
-                            <div>
-                                <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">Conceito Visual</label>
-                                <p className="text-sm font-bold text-gray-700 bg-white/50 p-4 rounded-2xl border border-white/60">
-                                    {version.visualConcept || "Em breve..."}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt do DALL-E / Midjourney</label>
-                                <textarea
-                                    readOnly
-                                    className="w-full text-xs font-mono text-gray-500 bg-black/5 p-4 rounded-2xl border border-transparent focus:outline-none resize-none h-32"
-                                    value={version.imagePrompt || "Em breve..."}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mt-8 aspect-square bg-gray-100 rounded-3xl border border-gray-200 flex flex-col items-center justify-center text-gray-400 space-y-3 relative z-10 overflow-hidden shadow-inner">
+                        <div className="mt-8 aspect-square bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 space-y-3 relative z-10 overflow-hidden group/img">
                             {asset ? (
-                                <img src={asset.url} alt="Generated visual" className="w-full h-full object-cover" />
+                                <>
+                                    <img src={asset.url} alt="Selected visual" className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105" />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                        <button onClick={() => setIsGoogleModalOpen(true)} className="bg-white text-gray-900 px-4 py-2 rounded-xl font-black text-xs shadow-xl">Trocar Imagem</button>
+                                    </div>
+                                </>
                             ) : isGeneratingImg ? (
-                                <div className="flex flex-col items-center justify-center animate-pulse">
+                                <div className="flex flex-col items-center justify-center">
                                     <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
-                                    <span className="text-sm font-bold text-primary-600">Pintando sua obra de arte...</span>
+                                    <span className="text-sm font-black text-gray-900">Gerando visual...</span>
                                 </div>
                             ) : (
-                                <>
-                                    <ImageIcon className="h-10 w-10 opacity-50" />
-                                    <span className="text-sm font-bold">Nenhuma imagem gerada ainda</span>
-                                </>
+                                <div className="text-center p-8">
+                                    <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                                    <p className="text-gray-400 font-bold text-sm mb-4">Escolha uma foto real ou use o DALL-E</p>
+                                    <button
+                                        onClick={() => setIsGoogleModalOpen(true)}
+                                        className="text-primary-600 font-black text-xs underline decoration-2 underline-offset-4">
+                                        Explorar Biblioteca Global
+                                    </button>
+                                </div>
                             )}
                         </div>
+
+                        {/* Collapsible Info for Advanced AI */}
+                        <details className="mt-6 relative z-10">
+                            <summary className="text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer hover:text-primary-500 transition-colors list-none flex items-center">
+                                <Wand2 className="mr-2 h-3 w-3" />
+                                Configurações de IA & Prompts
+                            </summary>
+                            <div className="mt-4 space-y-4 animate-in slide-in-from-top-2">
+                                <div>
+                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Diretriz de Criação</label>
+                                    <p className="text-xs font-bold text-gray-600 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                        {version.visualConcept || "DNA visual ainda não definido."}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt Técnico (DALL-E 3)</label>
+                                    <textarea
+                                        readOnly
+                                        className="w-full text-[10px] font-mono text-gray-500 bg-gray-50 p-3 rounded-xl border border-transparent focus:outline-none resize-none h-24"
+                                        value={version.imagePrompt || "Prompt ainda não gerado."}
+                                    />
+                                    <button
+                                        onClick={handleGenerateImage}
+                                        disabled={isGeneratingImg}
+                                        className="mt-2 w-full h-8 bg-black text-white text-[10px] font-black rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50">
+                                        {isGeneratingImg ? "Gerando..." : "Gerar com DALL-E 3"}
+                                    </button>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
@@ -436,13 +450,18 @@ export default function ContentEditor() {
             {isGoogleModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
                     <div className="bg-white rounded-[40px] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-                        <div className="p-8 border-b border-gray-100 flex items-center justify-between">
-                            <h2 className="text-2xl font-black text-gray-900 flex items-center">
-                                <Search className="mr-3 h-6 w-6 text-primary-500" />
-                                Buscar Foto Real (Google Images)
-                            </h2>
-                            <button onClick={() => setIsGoogleModalOpen(false)} className="text-gray-400 hover:text-gray-900">
-                                Fechar
+                        <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                            <div className="flex items-center space-x-4">
+                                <div className="p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                    <ImageIcon className="h-6 w-6 text-primary-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-gray-900 leading-tight">Biblioteca Global de Fotos</h2>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Unsplash + Google Images</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsGoogleModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-900 transition-all font-black">
+                                ✕
                             </button>
                         </div>
 
@@ -464,19 +483,27 @@ export default function ContentEditor() {
                             </form>
 
                             {googleResults.length > 0 && (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6 pb-6">
                                     {googleResults.map((img, i) => (
                                         <div
                                             key={i}
                                             onClick={() => handleSaveGoogleImage(img.url)}
-                                            className="relative aspect-square rounded-2xl overflow-hidden group cursor-pointer border border-gray-200 bg-white"
+                                            className="relative aspect-[4/5] rounded-3xl overflow-hidden group cursor-pointer border-4 border-transparent hover:border-primary-500 bg-white shadow-sm ring-1 ring-black/5"
                                         >
-                                            <img src={img.url} alt="Result" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <span className="text-white text-xs font-bold uppercase tracking-widest border border-white px-3 py-1 rounded-full">
-                                                    Selecionar
+                                            <img src={img.thumbnail || img.url} alt="Result" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
+                                                <span className="text-white text-[10px] font-black uppercase tracking-widest mb-1">
+                                                    Fonte: {img.source || 'Web'}
+                                                </span>
+                                                <span className="bg-primary-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded w-fit">
+                                                    Selecionar Foto
                                                 </span>
                                             </div>
+                                            {img.author && (
+                                                <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg text-[8px] text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    By {img.author}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
