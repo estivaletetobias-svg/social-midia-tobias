@@ -16,10 +16,14 @@ export async function POST(req: Request) {
         const videoId = videoIdMatch[1];
         let videoTitle = title;
 
+        const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+
         // Tentar buscar o título real do vídeo no YouTube se nenhum título for passado
         if (!videoTitle || videoTitle === "Transcrição YT Temporária") {
             try {
-                const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+                const response = await nodeFetch(`https://www.youtube.com/watch?v=${videoId}`, {
+                    headers: { 'User-Agent': CHROME_UA }
+                });
                 const html = await response.text();
                 const titleMatch = html.match(/<title>(.*?)<\/title>/i);
                 if (titleMatch && titleMatch[1]) {
@@ -34,7 +38,6 @@ export async function POST(req: Request) {
         if (!brand) return NextResponse.json({ error: 'DNA não configurado.' }, { status: 400 });
 
         let transcript;
-        const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
 
         // Custom fetch handler to bypass Next.js fetch patches and add standard headers
         const customFetch = async (params: any) => {
@@ -44,7 +47,10 @@ export async function POST(req: Request) {
                 headers: {
                     ...params.headers,
                     'User-Agent': CHROME_UA,
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
                     'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Referer': `https://www.youtube.com/watch?v=${videoId}`,
+                    'Cookie': 'CONSENT=YES+cb.20210328-17-p0.en+FX+999' // Helps avoid consent redirects
                 }
             }) as any;
         };
