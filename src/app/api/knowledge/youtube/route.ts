@@ -36,14 +36,10 @@ export async function POST(req: Request) {
 
             const html = await response.text();
 
-            // Check for obvious blocks
-            if (html.includes('recaptcha') || html.includes('captcha') || html.includes('robot')) {
-                return null;
-            }
-
+            // Try to find the JSON regardless of bot detection (sometimes it's just partially blocked)
             let tracks = [];
 
-            // 1. Modern ytInitialPlayerResponse
+            // 1. Modern ytInitialPlayerResponse (Best way)
             const playerMatch = html.match(/ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/);
             if (playerMatch) {
                 try {
@@ -52,114 +48,129 @@ export async function POST(req: Request) {
                 } catch (e) { }
             }
 
-            // 2. Embedded Config (common in embed page)
+            // 2. Fallbacks for tracks
             if (tracks.length === 0) {
                 const configMatch = html.match(/"captionTracks":\s*(\[.*?\])/);
-                if (configMatch) {
-                    try { tracks = JSON.parse(configMatch[1]); } catch (e) { }
-                }
-            }
-
-            // 3. Escaped captionTracks
-            if (tracks.length === 0) {
-                const escapedMatch = html.match(/captionTracks\\":\s*(\[.*?\])/);
-                if (escapedMatch) {
-                    try {
-                        const trackStr = escapedMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                        tracks = JSON.parse(trackStr);
-                    } catch (e) { }
-                }
+                if (configMatch) try { tracks = JSON.parse(configMatch[1]); } catch (e) { }
             }
 
             return { tracks, html };
         }
 
-        console.log(`[YouTube Alpha] Starting manual extraction for ${videoId}...`);
+        console.log(`[YouTube Alpha ☢️] Reactor started for ${videoId}...`);
 
         try {
-            // Priority 1: Mobile (Fast & Loose)
-            let result = await tryScrape(MOBILE_UA);
-
-            // Priority 2: Desktop (Formal)
-            if (!result || result.tracks.length === 0) {
-                console.log("[YouTube Alpha] Mobile failed, trying Desktop...");
-                result = await tryScrape(CHROME_UA);
-            }
-
-            // Priority 3: Embed (Fallback)
-            if (!result || result.tracks.length === 0) {
-                console.log("[YouTube Alpha] Desktop failed, trying Embed...");
-                result = await tryScrape(CHROME_UA, true);
-            }
-
-            if (!result || result.tracks.length === 0) {
-                throw new Error('Não foi possível localizar o rastro de legendas. Verifique se o vídeo tem legendas (CC) e tente novamente.');
-            }
-
-            const { tracks, html } = result;
-
-            // Extract Title if missing
-            if ((!videoTitle || videoTitle === "Transcrição YT Temporária") && html) {
-                const titleMatch = html.match(/<title>(.*?)<\/title>/i);
-                if (titleMatch) videoTitle = titleMatch[1].replace(' - YouTube', '').trim();
-            }
-
             const brand = await prisma.brandProfile.findFirst();
             if (!brand) return NextResponse.json({ error: 'DNA não configurado.' }, { status: 400 });
 
-            return await fetchAndParseCaptions(tracks, videoId, videoTitle, tags, type, brand.id);
+            let result = { tracks: [], html: '' };
+
+            // TIER 1: INTERNAL STEALTH SCRAPE (Mobile & Desktop)
+            result = await tryScrape(MOBILE_UA);
+            if (!result || result.tracks.length === 0) {
+                console.log("[YouTube Tier-1] Mobile failed, trying Desktop...");
+                result = await tryScrape(CHROME_UA);
+            }
+            if (!result || result.tracks.length === 0) {
+                console.log("[YouTube Tier-1] Desktop failed, trying Embed...");
+                result = await tryScrape(CHROME_UA, true);
+            }
+
+            // Extract Title if missing from Tier 1 HTML
+            if ((!videoTitle || videoTitle === "Transcrição YT Temporária") && result.html) {
+                const titleMatch = result.html.match(/<title>(.*?)<\/title>/i);
+                if (titleMatch) videoTitle = titleMatch[1].replace(' - YouTube', '').trim();
+            }
+
+            // If Tier 1 was successful, process it
+            if (result && result.tracks.length > 0) {
+                console.log("[YouTube Tier-1] Success via internal scrape!");
+                return await fetchAndParseCaptions(result.tracks, videoId, videoTitle, tags, type, brand.id);
+            }
+
+            // TIER 2: INVIDIOUS API FALLBACK (The Resilient Stack)
+            console.log("[YouTube Tier-2 🛡️] Direct scrape failed, switching to Invidious Instance (yewtu.be)...");
+            const invidiousTracks = await tryInvidious(videoId);
+            if (invidiousTracks && invidiousTracks.length > 0) {
+                console.log("[YouTube Tier-2] Success via Invidious!");
+                return await fetchAndParseCaptions(invidiousTracks, videoId, videoTitle || "Vídeo YT", tags, type, brand.id);
+            }
+
+            // FINAL CHECK AND RESPONSE
+            throw new Error('Não foi possível localizar o rastro de legendas em nenhuma camada. Verifique se o vídeo possui legendas (CC) no YouTube.');
 
         } catch (scrapeErr: any) {
-            console.error("Youtube Alpha Manual Error:", scrapeErr.message);
+            console.error("YouTube Alpha Critical Failure:", scrapeErr.message);
             return NextResponse.json({
-                error: `O YouTube bloqueou a leitura temporária desse vídeo ou ele não possui legendas. (${scrapeErr.message})`,
+                error: `Ops! O YouTube barrou nosso acesso temporário ou o vídeo não tem legendas. (${scrapeErr.message})`,
                 videoId
             }, { status: 400 });
         }
     } catch (e: any) {
         console.error('YouTube Global Error:', e);
-        return NextResponse.json({ error: `Falha crítica no motor de busca: ${e.message}` }, { status: 500 });
+        return NextResponse.json({ error: `Falha total no sistema: ${e.message}` }, { status: 500 });
     }
 }
 
 /**
- * Helper to fetch the actual XML/JSON captions and save to DB
+ * TIER 2 HELPER: Try to fetch captions from a public Invidious instance
+ */
+async function tryInvidious(videoId: string) {
+    try {
+        const response = await nodeFetch(`https://yewtu.be/api/v1/captions/${videoId}`);
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (data && data.captions && data.captions.length > 0) {
+            // Map Invidious format to our caption format
+            return data.captions.map((c: any) => ({
+                baseUrl: `https://yewtu.be/api/v1/captions/${videoId}?label=${encodeURIComponent(c.label)}`,
+                languageCode: c.label.toLowerCase().includes('portug') ? 'pt' : (c.label.toLowerCase().includes('english') ? 'en' : 'unknown'),
+                label: { simpleText: c.label }
+            }));
+        }
+    } catch (e) {
+        console.warn("[Tier-2] Invidious fallback failed.");
+    }
+    return null;
+}
+
+/**
+ * HELPER: Fetch, Parse and Save
  */
 async function fetchAndParseCaptions(tracks: any[], videoId: string, videoTitle: string, tags: string, type: string, brandId: string) {
-    // Prioritize Portuguese, then English, then whatever is first
-    const track = tracks.find((t: any) => t.languageCode === 'pt') ||
-        tracks.find((t: any) => t.languageCode === 'en') ||
+    const track = tracks.find((t: any) => t.languageCode === 'pt' || (t.label?.simpleText && t.label.simpleText.toLowerCase().includes('portug'))) ||
+        tracks.find((t: any) => t.languageCode === 'en' || (t.label?.simpleText && t.label.simpleText.toLowerCase().includes('ingl'))) ||
         tracks[0];
 
-    if (!track || !track.baseUrl) {
-        return NextResponse.json({ error: 'Nenhuma legenda disponível para extração.' }, { status: 400 });
-    }
+    if (!track || !track.baseUrl) throw new Error('Legenda encontrada mas link de download inválido.');
 
-    const res = await nodeFetch(track.baseUrl + '&fmt=json3'); // Fetch in JSON format for easier parsing
-    if (!res.ok) throw new Error('Falha ao baixar arquivo de legenda do Google.');
+    const res = await nodeFetch(track.baseUrl + (track.baseUrl.includes('?') ? '&' : '?') + 'fmt=json3');
+    if (!res.ok) throw new Error('O arquivo de legenda está inacessível no momento.');
 
     const data = await res.json();
 
-    // Extract text from the YouTube caption format
-    const fullText = data.events
-        .filter((e: any) => e.segs)
-        .map((e: any) => e.segs.map((s: any) => s.utf8).join(''))
-        .join(' ')
-        .replace(/\n/g, ' ')
-        .trim();
-
-    if (!fullText) {
-        return NextResponse.json({ error: 'Legenda vazia ou protegida.' }, { status: 400 });
+    // Check if it's Invidious format or YouTube format
+    let fullText = "";
+    if (data.events) {
+        // YouTube format
+        fullText = data.events.filter((e: any) => e.segs).map((e: any) => e.segs.map((s: any) => s.utf8).join('')).join(' ');
+    } else if (Array.isArray(data)) {
+        // Invidious often yields different formats, handle simple join if needed (Invidious usually just returns VTT/SRT unless requested differently)
+        // But fmt=json3 on yewtu.be often matches YouTube
+        fullText = data.map((item: any) => item.text || '').join(' ');
     }
+
+    fullText = fullText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!fullText) throw new Error('O texto da legenda retornou vazio.');
 
     // Save to DB
     const knowledgeItem = await prisma.knowledgeItem.create({
         data: {
             brandProfileId: brandId,
-            title: videoTitle || 'Transcrição de Vídeo YouTube',
-            content: `(Extraído via Alpha Scraper: https://youtube.com/watch?v=${videoId})\n\n${fullText}`,
-            type: type || 'Vídeo Transcrito',
-            tags: tags ? tags.split(',').map((t: string) => t.trim()) : ['YOUTUBE', 'VÍDEO']
+            title: videoTitle || 'Mídia YouTube Capturada',
+            content: `(Extraído via Alpha Reactor: https://youtube.com/watch?v=${videoId})\n\n${fullText}`,
+            type: type || 'Conteúdo YT',
+            tags: tags ? tags.split(',').map((t: string) => t.trim()) : ['YOUTUBE', 'AUTO-CAPTURA']
         }
     });
 
