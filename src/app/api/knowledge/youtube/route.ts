@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 /**
- * YouTube Knowledge Ingestion - v4 (Production Grade)
- * 
- * Tier 1: YouTube Data API v3 - captions endpoint (100% confiável, oficial)
- * Tier 2: youtube-transcript-plus (fallback para vídeos sem API key)
- * Tier 3: OpenAI Whisper - transcrição de áudio (fallback nuclear, usa OPENAI_API_KEY)
+ * YouTube Knowledge Ingestion - v5 (Production Grade)
+ *
+ * Tier 1: Supadata API          — proxy residencial, resolve bloqueio Vercel ✅
+ * Tier 2: youtube-transcript-plus — funciona localmente
+ * Tier 3: YouTube Data API v3   — lista legendas (fallback de metadados)
+ * Tier 4: OpenAI Whisper        — transcrição via áudio (nuclear fallback)
  */
 
-// Extrai o ID do vídeo de qualquer formato de URL
 function extractVideoId(url: string): string | null {
     const match = url.match(
         /(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/
@@ -17,7 +17,6 @@ function extractVideoId(url: string): string | null {
     return match ? match[1] : null;
 }
 
-// Busca metadados do vídeo via oEmbed (100% público, sem chave)
 async function fetchVideoMeta(videoId: string): Promise<{ title: string; author: string }> {
     try {
         const res = await fetch(
@@ -32,80 +31,61 @@ async function fetchVideoMeta(videoId: string): Promise<{ title: string; author:
     return { title: `Vídeo ${videoId}`, author: '' };
 }
 
-// TIER 1: YouTube Data API v3 (Captions + TimedText)
-async function tier1_YouTubeDataAPI(videoId: string): Promise<string | null> {
-    const apiKey = process.env.YOUTUBE_API_KEY;
+// ─────────────────────────────────────────────────────────────
+// TIER 1: Supadata API (resolve bloqueio de IP da Vercel)
+// Documentação: https://supadata.ai/documentation
+// ─────────────────────────────────────────────────────────────
+async function tier1_Supadata(videoId: string): Promise<string | null> {
+    const apiKey = process.env.SUPADATA_API_KEY;
     if (!apiKey) {
-        console.log('[YouTube Tier 1] YOUTUBE_API_KEY não configurada. Pulando.');
+        console.log('[YouTube Tier 1] SUPADATA_API_KEY não configurada. Pulando.');
         return null;
     }
 
     try {
-        console.log('[YouTube Tier 1] Buscando legendas via YouTube Data API v3...');
+        console.log('[YouTube Tier 1] Tentando Supadata API...');
 
-        // Lista as tracks de legendas disponíveis
-        const listRes = await fetch(
-            `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`,
-            { cache: 'no-store' }
+        const res = await fetch(
+            `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&text=true`,
+            {
+                headers: {
+                    'x-api-key': apiKey,
+                    'Content-Type': 'application/json',
+                },
+                cache: 'no-store',
+                signal: AbortSignal.timeout(15000),
+            }
         );
 
-        if (!listRes.ok) {
-            const err = await listRes.json();
-            console.warn('[YouTube Tier 1] API retornou erro:', err?.error?.message);
+        if (!res.ok) {
+            const errText = await res.text();
+            console.warn('[YouTube Tier 1] Supadata erro HTTP:', res.status, errText.substring(0, 200));
             return null;
         }
 
-        const listData = await listRes.json();
-        const captions = listData.items || [];
+        const data = await res.json();
 
-        if (captions.length === 0) {
-            console.log('[YouTube Tier 1] Vídeo não tem legendas registradas na API.');
-            return null;
-        }
+        // Supadata retorna { content: "...", lang: "pt", ... }
+        const text = data?.content || data?.transcript || data?.text;
 
-        // Prioridade: PT manual > PT auto > EN > qualquer
-        const track =
-            captions.find((c: any) => c.snippet.language?.startsWith('pt') && c.snippet.trackKind === 'standard') ||
-            captions.find((c: any) => c.snippet.language?.startsWith('pt')) ||
-            captions.find((c: any) => c.snippet.language === 'en') ||
-            captions[0];
-
-        // Download da legenda via timedtext (não requer OAuth para vídeos públicos)
-        const langCode = track.snippet.language || 'pt';
-        const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${langCode}&fmt=json3&key=${apiKey}`;
-
-        const captionRes = await fetch(timedTextUrl, { cache: 'no-store' });
-        if (!captionRes.ok) {
-            console.warn('[YouTube Tier 1] Não conseguiu baixar o arquivo de legenda.');
-            return null;
-        }
-
-        const captionData = await captionRes.json();
-        if (!captionData.events) return null;
-
-        const text = captionData.events
-            .filter((e: any) => e.segs)
-            .map((e: any) => e.segs.map((s: any) => s.utf8).join(''))
-            .join(' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-
-        if (text.length > 50) {
-            console.log(`[YouTube Tier 1] ✅ Sucesso! ${text.length} caracteres extraídos.`);
+        if (text && text.length > 100) {
+            console.log(`[YouTube Tier 1] ✅ Supadata! ${text.length} chars. Idioma: ${data?.lang || 'auto'}`);
             return text;
         }
 
+        console.warn('[YouTube Tier 1] Supadata retornou conteúdo vazio ou muito curto.');
         return null;
     } catch (err: any) {
-        console.warn('[YouTube Tier 1] Falha:', err.message);
+        console.warn('[YouTube Tier 1] Supadata falhou:', err.message);
         return null;
     }
 }
 
-// TIER 2: youtube-transcript-plus (boa resiliência, sem API key)
+// ─────────────────────────────────────────────────────────────
+// TIER 2: youtube-transcript-plus (funciona localmente)
+// ─────────────────────────────────────────────────────────────
 async function tier2_TranscriptLib(videoId: string): Promise<string | null> {
     try {
-        // Import dinâmico para evitar problemas de SSR
         const { YoutubeTranscript } = await import('youtube-transcript-plus');
         console.log('[YouTube Tier 2] Tentando youtube-transcript-plus...');
 
@@ -130,67 +110,117 @@ async function tier2_TranscriptLib(videoId: string): Promise<string | null> {
     }
 }
 
-// TIER 3: OpenAI Whisper - transcrição do áudio via URL pública
-// Usa a API de áudio do YouTube para obter o stream e o Whisper para transcrever
-async function tier3_Whisper(videoId: string, videoTitle: string): Promise<string | null> {
-    const openaiKey = process.env.OPENAI_API_KEY;
-    if (!openaiKey) {
-        console.log('[YouTube Tier 3] OPENAI_API_KEY não configurada. Pulando.');
-        return null;
-    }
+// ─────────────────────────────────────────────────────────────
+// TIER 3: YouTube Data API v3 + TimedText (ASR tracks)
+// ─────────────────────────────────────────────────────────────
+async function tier3_YouTubeDataAPI(videoId: string): Promise<string | null> {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) return null;
 
     try {
-        console.log('[YouTube Tier 3] Tentando Whisper via download de áudio...');
+        console.log('[YouTube Tier 3] Tentando YouTube Data API v3...');
 
-        // Usamos a API Invidious para obter URL de áudio (sem executar yt-dlp)
-        const invInstances = [
-            'https://inv.tux.pizza',
-            'https://invidious.nerdvpn.de',
-            'https://invidious.privacydev.net',
-        ];
+        const listRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`,
+            { cache: 'no-store' }
+        );
+        if (!listRes.ok) return null;
 
+        const listData = await listRes.json();
+        const captions = listData.items || [];
+        if (captions.length === 0) return null;
+
+        // Filtra apenas ASR (auto-geradas, únicas que o timedtext público entrega)
+        const asrTrack =
+            captions.find((c: any) => c.snippet.language?.startsWith('pt') && c.snippet.trackKind === 'asr') ||
+            captions.find((c: any) => c.snippet.language === 'en' && c.snippet.trackKind === 'asr') ||
+            captions.find((c: any) => c.snippet.trackKind === 'asr');
+
+        if (!asrTrack) {
+            console.warn('[YouTube Tier 3] Nenhuma legenda ASR disponível para download público.');
+            return null;
+        }
+
+        const langCode = asrTrack.snippet.language;
+        const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${langCode}&kind=asr&fmt=json3`;
+
+        const captionRes = await fetch(timedTextUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+                'Referer': `https://www.youtube.com/watch?v=${videoId}`,
+            },
+            cache: 'no-store'
+        });
+
+        if (!captionRes.ok) return null;
+
+        const rawText = await captionRes.text();
+        if (!rawText || rawText.trim().length < 10) return null;
+
+        let captionData: any;
+        try { captionData = JSON.parse(rawText); } catch { return null; }
+
+        if (!captionData?.events) return null;
+
+        const text = captionData.events
+            .filter((e: any) => e.segs)
+            .map((e: any) => e.segs.map((s: any) => s.utf8).join(''))
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (text.length > 50) {
+            console.log(`[YouTube Tier 3] ✅ Data API! ${text.length} chars. Idioma: ${langCode}`);
+            return text;
+        }
+        return null;
+    } catch (err: any) {
+        console.warn('[YouTube Tier 3] Falha:', err.message);
+        return null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// TIER 4: OpenAI Whisper nuclear fallback
+// ─────────────────────────────────────────────────────────────
+async function tier4_Whisper(videoId: string, videoTitle: string): Promise<string | null> {
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey) return null;
+
+    try {
+        console.log('[YouTube Tier 4] Tentando Whisper via Invidious audio...');
+
+        const invInstances = ['https://inv.tux.pizza', 'https://invidious.nerdvpn.de', 'https://invidious.privacydev.net'];
         let audioUrl: string | null = null;
 
         for (const instance of invInstances) {
             try {
                 const res = await fetch(`${instance}/api/v1/videos/${videoId}`, {
-                    signal: AbortSignal.timeout(8000),
-                    cache: 'no-store',
+                    signal: AbortSignal.timeout(8000), cache: 'no-store'
                 });
                 if (!res.ok) continue;
-
                 const data = await res.json();
-                // Pega a melhor URL de áudio disponível
                 const audioFormats = (data.adaptiveFormats || [])
                     .filter((f: any) => f.type?.includes('audio/mp4') || f.type?.includes('audio/webm'))
                     .sort((a: any, b: any) => b.bitrate - a.bitrate);
-
-                if (audioFormats.length > 0) {
-                    audioUrl = audioFormats[0].url;
-                    console.log(`[YouTube Tier 3] URL de áudio obtida via ${instance}`);
-                    break;
-                }
+                if (audioFormats.length > 0) { audioUrl = audioFormats[0].url; break; }
             } catch { continue; }
         }
 
-        if (!audioUrl) {
-            console.warn('[YouTube Tier 3] Nenhuma URL de áudio encontrada nos mirrors Invidious.');
-            return null;
-        }
+        if (!audioUrl) return null;
 
-        // Baixa o áudio (limite: ~25MB para o Whisper)
         const audioRes = await fetch(audioUrl, { signal: AbortSignal.timeout(30000) });
-        if (!audioRes.ok) throw new Error('Falha ao baixar o áudio');
+        if (!audioRes.ok) return null;
 
         const audioBuffer = await audioRes.arrayBuffer();
         const audioBlob = new Blob([audioBuffer], { type: 'audio/mp4' });
 
         if (audioBlob.size > 25 * 1024 * 1024) {
-            console.warn('[YouTube Tier 3] Áudio muito grande para Whisper (>25MB). Pulando.');
+            console.warn('[YouTube Tier 4] Áudio > 25MB, Whisper não aceita.');
             return null;
         }
 
-        // Envia para o Whisper
         const formData = new FormData();
         formData.append('file', audioBlob, `${videoId}.mp4`);
         formData.append('model', 'whisper-1');
@@ -204,23 +234,23 @@ async function tier3_Whisper(videoId: string, videoTitle: string): Promise<strin
             body: formData,
         });
 
-        if (!whisperRes.ok) {
-            const err = await whisperRes.json();
-            throw new Error(err?.error?.message || 'Falha no Whisper');
-        }
+        if (!whisperRes.ok) return null;
 
         const transcription = await whisperRes.text();
         if (transcription && transcription.length > 50) {
-            console.log(`[YouTube Tier 3] ✅ Whisper transcreveu ${transcription.length} caracteres.`);
+            console.log(`[YouTube Tier 4] ✅ Whisper! ${transcription.length} chars.`);
             return transcription;
         }
         return null;
     } catch (err: any) {
-        console.warn('[YouTube Tier 3] Falha no Whisper:', err.message);
+        console.warn('[YouTube Tier 4] Whisper falhou:', err.message);
         return null;
     }
 }
 
+// ─────────────────────────────────────────────────────────────
+// HANDLER PRINCIPAL
+// ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
     try {
         const { url, title, tags, type } = await req.json();
@@ -235,18 +265,17 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Configure o DNA da Marca antes de adicionar conhecimento.' }, { status: 400 });
         }
 
-        console.log(`[YouTube] 🎬 Extraindo transcrição: ${videoId}`);
+        console.log(`[YouTube] 🎬 Iniciando extração: ${videoId}`);
 
-        // Busca título do vídeo em paralelo (sempre funciona)
         const meta = await fetchVideoMeta(videoId);
         const videoTitle = (!title || title === 'Transcrição YT Temporária') ? meta.title : title;
 
-        // Cascata de Tiers
+        // ── Cascata de Tiers ──
         let transcript: string | null = null;
         let tierUsed = '';
 
-        transcript = await tier1_YouTubeDataAPI(videoId);
-        if (transcript) tierUsed = 'YouTube Data API v3';
+        transcript = await tier1_Supadata(videoId);
+        if (transcript) tierUsed = 'Supadata API';
 
         if (!transcript) {
             transcript = await tier2_TranscriptLib(videoId);
@@ -254,25 +283,29 @@ export async function POST(req: Request) {
         }
 
         if (!transcript) {
-            transcript = await tier3_Whisper(videoId, videoTitle);
+            transcript = await tier3_YouTubeDataAPI(videoId);
+            if (transcript) tierUsed = 'YouTube Data API v3 (ASR)';
+        }
+
+        if (!transcript) {
+            transcript = await tier4_Whisper(videoId, videoTitle);
             if (transcript) tierUsed = 'OpenAI Whisper';
         }
 
         if (!transcript) {
             return NextResponse.json({
                 error: 'Não foi possível extrair a transcrição deste vídeo.',
-                details: 'O vídeo pode não ter legendas, ou o YouTube está bloqueando o acesso. Para resolver definitivamente, adicione a variável YOUTUBE_API_KEY no ambiente.',
+                details: 'Configure SUPADATA_API_KEY na Vercel para resolver definitivamente.',
                 videoId,
                 videoTitle,
             }, { status: 400 });
         }
 
-        // Salva na Base de Conhecimento
         const knowledgeItem = await prisma.knowledgeItem.create({
             data: {
                 brandProfileId: brand.id,
                 title: videoTitle,
-                content: `(YouTube | ${meta.author} | ${tierUsed})\nFonte: https://youtube.com/watch?v=${videoId}\n\n${transcript}`,
+                content: `(YouTube | ${meta.author} | Método: ${tierUsed})\nFonte: https://youtube.com/watch?v=${videoId}\n\n${transcript}`,
                 type: type || 'youtube',
                 tags: tags ? tags.split(',').map((t: string) => t.trim()) : ['youtube', 'vídeo'],
                 sourceUrl: `https://youtube.com/watch?v=${videoId}`,
