@@ -211,21 +211,34 @@ export class ContentGenerationService {
 
         const client = new PredictionServiceClient(clientOptions);
 
-        const endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro-001`;
-
-        const instance = helpers.toValue({
+        let endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro`;
+        
+        const generateParams = {
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 2048,
                 responseMimeType: isJson ? 'application/json' : 'text/plain',
             }
-        });
+        };
 
-        const [response] = await client.predict({
-            endpoint,
-            instances: [instance],
-        });
+        const instance = helpers.toValue(generateParams);
+
+        let response;
+        try {
+            [response] = await client.predict({
+                endpoint,
+                instances: [instance],
+            });
+        } catch (err: any) {
+            console.warn("Gemini Pro failed, attempting Flash fallback...", err.message);
+            // Fallback to Flash which is more widely available
+            endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-flash`;
+            [response] = await client.predict({
+                endpoint,
+                instances: [instance],
+            });
+        }
 
         // Resilience: Deep search for text in the complex Gemini response structure
         const deepFindText = (obj: any): string | null => {
