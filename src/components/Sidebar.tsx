@@ -41,8 +41,7 @@ export function Sidebar() {
     const pathname = usePathname();
     const [brands, setBrands] = useState<any[]>([]);
     const [activeBrandId, setActiveBrandId] = useState<string>("");
-    const defaultAvatar = "https://ui-avatars.com/api/?name=" + (session?.user?.name || "User") + "&background=f3f4f6&color=111827&bold=true";
-    const [profileImg, setProfileImg] = useState<string>(defaultAvatar);
+    const [profileImg, setProfileImg] = useState<string>("https://ui-avatars.com/api/?name=User&background=f3f4f6&color=111827&bold=true");
 
     const isClient = (session?.user as any)?.role === 'client';
     const isAdmin = (session?.user as any)?.role === 'admin';
@@ -54,37 +53,46 @@ export function Sidebar() {
     });
 
     useEffect(() => {
+        if (!session) return;
+
+        const isClient = (session?.user as any)?.role === 'client';
+        const isAdmin = (session?.user as any)?.role === 'admin';
+        const userEmail = session?.user?.email;
+
+        // Set default generic avatar
+        if (session?.user?.name) {
+            setProfileImg(`https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name)}&background=f3f4f6&color=111827&bold=true`);
+        }
+
         if (isClient && (session?.user as any)?.brandId) {
             const clientBrandId = (session?.user as any).brandId;
             setActiveBrandId(clientBrandId);
             localStorage.setItem('active_brand_id', clientBrandId);
-        } else {
+        } else if (isAdmin) {
             // Load active brand for admin
             const savedBrandId = localStorage.getItem('active_brand_id');
             if (savedBrandId) setActiveBrandId(savedBrandId);
-        }
 
-        // Fetch brands (only needed for admin to switch)
-        if (isAdmin) {
+            // Fetch brands (only needed for admin to switch)
             fetch('/api/brand/list')
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
                         setBrands(data.brands);
-                        const savedBrandId = localStorage.getItem('active_brand_id');
-                        if (!savedBrandId && data.brands.length > 0) {
+                        const currentActive = localStorage.getItem('active_brand_id');
+                        if (!currentActive && data.brands.length > 0) {
                             setActiveBrandId(data.brands[0].id);
                             localStorage.setItem('active_brand_id', data.brands[0].id);
                         }
                     }
                 });
         }
-        const userEmail = session?.user?.email;
-        const saved = userEmail ? localStorage.getItem(`user_profile_img_${userEmail}`) : null;
-        if (saved) setProfileImg(saved);
 
-        // Fetch personal user profile image
+        // Handle Avatar
         if (userEmail) {
+            const saved = localStorage.getItem(`user_profile_img_${userEmail}`);
+            if (saved) setProfileImg(saved);
+
             fetch('/api/user/profile')
                 .then(res => res.json())
                 .then(data => {
@@ -94,7 +102,7 @@ export function Sidebar() {
                     }
                 });
         }
-    }, []);
+    }, [session]);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

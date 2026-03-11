@@ -5,14 +5,19 @@ export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const status = searchParams.get('status');
+        const brandId = searchParams.get('brandId');
 
-        const firstBrand = await prisma.brandProfile.findFirst();
+        let targetBrandId = brandId;
 
-        if (!firstBrand) {
-            return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+            }
+            targetBrandId = firstBrand.id;
         }
 
-        const whereClause: any = { brandProfileId: firstBrand.id };
+        const whereClause: any = { brandProfileId: targetBrandId };
         if (status && status !== 'All') {
             whereClause.status = status;
         }

@@ -21,10 +21,20 @@ export default function ContentPipeline() {
     };
 
     const loadContent = async () => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) {
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const url = activeTab === "All" ? '/api/content' : `/api/content?status=${activeTab}`;
-            const res = await fetch(url);
+            const baseUrl = '/api/content';
+            const params = new URLSearchParams();
+            if (activeTab !== "All") params.append('status', activeTab);
+            params.append('brandId', activeBrandId);
+
+            const res = await fetch(`${baseUrl}?${params.toString()}`);
             const data = await res.json();
             if (data.success) {
                 setPieces(data.pieces);
