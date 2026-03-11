@@ -175,10 +175,22 @@ export class VisualEngineService {
             parameters,
         });
 
-        const prediction: any = response.predictions?.[0];
-        const bytesBase64 = prediction?.structValue?.fields?.bytesBase64?.stringValue;
+        const prediction = response.predictions?.[0];
+        if (!prediction) throw new Error('Google Imagen failed: No predictions returned');
 
-        if (!bytesBase64) throw new Error('Google Imagen failed: No image data returned');
+        // Resilience: Handle both direct fields and Struct fields
+        let bytesBase64 = '';
+        try {
+            const decoded = helpers.fromValue(prediction as any) as any;
+            bytesBase64 = decoded?.bytesBase64;
+        } catch (e) {
+            bytesBase64 = (prediction as any)?.structValue?.fields?.bytesBase64?.stringValue || (prediction as any)?.bytesBase64;
+        }
+
+        if (!bytesBase64) {
+            console.error("GCP Prediction Structure:", JSON.stringify(prediction));
+            throw new Error('Google Imagen failed: No image data (bytesBase64) found in response.');
+        }
 
         const dataUrl = `data:image/png;base64,${bytesBase64}`;
 
