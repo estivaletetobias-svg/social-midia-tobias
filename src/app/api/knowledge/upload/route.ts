@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 
+
 export async function POST(req: Request) {
     try {
-        // Dynamic require to bypass Turbopack build time ESM/CJS resolution issues
-        const pdfParse = require('pdf-parse');
         const formData = await req.formData();
         const file = formData.get('file') as Blob | null;
 
@@ -13,8 +12,10 @@ export async function POST(req: Request) {
 
         const buffer = Buffer.from(await file.arrayBuffer());
 
-        // Parse the PDF
-        const data = await pdfParse(buffer);
+        const pdfModule = await import('pdf-parse');
+        // @ts-ignore
+        const parser = pdfModule.default || pdfModule;
+        const data = await parser(buffer);
 
         return NextResponse.json({ success: true, text: data.text });
     } catch (error: any) {

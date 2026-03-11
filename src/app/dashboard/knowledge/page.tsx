@@ -100,11 +100,11 @@ export default function KnowledgeBase() {
             if (data.success) {
                 setNewContent(data.text);
             } else {
-                alert(`Erro: ${data.error}`);
+                alert(`Erro no Servidor: ${data.error || 'Erro desconhecido'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Falha no upload do arquivo");
+            alert(`Falha no upload do arquivo: ${error.message || 'Erro de conexão'}`);
         } finally {
             setIsUploading(false);
         }
@@ -132,7 +132,9 @@ export default function KnowledgeBase() {
                 setItems([data.item, ...items]);
                 setIsModalOpen(false); // fechar pois ele ja salvou no banco direto no endpoint
             } else {
-                alert(`Erro: ${data.error}`);
+                const diag = data.details ? `\n\nDiagnóstico: ${data.details}` : '';
+                const rec = data.recommendation ? `\n\nSugestão: ${data.recommendation}` : '';
+                alert(`Erro: ${data.error}${diag}${rec}`);
             }
         } catch (error) {
             console.error(error);

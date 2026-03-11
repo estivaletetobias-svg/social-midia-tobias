@@ -131,19 +131,22 @@ async function tier3_YouTubeDataAPI(videoId: string): Promise<string | null> {
         const captions = listData.items || [];
         if (captions.length === 0) return null;
 
-        // Filtra apenas ASR (auto-geradas, únicas que o timedtext público entrega)
-        const asrTrack =
-            captions.find((c: any) => c.snippet.language?.startsWith('pt') && c.snippet.trackKind === 'asr') ||
-            captions.find((c: any) => c.snippet.language === 'en' && c.snippet.trackKind === 'asr') ||
-            captions.find((c: any) => c.snippet.trackKind === 'asr');
+        // Prioriza PT manual, depois PT ASR, depois EN manual, etc.
+        const track =
+            captions.find((c: any) => c.snippet.language?.startsWith('pt') && c.snippet.trackKind === 'standard') ||
+            captions.find((c: any) => c.snippet.language?.startsWith('pt')) ||
+            captions.find((c: any) => c.snippet.language?.startsWith('en') && c.snippet.trackKind === 'standard') ||
+            captions.find((c: any) => c.snippet.trackKind === 'asr') ||
+            captions[0];
 
-        if (!asrTrack) {
-            console.warn('[YouTube Tier 3] Nenhuma legenda ASR disponível para download público.');
+        if (!track) {
+            console.warn('[YouTube Tier 3] Nenhuma legenda disponível via API.');
             return null;
         }
 
-        const langCode = asrTrack.snippet.language;
-        const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${langCode}&kind=asr&fmt=json3`;
+        const langCode = track.snippet.language;
+        const kind = track.snippet.trackKind === 'asr' ? '&kind=asr' : '';
+        const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${langCode}${kind}&fmt=json3`;
 
         const captionRes = await fetch(timedTextUrl, {
             headers: {
@@ -192,7 +195,13 @@ async function tier4_Whisper(videoId: string, videoTitle: string): Promise<strin
     try {
         console.log('[YouTube Tier 4] Tentando Whisper via Invidious audio...');
 
-        const invInstances = ['https://inv.tux.pizza', 'https://invidious.nerdvpn.de', 'https://invidious.privacydev.net'];
+        const invInstances = [
+            'https://inv.tux.pizza', 
+            'https://invidious.nerdvpn.de', 
+            'https://invidious.privacydev.net',
+            'https://yewtu.be',
+            'https://iv.melmac.space'
+        ];
         let audioUrl: string | null = null;
 
         for (const instance of invInstances) {
@@ -250,6 +259,29 @@ async function tier4_Whisper(videoId: string, videoTitle: string): Promise<strin
 }
 
 // ─────────────────────────────────────────────────────────────
+// TIER 5: Direct TimedText Scrape (Last resort)
+// ─────────────────────────────────────────────────────────────
+async function tier5_DirectScrape(videoId: string): Promise<string | null> {
+    const langs = ['pt', 'pt-BR', 'en'];
+    for (const l of langs) {
+        try {
+            console.log(`[YouTube Tier 5] Tentando Scrape direto para lang=${l}...`);
+            const res = await fetch(`https://www.youtube.com/api/timedtext?v=${videoId}&lang=${l}&fmt=json3`, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                cache: 'no-store'
+            });
+            if (!res.ok) continue;
+            const data = await res.json();
+            if (data?.events) {
+                const text = data.events.filter((e: any) => e.segs).map((e: any) => e.segs.map((s: any) => s.utf8).join('')).join(' ').replace(/\s+/g, ' ').trim();
+                if (text.length > 50) return text;
+            }
+        } catch { }
+    }
+    return null;
+}
+
+// ─────────────────────────────────────────────────────────────
 // HANDLER PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
@@ -274,23 +306,54 @@ export async function POST(req: Request) {
         // ── Cascata de Tiers ──
         let transcript: string | null = null;
         let tierUsed = '';
+        let errors: string[] = [];
 
-        transcript = await tier1_Supadata(videoId);
-        if (transcript) tierUsed = 'Supadata API';
+        console.log(`[YouTube] 1. Tentando Supadata (Tier 1)...`);
+        try {
+            transcript = await tier1_Supadata(videoId);
+            if (transcript) tierUsed = 'Supadata API';
+        } catch (e: any) { errors.push(`Supadata: ${e.message}`); }
 
         if (!transcript) {
-            transcript = await tier2_TranscriptLib(videoId);
-            if (transcript) tierUsed = 'youtube-transcript-plus';
+            console.log(`[YouTube] 2. Tentando youtube-transcript-plus (Tier 2)...`);
+            try {
+                transcript = await tier2_TranscriptLib(videoId);
+                if (transcript) tierUsed = 'youtube-transcript-plus';
+            } catch (e: any) { errors.push(`Lib Plus: ${e.message}`); }
         }
 
         if (!transcript) {
-            transcript = await tier3_YouTubeDataAPI(videoId);
-            if (transcript) tierUsed = 'YouTube Data API v3 (ASR)';
+            console.log(`[YouTube] 3. Tentando YouTube Data API v3 (Tier 3)...`);
+            try {
+                transcript = await tier3_YouTubeDataAPI(videoId);
+                if (transcript) tierUsed = 'YouTube Data API v3';
+            } catch (e: any) { errors.push(`Data API: ${e.message}`); }
         }
 
         if (!transcript) {
-            transcript = await tier4_Whisper(videoId, videoTitle);
-            if (transcript) tierUsed = 'OpenAI Whisper';
+            console.log(`[YouTube] 4. Tentando OpenAI Whisper (Tier 4)...`);
+            try {
+                transcript = await tier4_Whisper(videoId, videoTitle);
+                if (transcript) tierUsed = 'OpenAI Whisper';
+            } catch (e: any) { errors.push(`Whisper: ${e.message}`); }
+        }
+
+        if (!transcript) {
+            console.log(`[YouTube] 5. Tentando Scrape Direto (Tier 5)...`);
+            try {
+                transcript = await tier5_DirectScrape(videoId);
+                if (transcript) tierUsed = 'Direct Scrape (TimedText)';
+            } catch (e: any) { errors.push(`Scrape: ${e.message}`); }
+        }
+
+        if (!transcript) {
+            return NextResponse.json({
+                error: 'Não foi possível extrair a transcrição deste vídeo.',
+                details: errors.join(' | '),
+                videoId,
+                videoTitle,
+                recommendation: 'Este vídeo pode estar com as legendas desativadas ou o YouTube bloqueou temporariamente o acesso. Tente um vídeo que você saiba que possui legendas (CC).'
+            }, { status: 400 });
         }
 
         if (!transcript) {
