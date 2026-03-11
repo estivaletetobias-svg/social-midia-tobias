@@ -16,7 +16,8 @@ import {
     Plus,
     Zap,
     BrainCircuit,
-    LogOut
+    LogOut,
+    Users
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -26,23 +27,40 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navigation = [
+    { name: "Gestão de Clientes", href: "/dashboard/clients", icon: Users },
     { name: "Visão Geral", href: "/dashboard", icon: Home },
     { name: "Calendário Editorial", href: "/dashboard/calendar", icon: Calendar },
     { name: "Biblioteca de Ideias", href: "/dashboard/ideas", icon: Zap },
     { name: "Esteira de Produção", href: "/dashboard/content", icon: PenTool },
-    { name: "Ativos Visuais", href: "/dashboard/assets", icon: ImageIcon },
     { name: "DNA da Marca", href: "/dashboard/brand", icon: BrainCircuit },
-    { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
-    { name: "Automações", href: "/dashboard/automations", icon: Zap },
     { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
+    const [brands, setBrands] = useState<any[]>([]);
+    const [activeBrandId, setActiveBrandId] = useState<string>("");
     const defaultAvatar = "https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
     const [profileImg, setProfileImg] = useState<string>(defaultAvatar);
 
     useEffect(() => {
+        // Load active brand
+        const savedBrandId = localStorage.getItem('active_brand_id');
+        if (savedBrandId) setActiveBrandId(savedBrandId);
+
+        // Fetch all brands for the switcher
+        fetch('/api/brand/list')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setBrands(data.brands);
+                    // If no active brand, pick the first one
+                    if (!savedBrandId && data.brands.length > 0) {
+                        setActiveBrandId(data.brands[0].id);
+                        localStorage.setItem('active_brand_id', data.brands[0].id);
+                    }
+                }
+            });
         const saved = localStorage.getItem('user_profile_img');
         if (saved) setProfileImg(saved);
 
@@ -88,12 +106,30 @@ export function Sidebar() {
                     <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
                         STELAR
                     </span>
-                    <span className="text-[10px] font-medium text-gray-500 font-serif italic tracking-widest uppercase">
+                    <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
                         The Social Architect System
                     </span>
                     <span className="text-[10px] font-black text-gray-800/80 mt-3 uppercase tracking-[0.25em] border-t border-black/5 pt-3 w-fit">
                         by Tobias Estivalete
                     </span>
+
+                    {/* Brand Switcher UI */}
+                    <div className="mt-8">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assessorado Ativo</label>
+                        <select 
+                            value={activeBrandId}
+                            onChange={(e) => {
+                                setActiveBrandId(e.target.value);
+                                localStorage.setItem('active_brand_id', e.target.value);
+                                window.location.reload(); // Refresh to update all data context
+                            }}
+                            className="w-full bg-white/40 border border-white/60 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all appearance-none cursor-pointer"
+                        >
+                            {brands.map(brand => (
+                                <option key={brand.id} value={brand.id}>{brand.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
                     <nav className="flex-1 px-4 py-8 space-y-2">

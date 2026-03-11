@@ -20,9 +20,15 @@ export default function DashboardOverview() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) {
+            setIsLoading(false);
+            return;
+        }
+
         const fetchDashboard = async () => {
             try {
-                const res = await fetch('/api/dashboard');
+                const res = await fetch(`/api/dashboard?id=${activeBrandId}`);
                 const data = await res.json();
                 if (data.success) {
                     setStatsData(data.stats);

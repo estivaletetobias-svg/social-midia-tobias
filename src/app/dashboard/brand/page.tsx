@@ -66,7 +66,13 @@ export default function BrandDnaPage() {
   ];
 
   useEffect(() => {
-    fetch('/api/brand/dna')
+    const activeId = localStorage.getItem('active_brand_id');
+    if (!activeId) {
+      setLoading(false);
+      return;
+    }
+
+    fetch(`/api/brand/dna?id=${activeId}`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data) {
@@ -101,6 +107,10 @@ export default function BrandDnaPage() {
       });
       const data = await resp.json();
       if (data.success) {
+        if (data.brandId) {
+            setBrandId(data.brandId);
+            localStorage.setItem('active_brand_id', data.brandId);
+        }
         alert("DNA da Marca salvo com sucesso!");
       }
     } catch (e) {

@@ -26,15 +26,20 @@ export default function IdeasLibrary() {
     const [isGeneratingManual, setIsGeneratingManual] = useState(false);
 
     const loadTopics = async () => {
-        setIsLoading(true);
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) {
+            setIsLoading(false);
+            return;
+        }
+
         try {
             // Load Topics
-            const topicsRes = await fetch('/api/discovery/topics');
+            const topicsRes = await fetch(`/api/discovery/topics?brandId=${activeBrandId}`);
             const topicsData = await topicsRes.json();
             if (topicsData.success) setTopics(topicsData.data);
 
             // Load Social Profiles
-            const dnaRes = await fetch('/api/brand/dna');
+            const dnaRes = await fetch(`/api/brand/dna?id=${activeBrandId}`);
             const dnaData = await dnaRes.json();
             if (dnaData.success && dnaData.data.socialProfiles) {
                 setSocialProfiles(dnaData.data.socialProfiles.filter((p: any) => p.isActive));

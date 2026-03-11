@@ -1,18 +1,25 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
-        const firstBrand = await prisma.brandProfile.findFirst();
+        const { searchParams } = new URL(req.url);
+        const brandId = searchParams.get('id');
 
-        if (!firstBrand) {
-            return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+        let targetBrandId = brandId;
+
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+            }
+            targetBrandId = firstBrand.id;
         }
 
         // 1. Count Drafts in Pipeline (ideas + drafts)
         const draftsCount = await prisma.contentPiece.count({
             where: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 status: { in: ['idea', 'draft', 'review'] }
             }
         });
@@ -20,7 +27,7 @@ export async function GET() {
         // 2. Count Approved Content
         const approvedCount = await prisma.contentPiece.count({
             where: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 status: 'approved'
             }
         });
@@ -28,7 +35,7 @@ export async function GET() {
         // 3. Count AI Topics Proposed
         const topicsCount = await prisma.topicCandidate.count({
             where: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 status: 'pending_review'
             }
         });
@@ -40,7 +47,7 @@ export async function GET() {
         // 5. Fetch 3 most recent active pipeline pieces
         const recentPieces = await prisma.contentPiece.findMany({
             where: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 status: { in: ['idea', 'draft', 'review'] }
             },
             orderBy: { updatedAt: 'desc' },

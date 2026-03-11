@@ -1,14 +1,27 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     try {
-        const brand = await prisma.brandProfile.findFirst({
+        const { searchParams } = new URL(request.url);
+        const brandId = searchParams.get('id');
+
+        if (!brandId) {
+            return NextResponse.json({ error: 'brandId is required' }, { status: 400 });
+        }
+
+        const brand = await prisma.brandProfile.findUnique({
+            where: { id: brandId },
             include: {
                 editorialPillars: true,
                 audienceSegments: true,
                 socialProfiles: true,
-            }
+            } as any
         });
 
         if (!brand) {
@@ -22,31 +35,41 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const workspaceId = (session.user as any).workspaceId;
+
     try {
         const body = await req.json();
         const { id, name, description, toneOfVoice, writingRules, editorialPillars, audienceSegments, socialProfiles } = body;
 
-        // Se não tiver ID, pegamos o primeiro (comportamento de MVP)
         let brandId = id;
-        if (!brandId) {
-            const firstBrand = await prisma.brandProfile.findFirst();
-            brandId = firstBrand?.id;
-        }
 
+        // If no ID, we CREATE a new brand profile
         if (!brandId) {
-            return NextResponse.json({ error: 'No brand profile to update' }, { status: 400 });
+            const newBrand = await prisma.brandProfile.create({
+                data: {
+                    workspaceId,
+                    name: name || "Novo Cliente",
+                    description: description || "",
+                    toneOfVoice: toneOfVoice || "",
+                    writingRules: writingRules || [],
+                }
+            });
+            brandId = newBrand.id;
+        } else {
+            // Update the main brand profile
+            await prisma.brandProfile.update({
+                where: { id: brandId },
+                data: {
+                    name,
+                    description,
+                    toneOfVoice,
+                    writingRules: writingRules || [],
+                }
+            });
         }
-
-        // Update the main brand profile
-        const updatedBrand = await prisma.brandProfile.update({
-            where: { id: brandId },
-            data: {
-                name,
-                description,
-                toneOfVoice,
-                writingRules: writingRules || [],
-            }
-        });
 
         // Update Editorial Pillars (Delete and Recreate for simplicity in MVP)
         if (editorialPillars) {
@@ -75,8 +98,8 @@ export async function POST(req: Request) {
 
         // Update Social Profiles
         if (socialProfiles) {
-            await prisma.socialProfile.deleteMany({ where: { brandProfileId: brandId } });
-            await prisma.socialProfile.createMany({
+            await (prisma as any).socialProfile.deleteMany({ where: { brandProfileId: brandId } });
+            await (prisma as any).socialProfile.createMany({
                 data: socialProfiles.map((s: any) => ({
                     brandProfileId: brandId,
                     platform: s.platform.toLowerCase(),
@@ -87,7 +110,7 @@ export async function POST(req: Request) {
             });
         }
 
-        return NextResponse.json({ success: true, data: updatedBrand });
+        return NextResponse.json({ success: true, brandId });
     } catch (error: any) {
         console.error('DNA Update Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });

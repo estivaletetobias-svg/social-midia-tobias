@@ -5,18 +5,22 @@ export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const limit = Number(searchParams.get('limit')) || 20;
+        const brandId = searchParams.get('brandId');
 
-        // For MVP, we fetch for the first active brand profile
-        const firstBrand = await prisma.brandProfile.findFirst();
+        let targetBrandId = brandId;
 
-        if (!firstBrand) {
-            return NextResponse.json({ error: 'No brand profile found. Create one first.' }, { status: 400 });
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ error: 'No brand profile found. Create one first.' }, { status: 400 });
+            }
+            targetBrandId = firstBrand.id;
         }
 
         // Fetch ideas that haven't been approved/used yet
         const topics = await prisma.topicCandidate.findMany({
             where: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 status: 'suggestion',
             },
             orderBy: {
