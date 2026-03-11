@@ -12,6 +12,7 @@ export interface GenerationRequest {
     goal?: string;
     platform: 'Instagram' | 'LinkedIn';
     format: 'carousel' | 'short video script' | 'single image post' | 'article' | 'short post';
+    provider?: 'OPENAI' | 'GOOGLE';
 }
 
 export class ContentGenerationService {
@@ -26,7 +27,6 @@ export class ContentGenerationService {
             include: {
                 editorialPillars: true,
                 audienceSegments: true,
-                socialProfiles: { where: { isActive: true } },
                 voiceGuides: { where: { platform: request.platform } }
             },
         });
@@ -87,21 +87,15 @@ export class ContentGenerationService {
       INTERNAL REFERENCE KNOWLEDGE (RAG):
       ${knowledgeContext}
 
-      - relevanceScore: 0-1.
-      - alignmentScore: 0-1.
-      - recommendedPipeline: One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'}. (CRITICAL: Only use platforms active in the brand DNA).
-      - recommendedFormat: "carousel", "short post", "article", or "video script".
-
-      Return as JSON.
+      Return as JSON:
+      {
+        "recommendedGoal": "Primary strategic objective",
+        "alignmentScore": 0.95,
+        "strategy": "Brief description of the angle we will take"
+      }
     `;
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o',
-            messages: [{ role: 'system', content: prompt }],
-            response_format: { type: 'json_object' },
-        });
-
-        return JSON.parse(response.choices[0].message.content || '{}');
+        return this.askAI(prompt, request.provider || 'OPENAI', true);
     }
 
     private static async generateStructure(request: GenerationRequest, brand: any, strategy: any) {
@@ -114,76 +108,109 @@ export class ContentGenerationService {
       
       TASK: Create a structural outline for this content piece based on the platform's best practices.
       
-      Guidelines:
-      - LinkedIn: Focus on thought leadership, logical flow, data points, and professional hooks.
-      - Instagram: Focus on high visual hook, emotional connection, short digestible chunks, and clear CTA.
-      - Carousel: Needs a slide-by-slide outline.
-      - Article: Needs introduction, headers, deeper exploration, conclusion.
-      - Short Post/Video: Needs intense hook, quick value delivery, and punchy outtro.
-
-      Return strictly as JSON with a "sections" array (strings describing each structural part).
+      Return as JSON with a "sections" array.
     `;
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o',
-            messages: [{ role: 'system', content: prompt }],
-            response_format: { type: 'json_object' },
-            temperature: 0.5
-        });
-
-        return JSON.parse(response.choices[0].message.content || '{"sections": []}');
+        return this.askAI(prompt, request.provider || 'OPENAI', true);
     }
 
     private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any, knowledgeContext: string) {
         const prompt = `
-      You are a world-class senior copywriter specializing in ${request.platform}.
+      You are a World-Class Senior Copywriter and Growth Strategist for ${request.platform}. 
+      Your writing style is indistinguishable from an elite human creator.
       
       Brand Voice: ${brand.toneOfVoice}
-      Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Maintain high professional standards.'}
+      Specific Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Direct, authoritative, and sophisticated.'}
+      Target Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
       Format: ${request.format}
-      Structure to Follow: ${JSON.stringify(structure.sections)}
+      Structure: ${JSON.stringify(structure.sections)}
       
-      INTERNAL KNOWLEDGE BASE (Use these insights and guidelines to sound genuinely like the brand and cross-reference data if applicable):
+      INTERNAL KNOWLEDGE (RAG):
       ${knowledgeContext}
       
-      TASK: Write the actual final copy. Make it ready to publish.
+      TASK: Write the final high-conversion copy. 
       
-      Constraints:
-      - ALWAYS write in Brazilian Portuguese (PT-BR). This is mandatory.
-      - 🚨 ANTI-LAZINESS PROTOCOL: Never start with "Você sabia...", "No mundo de hoje...", "Muitas pessoas pensam...". Start exactly with a TECHNICAL HOOK or a PUNCHY STATEMENT of fact.
-      - 🧠 BE PROFOUND & TECHNICAL: Use industry terms (physiology, biomechanics, neurobiology, market metrics). Explain the "WHY" behind every claim. Do not stay on the surface.
-      - ZERO GENERIC AI WORDS: Ban words like "impactante", "mergulhe conosco", "desafios", "complexo", "jornada", "essencial".
-      - USE MARKDOWN FORMATTING: Use **bold** for the most important 5-10 words in the whole text. Use ### for headers. Use bullet points (-) for clarity.
-      - If Format is "carousel": Populate the "slides" array.
-      - If Format is "video script": Populate the "videoScenes" array.
+      ELITE COPYWRITING PROTOCOLS:
+      1. FRAMEWORK: Use ${request.format === 'carousel' ? 'AIDA (Attention, Interest, Desire, Action)' : 'PAS (Problem, Agitation, Solution)'}. 
+      2. THE PUNCH: Every sentence must earn the right to the next one. Use 'Bucket Brigades' (e.g., "Aqui está o porquê:", "Mas há um problema.", "A realidade?") to keep reading momentum.
+      3. AUDIENCE MIRRORING: Speak directly to the AUDIENCE segments. Use their specific fears and desires found in the DNA.
+      4. AUTHORITY INJECTION: If the knowledge base contains data, metrics, or technical mechanisms, use them. Don't say "é importante", say "é o mecanismo fisiológico responsável por...".
+      
+      ANTI-GENERIC CONSTRAINTS:
+      - MANDATORY: Brazilian Portuguese (PT-BR).
+      - NO INTROS: Ban "Você já se perguntou?", "No cenário atual...", "Descubra como...".
+      - NO WEASEL WORDS: Ban "revolucionário", "incrível", "mágico", "transformador", "único".
+      - NO AI ADVERBS: Ban "notavelmente", "essencialmente", "profundamente".
+      - WHITE SPACE: Use short paragraphs (max 3 lines). Use line breaks strategically for mobile reading.
+      
+      VISUAL DIRECTION FOR THE DESIGNER:
+      - The 'imagePrompt' must be in ENGLISH and focused on RAW PHOTOGRAPHY (GCP Imagen 3 style). 
+      - Describe lighting (Chiaroscuro, Rembrandt, Rim light), textures (skin pores, fabric threads), and camera specifics.
+      - NEVER mention "AI", "Render", "Digital Art".
 
-      Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
+      Return JSON (ALL content values in PT-BR except imagePrompt):
       {
-        "headline": "String - the main title",
-        "hook": "String - the first lines designed to catch attention instantly",
-        "body": "String - the main content, can be long-form depending on format",
-        "caption": "String - the text that goes in the social media caption box",
-        "cta": "String - the final call to action",
-        "hashtags": ["Array", "of", "Strings"],
-        "imagePrompt": "String - A highly detailed visual description for the cover",
-        "visualConcept": "String - A conceptual description of the visual mood",
+        "headline": "Main title (PT-BR)",
+        "hook": "Magnetic first line (PT-BR)",
+        "body": "Main content with Markdown (PT-BR)",
+        "caption": "Social media caption/legend (PT-BR)",
+        "cta": "Direct Call to Action (PT-BR)",
+        "hashtags": ["Specific", "Niche"],
+        "imagePrompt": "DETAILED PHOTOGRAPHIC PROMPT IN ENGLISH",
+        "visualConcept": "Art direction summary (PT-BR)",
         "slides": [
-             { "slideNumber": 1, "textOnImage": "Punchy title for slide", "imagePrompt": "Specific image prompt for this slide", "explanation": "Detailed explanation for the post body or designer" }
+             { "slideNumber": 1, "textOnImage": "Punchy header", "imagePrompt": "Specific scene prompt", "explanation": "Context" }
         ],
         "videoScenes": [
-             { "time": "00:00", "action": "What happens visually", "audio": "What is said or the ambient sound/music vibe" }
+             { "time": "00:00", "action": "Visual action", "audio": "Voiceover/Audio" }
         ]
+      }
       }
     `;
 
+        return this.askAI(prompt, request.provider || 'OPENAI', true);
+    }
+
+    private static async askAI(prompt: string, provider: 'OPENAI' | 'GOOGLE', isJson: boolean = false) {
+        if (provider === 'GOOGLE') {
+            return this.callGemini(prompt, isJson);
+        }
+        
         const response = await openai.chat.completions.create({
             model: 'gpt-4o',
             messages: [{ role: 'system', content: prompt }],
-            response_format: { type: 'json_object' },
+            response_format: isJson ? { type: 'json_object' } : undefined,
             temperature: 0.7
         });
+        return isJson ? JSON.parse(response.choices[0].message.content || '{}') : response.choices[0].message.content;
+    }
 
-        return JSON.parse(response.choices[0].message.content || '{}');
+    private static async callGemini(prompt: string, isJson: boolean) {
+        const { helpers, PredictionServiceClient } = require('@google-cloud/aiplatform');
+        const client = new PredictionServiceClient({
+            apiEndpoint: `${process.env.GCP_LOCATION || 'us-central1'}-aiplatform.googleapis.com`,
+        });
+
+        const endpoint = `projects/${process.env.GCP_PROJECT_ID}/locations/${process.env.GCP_LOCATION || 'us-central1'}/publishers/google/models/gemini-1.5-pro-002`;
+
+        const instance = helpers.toValue({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2048,
+                responseMimeType: isJson ? 'application/json' : 'text/plain',
+            }
+        });
+
+        const [response] = await client.predict({
+            endpoint,
+            instances: [instance],
+        });
+
+        const textContent = response.predictions?.[0]?.structValue?.fields?.candidates?.listValue?.values?.[0]?.structValue?.fields?.content?.structValue?.fields?.parts?.listValue?.values?.[0]?.structValue?.fields?.text?.stringValue;
+
+        if (!textContent) throw new Error('Gemini failed to return content');
+        return isJson ? JSON.parse(textContent) : textContent;
     }
 
     private static async validateBrandVoice(copy: any, brand: any) {

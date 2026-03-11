@@ -16,7 +16,7 @@ export class VisualEngineService {
     /**
      * Generates a high-quality visual concept and provider-specific prompt.
      */
-    static async generateImagePrompt(contentPieceId: string, versionId: string, provider: 'OPENAI' | 'GOOGLE' = 'OPENAI') {
+    static async generateImagePrompt(contentPieceId: string, versionId: string, provider: 'OPENAI' | 'GOOGLE' = 'GOOGLE') {
         const content = await prisma.contentPiece.findUnique({
             where: { id: contentPieceId },
             include: {
@@ -41,25 +41,29 @@ export class VisualEngineService {
             : 'No specific knowledge records found.';
 
         const systemPrompt = `
-      You are a World-Class Commercial Photographer and Lighting Expert. 
-      Your goal is to transform a content idea into a high-fidelity Visual Prompt that results in a PHOTOGRAPH, not a 3D render.
+      You are a World-Class Commercial Photographer and Art Director.
+      Your goal is to transform a content idea into a high-fidelity Visual Prompt for GOOGLE IMAGEN 3.
       
       Brand DNA: ${brand.name} - ${brand.description}
       Platform: ${content.platform}
       Headline: ${version.headline}
-      Topic: ${version.hook}
 
-      CRITICAL INSTRUCTIONS TO MATCH CHATGPT QUALITY:
-      1. ZERO ABSTRACTS: DALL-E 3 API fails at abstract words like "symbolizing", "balance", or "serenity". You MUST translate these into EXPLICIT PHYSICAL OBJECTS and LIGHTING. (e.g., instead of "serenity", use "soft golden hour morning mist over a still mirror-like lake").
-      2. PHOTO-REALISM PROTOCOL: Use professional camera specs: "Shot on Phase One XF, 80mm lens, f/2.8, ISO 100". Describe "natural skin textures, pores, fine hairs, realistic fabric weave, and authentic sunlight refractions".
-      3. NO "AI STYLE": Strictly forbid any mention of "3D", "render", "illustration", "digital art", or "unreal engine". If the result looks like a mannequin or a bonequinho, you failed.
-      4. MANDATORY ENGLISH: The "prompt" field MUST be a single, long, descriptive paragraph in English (minimum 100 words).
-      5. COMPOSITION: Describe the framing (e.g., "Full body shot", "Cinematic close-up", "Low angle looking up").
+      ELITE VISUAL PROTOCOLS:
+      1. BEYOND 4K: Describe RAW textures. "Visible skin pores, realistic fabric threads, subtle lens flare, authentic dust motes in sunlight".
+      2. LIGHTING MASTERCLASS: Use specific terminology: "Rembrandt lighting", "Chiaroscuro effect", "Deep chiaroscuro with warm rim light", "Golden hour cinematic glow", "Soft-box diffuse lighting for a premium studio look".
+      3. CINEMATIC SPECS: Mention specific cameras and lenses: "Shot on Hasselblad H6D, 100mm f/2.2 lens, shallow depth of field, creamy bokeh background".
+      4. ZERO "AI" LOOK: Ban all abstract terms. Be physical. No "conceptual", no "vibrant", no "stunning". Use physical colors: "Deep emerald green", "Polished copper", "Muted charcoal".
+
+      MANDATORY: 
+      - The 'prompt' field must be in ENGLISH, very long (150+ words), and strictly descriptive.
+      - NO text in the image. NO logos. Only the scene.
 
       Output JSON:
-      - visualConcept: Short summary in the brand's language.
-      - prompt: THE MASTERPIECE PHOTOGRAPHIC PROMPT IN ENGLISH.
-      - recommendedModel: "${provider}"
+      {
+        "visualConcept": "Art direction summary in PT-BR",
+        "prompt": "THE ELITE PHOTOGRAPHIC PROMPT IN ENGLISH",
+        "recommendedModel": "GOOGLE"
+      }
     `;
 
         const response = await openai.chat.completions.create({
