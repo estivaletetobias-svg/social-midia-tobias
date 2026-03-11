@@ -186,7 +186,7 @@ export class ContentGenerationService {
     }
 
     private static async callGemini(prompt: string, isJson: boolean) {
-        const { helpers, PredictionServiceClient } = require('@google-cloud/aiplatform');
+        const { VertexAI } = require('@google-cloud/vertexai');
         
         const project = process.env.GCP_PROJECT_ID;
         const location = process.env.GCP_LOCATION || 'us-central1';
@@ -194,81 +194,39 @@ export class ContentGenerationService {
 
         if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your Vercel/Env variables');
 
-        const clientOptions: any = {
-            apiEndpoint: `${location}-aiplatform.googleapis.com`,
-            projectId: project,
-        };
+        let authOptions: any = { project, location };
 
         if (serviceAccountJson) {
             try {
-                clientOptions.credentials = JSON.parse(serviceAccountJson);
+                authOptions.googleAuthOptions = {
+                    credentials: JSON.parse(serviceAccountJson)
+                };
             } catch (e) {
                 console.error("Failed to parse GCP_SERVICE_ACCOUNT_JSON for Gemini", e);
             }
-        } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-            clientOptions.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         }
 
-        // Specific Model ID confirmed from Google Studio screenshot
-        const currentLoc = 'us-central1';
-        const modelId = 'gemini-2.5-flash';
-        const clientOptionsGemini: any = {
-            ...clientOptions,
-            apiEndpoint: `${currentLoc}-aiplatform.googleapis.com`,
-        };
-        const client = new PredictionServiceClient(clientOptionsGemini);
-        const endpoint = `projects/${project}/locations/${currentLoc}/publishers/google/models/${modelId}`;
-
-        console.log(`Conectando ao motor validado: ${modelId} em ${currentLoc}...`);
+        const vertex_ai = new VertexAI(authOptions);
         
-        const generateParams = {
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        // Use gemini-1.5-flash which is the most widely available stable version for Generative AI SDK
+        const modelName = 'gemini-1.5-flash';
+        const generativeModel = vertex_ai.getGenerativeModel({
+            model: modelName,
             generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 2048,
                 responseMimeType: isJson ? 'application/json' : 'text/plain',
-            }
+            },
+        });
+
+        const request = {
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
         };
 
-        const instance = helpers.toValue(generateParams);
-
-        let response;
-        try {
-            [response] = await client.predict({
-                endpoint,
-                instances: [instance],
-            });
-        } catch (err: any) {
-            console.error(`Erro crítico no motor ${modelId}:`, err.message);
-            throw new Error(`O Google Vertex AI retornou um erro para o modelo ${modelId}. Certifique-se de que a API está ativa: ${err.message}`);
-        }
-
-        if (!response) {
-            throw new Error(`Google Gemini indisponível para o modelo ${modelId}. Verifique se a API Vertex AI e o faturamento estão ativos no projeto ${project}.`);
-        }
-
-        // Resilience: Deep search for text in the complex Gemini response structure
-        const deepFindText = (obj: any): string | null => {
-            if (!obj) return null;
-            if (typeof obj === 'string' && obj.length > 5) return obj;
-            if (typeof obj !== 'object') return null;
-
-            // Try common paths for Gemini/Vertex responses
-            const text = obj.text || 
-                         obj.stringValue || 
-                         obj.content?.parts?.[0]?.text ||
-                         obj.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (text && typeof text === 'string') return text;
-
-            for (const key in obj) {
-                const found: any = deepFindText(obj[key]);
-                if (found) return found;
-            }
-            return null;
-        };
-
-        const textContent = deepFindText(response.predictions?.[0]);
+        const result = await generativeModel.generateContent(request);
+        const response = result.response;
+        
+        const textContent = response.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!textContent) {
             console.error("Gemini Full Response Structure:", JSON.stringify(response, null, 2));
