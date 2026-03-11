@@ -6,7 +6,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     try {
         const { id } = await params;
         const body = await req.json().catch(() => ({}));
-        const { provider = 'OPENAI' } = body;
+        const { provider = 'OPENAI', slideIndex } = body;
 
         const contentPiece = await prisma.contentPiece.findUnique({
             where: { id },
@@ -32,8 +32,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             }
         });
 
-        // Use our universal Visual Engine
-        const asset = await VisualEngineService.generateImage(latestVersion.id);
+        // Use our universal Visual Engine with optional slide support
+        const asset = await VisualEngineService.generateImage(latestVersion.id, slideIndex);
 
         return NextResponse.json({ success: true, asset });
     } catch (error: any) {

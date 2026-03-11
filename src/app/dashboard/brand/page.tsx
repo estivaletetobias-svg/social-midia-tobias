@@ -98,7 +98,7 @@ export default function BrandDnaPage() {
         body: JSON.stringify({
           id: brandId,
           name,
-          description,
+          description, // Map this to Essência/Negócio
           toneOfVoice,
           editorialPillars: pillars,
           audienceSegments: audience,
@@ -178,24 +178,25 @@ export default function BrandDnaPage() {
              
              <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nome da Marca</label>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nome Fantasia ou Especialista</label>
                   <input 
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder="Ex: SinSalarial"
+                    placeholder="Ex: Tobias Estivalete ou Academia SinSalarial"
                     className="w-full bg-white/40 border border-white/60 rounded-2xl px-6 py-4 text-lg font-bold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Descrição do Negócio (Para a IA)</label>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio / Contexto Profissional (Para a IA)</label>
                   <textarea 
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    placeholder="Descreva o que a marca faz, qual seu diferencial e o que ela resolve no mundo."
-                    rows={4}
-                    className="w-full bg-white/40 border border-white/60 rounded-2xl px-10 py-4 text-lg font-medium text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
+                    placeholder="Quem é você? Qual sua autoridade? O que o seu negócio resolve? (Sinta-se livre para colar textos longos aqui)."
+                    rows={8}
+                    className="w-full bg-white/40 border border-white/60 rounded-3xl px-8 py-6 text-base font-medium text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none leading-relaxed"
                   />
+                  <p className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">DICA: Cole aqui a bio do seu site ou portfólio para que o STELAR absorva sua história.</p>
                 </div>
              </div>
           </section>
@@ -223,21 +224,32 @@ export default function BrandDnaPage() {
                           </div>
                           <span className="font-black text-gray-900">{platform.label}</span>
                         </div>
-                        <button 
-                          onClick={() => {
-                            const newProfiles = [...socialProfiles];
-                            const idx = newProfiles.findIndex(p => p.platform === platform.id);
-                            if (idx >= 0) {
-                              newProfiles[idx].isActive = !newProfiles[idx].isActive;
-                            } else {
-                              newProfiles.push({ platform: platform.id, handle: '', url: '', isActive: true });
-                            }
-                            setSocialProfiles(newProfiles);
-                          }}
-                          className={`w-12 h-6 rounded-full relative transition-colors ${isActive ? 'bg-primary-600' : 'bg-gray-300'}`}
-                        >
-                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isActive ? 'right-1' : 'left-1'}`} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {isActive && (
+                             <button 
+                               onClick={() => alert(`Sincronização Ativada! O STELAR irá escanear ${platform.label} para enriquecer seu DNA periodicamente.`)}
+                               className="p-1.5 text-primary-500 hover:bg-primary-50 rounded-lg transition-all"
+                               title="Sincronizar Perfil"
+                             >
+                               <Sparkles className="h-4 w-4" />
+                             </button>
+                          )}
+                          <button 
+                            onClick={() => {
+                              const newProfiles = [...socialProfiles];
+                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                              if (idx >= 0) {
+                                newProfiles[idx].isActive = !newProfiles[idx].isActive;
+                              } else {
+                                newProfiles.push({ platform: platform.id, handle: '', url: '', isActive: true });
+                              }
+                              setSocialProfiles(newProfiles);
+                            }}
+                            className={`w-12 h-6 rounded-full relative transition-colors ${isActive ? 'bg-primary-600' : 'bg-gray-300'}`}
+                          >
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isActive ? 'right-1' : 'left-1'}`} />
+                          </button>
+                        </div>
                       </div>
 
                       {isActive && (
@@ -261,7 +273,7 @@ export default function BrandDnaPage() {
                               newProfiles[idx].url = e.target.value;
                               setSocialProfiles(newProfiles);
                             }}
-                            placeholder="Link do perfil"
+                            placeholder={platform.id === 'site' ? "https://seusite.com.br" : "Link do perfil"}
                             className="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2 text-sm font-medium text-gray-500 focus:outline-none"
                           />
                         </div>
@@ -379,6 +391,25 @@ export default function BrandDnaPage() {
                   </div>
                 ))}
              </div>
+          </section>
+
+          {/* NOVO: Link para Base de Conhecimento */}
+          <section className="bg-gradient-to-br from-gray-900 to-black p-10 rounded-[2.5rem] text-white overflow-hidden relative group border border-white/5 shadow-2xl">
+             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+               <Plus className="h-40 w-40" />
+             </div>
+             <h3 className="text-lg font-black uppercase tracking-tighter mb-4 flex items-center gap-2">
+               <Sparkles className="h-5 w-5 text-primary-500" /> Enriquecer DNA
+             </h3>
+             <p className="text-sm text-gray-400 font-medium leading-relaxed mb-8">
+               Suba PDFs, transcreva vídeos do Youtube ou cole artigos para alimentar o cérebro da sua IA com dados reais.
+             </p>
+             <button 
+               onClick={() => window.location.href = '/dashboard/knowledge'}
+               className="w-full py-4 bg-white text-gray-900 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
+             >
+               Subir Arquivos e Transcrições
+             </button>
           </section>
 
           {/* Dica do Especialista */}

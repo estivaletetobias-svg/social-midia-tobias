@@ -46,11 +46,11 @@ export default function DashboardPage() {
     }, []);
 
     const statusLabels: Record<string, string> = {
-        "idea": "Criar Rascunho",
-        "draft": "Revisar Texto",
-        "review": "Aprovação Final",
-        "approved": "Pronto",
-        "published": "Publicado"
+        "idea": "Novas Pautas",
+        "draft": "Em Produção",
+        "review": "Aprovação",
+        "approved": "Prontos",
+        "published": "Publicados"
     };
 
     const stats = [

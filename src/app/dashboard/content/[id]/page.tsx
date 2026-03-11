@@ -27,6 +27,7 @@ export default function ContentEditor() {
     const [imageProvider, setImageProvider] = useState<'OPENAI' | 'GOOGLE'>('GOOGLE');
     const [textProvider, setTextProvider] = useState<'OPENAI' | 'GOOGLE'>('OPENAI');
     const [isGeneratingText, setIsGeneratingText] = useState(false);
+    const [generatingSlideIndex, setGeneratingSlideIndex] = useState<number | null>(null);
 
     // Pre-populate search when opening modal
     useEffect(() => {
@@ -65,17 +66,37 @@ export default function ContentEditor() {
         alert("Prompt copiado! Cole no Midjourney ou ChatGPT.");
     };
 
-    const handleGenerateImage = async () => {
-        setIsGeneratingImg(true);
+    const handleGenerateImage = async (slideIndex?: number) => {
+        if (slideIndex !== undefined) {
+            setGeneratingSlideIndex(slideIndex);
+        } else {
+            setIsGeneratingImg(true);
+        }
+
         try {
             const res = await fetch(`/api/content/${id}/generate-image`, { 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ provider: imageProvider })
+                body: JSON.stringify({ 
+                    provider: imageProvider,
+                    slideIndex: slideIndex
+                })
             });
             const data = await res.json();
             if (data.success) {
-                setAsset(data.asset);
+                if (slideIndex !== undefined) {
+                    // Update the local version state to reflect the new slide image
+                    const updatedMetadata = { ...version.metadata };
+                    if (updatedMetadata.slides && updatedMetadata.slides[slideIndex]) {
+                        updatedMetadata.slides[slideIndex] = {
+                            ...updatedMetadata.slides[slideIndex],
+                            assetUrl: data.asset.url
+                        };
+                        setVersion({ ...version, metadata: updatedMetadata });
+                    }
+                } else {
+                    setAsset(data.asset);
+                }
             } else {
                 alert(`Erro: ${data.error}`);
             }
@@ -84,6 +105,7 @@ export default function ContentEditor() {
             alert("Falha ao se conectar com o Estúdio Visual.");
         } finally {
             setIsGeneratingImg(false);
+            setGeneratingSlideIndex(null);
         }
     };
 
@@ -365,7 +387,7 @@ export default function ContentEditor() {
                                         </button>
                                     </div>
                                     <button
-                                        onClick={handleGenerateImage}
+                                        onClick={() => handleGenerateImage()}
                                         disabled={isGeneratingImg}
                                         className={`mt-2 w-full h-10 text-white text-[10px] font-black rounded-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${imageProvider === 'GOOGLE' ? 'bg-primary-600 hover:bg-black' : 'bg-gray-900 hover:bg-primary-600'}`}>
                                         <Zap className={`h-3 w-3 ${isGeneratingImg ? 'animate-pulse' : ''}`} />
@@ -394,13 +416,48 @@ export default function ContentEditor() {
                                     </h4>
                                     <div className="flex flex-row gap-4 overflow-x-auto pb-4 no-scrollbar">
                                         {version.metadata.slides.map((slide: any, idx: number) => (
-                                            <div key={idx} className="min-w-[200px] max-w-[200px] bg-white border border-gray-100 p-5 rounded-3xl shadow-sm hover:border-primary-500 transition-all group">
-                                                <div className="flex items-center justify-between mb-3 text-[9px] font-black uppercase text-primary-500">
-                                                    Slide {slide.slideNumber || idx + 1}
+                                            <div key={idx} className="min-w-[240px] max-w-[240px] bg-white border border-gray-100 rounded-3xl shadow-sm hover:border-primary-500 transition-all group/slide flex flex-col overflow-hidden">
+                                                <div className="relative aspect-square bg-gray-50 border-b border-gray-100 group-hover/slide:border-primary-500 transition-colors">
+                                                    {slide.assetUrl ? (
+                                                        <img src={slide.assetUrl} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
+                                                    ) : generatingSlideIndex === idx ? (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900/10 animate-pulse">
+                                                            <div className="w-8 h-8 border-3 border-primary-500 border-t-transparent rounded-full animate-spin mb-2" />
+                                                            <span className="text-[8px] font-black uppercase text-primary-600">Revelando Foto...</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                                                            <ImageIcon className="h-8 w-8 mb-2 opacity-20" />
+                                                            <button 
+                                                                onClick={() => handleGenerateImage(idx)}
+                                                                className="text-[9px] font-black text-primary-500 underline decoration-primary-200 underline-offset-4 hover:text-black">
+                                                                GERAR IMAGEM
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full">
+                                                        <span className="text-[9px] font-black uppercase text-white tracking-widest leading-none">
+                                                            Slide {slide.slideNumber || idx + 1}
+                                                        </span>
+                                                    </div>
+
+                                                    {slide.assetUrl && (
+                                                        <button 
+                                                            onClick={() => handleGenerateImage(idx)}
+                                                            className="absolute bottom-3 right-3 p-2 bg-white/90 backdrop-blur-sm shadow-lg rounded-xl opacity-0 group-hover/slide:opacity-100 transition-all hover:bg-primary-500 hover:text-white group/btn">
+                                                            <Zap className="h-4 w-4 group-hover/btn:animate-pulse" />
+                                                        </button>
+                                                    )}
                                                 </div>
-                                                <p className="text-xs font-black text-gray-800 mb-3 leading-tight line-clamp-4 min-h-[4rem]">{slide.textOnImage}</p>
-                                                <div className="text-[8px] font-medium text-gray-400 italic line-clamp-2">
-                                                    Visual: {slide.imagePrompt}
+
+                                                <div className="p-5 flex-1 flex flex-col justify-between">
+                                                    <p className="text-xs font-black text-gray-800 leading-tight line-clamp-3 min-h-[3rem]">{slide.textOnImage}</p>
+                                                    <div className="mt-4 pt-4 border-t border-gray-50">
+                                                        <p className="text-[8px] font-medium text-gray-400 italic line-clamp-2 leading-relaxed">
+                                                            Visual: {slide.imagePrompt}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}

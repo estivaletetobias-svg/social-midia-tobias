@@ -13,11 +13,12 @@ export default function ContentPipeline() {
 
     const tabs = ["All", "idea", "draft", "review", "approved", "published"];
     const statusLabels: Record<string, string> = {
-        "idea": "Criar Rascunho",
-        "draft": "Revisar Texto",
-        "review": "Aprovação Final",
-        "approved": "Pronto",
-        "published": "Publicado"
+        "All": "Todos",
+        "idea": "Novas Pautas",
+        "draft": "Em Produção",
+        "review": "Aprovação",
+        "approved": "Prontos",
+        "published": "Publicados"
     };
 
     const loadContent = async () => {
@@ -102,12 +103,12 @@ export default function ContentPipeline() {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-3 text-xs font-black rounded-2xl transition-all uppercase tracking-wider ${activeTab === tab
+                            className={`px-6 py-3 text-xs font-black rounded-2xl transition-all uppercase tracking-wider whitespace-nowrap ${activeTab === tab
                                 ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60 scale-105"
                                 : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"
                                 }`}
                         >
-                            {tab === "All" ? "Todos" : tab}
+                            {statusLabels[tab]}
                         </button>
                     ))}
                 </div>

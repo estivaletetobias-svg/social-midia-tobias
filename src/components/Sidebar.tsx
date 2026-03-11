@@ -32,6 +32,7 @@ const navigation = [
     { name: "Calendário Editorial", href: "/dashboard/calendar", icon: Calendar },
     { name: "Biblioteca de Ideias", href: "/dashboard/ideas", icon: Zap },
     { name: "Esteira de Produção", href: "/dashboard/content", icon: PenTool },
+    { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
     { name: "DNA da Marca", href: "/dashboard/brand", icon: BrainCircuit },
     { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
 ];

@@ -205,10 +205,10 @@ export default function IdeasLibrary() {
         if (!matchesSearch) return false;
 
         if (activeCategory === "Todos os Tópicos") return true;
-        if (activeCategory === "Tendências") return (t.relevanceScore || 0) >= 0.8;
-        if (activeCategory === "Ganchos Virais") return t.format === 'video script' || t.format === 'short post' || t.format === 'short video script';
-        if (activeCategory === "Atemporal") return (t.alignmentScore || 0) >= 0.8;
-        if (activeCategory === "Novidades do Produto") return t.platform === 'LinkedIn';
+        if (activeCategory === "Tendências") return (t.relevanceScore || 0) >= 0.7; // Tópicos com alta nota
+        if (activeCategory === "Ganchos Virais") return t.format?.toLowerCase().includes('script') || t.format?.toLowerCase().includes('short');
+        if (activeCategory === "Atemporal") return (t.alignmentScore || 0) >= 0.7; // Tópicos com alto alinhamento
+        if (activeCategory === "Novidades do Produto") return t.platform?.toLowerCase() === 'linkedin';
 
         return true;
     });
@@ -266,9 +266,12 @@ export default function IdeasLibrary() {
                 <button
                     onClick={handleSyncRSS}
                     disabled={isSyncing}
-                    className="h-14 px-8 bg-white border border-gray-100 text-gray-700 text-xs font-black rounded-[24px] hover:bg-gray-50 transition-all flex items-center uppercase tracking-widest disabled:opacity-50"
+                    className="h-14 px-8 bg-black/5 border border-black/5 text-gray-700 text-xs font-black rounded-[24px] hover:bg-gray-900 hover:text-white transition-all flex items-center uppercase tracking-widest disabled:opacity-50"
                 >
-                    Explorar Tópico
+                    {isSyncing ? (
+                        <RefreshCcw className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    {isSyncing ? "Escaneando..." : "Explorar Tópico"}
                 </button>
             </div>
 

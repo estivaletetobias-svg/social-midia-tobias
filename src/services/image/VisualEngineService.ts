@@ -91,31 +91,71 @@ export class VisualEngineService {
     /**
      * Universal Image Generation Handler
      */
-    static async generateImage(versionId: string) {
+    static async generateImage(versionId: string, slideIndex?: number) {
         const version = await prisma.contentVersion.findUnique({
             where: { id: versionId },
             include: { contentPiece: { include: { brandProfile: true } } }
         });
 
-        if (!version || !version.imagePrompt) throw new Error('Ready prompt not found for this version');
+        if (!version) throw new Error('Content version not found');
+        
+        // Default to the main image prompt
+        let prompt = version.imagePrompt;
+        
+        // If slideIndex is provided, try to find that specific slide's prompt
+        if (slideIndex !== undefined) {
+            const metadata = version.metadata as any;
+            if (metadata?.slides && metadata.slides[slideIndex]) {
+                prompt = metadata.slides[slideIndex].imagePrompt || prompt;
+                console.log(`Gerando imagem específica para Slide ${slideIndex + 1}...`);
+            }
+        }
+
+        if (!prompt) throw new Error('Ready prompt not found for this version');
 
         // Get the provider from metadata (default to OPENAI)
         const provider = (version.metadata as any)?.provider || 'OPENAI';
 
+        let asset;
         if (provider === 'GOOGLE') {
-            return this.generateWithGoogleImagen(version);
+            asset = await this.generateWithGoogleImagen(version, prompt);
         } else {
-            return this.generateWithOpenAIDallE(version);
+            asset = await this.generateWithOpenAIDallE(version, prompt);
         }
+
+        // If it's a slide image, we should update the version's metadata to link this asset
+        if (slideIndex !== undefined && asset) {
+            const currentMetadata = version.metadata as any;
+            if (currentMetadata?.slides && currentMetadata.slides[slideIndex]) {
+                const updatedSlides = [...currentMetadata.slides];
+                updatedSlides[slideIndex] = {
+                    ...updatedSlides[slideIndex],
+                    assetUrl: asset.url,
+                    assetId: asset.id
+                };
+
+                await prisma.contentVersion.update({
+                    where: { id: versionId },
+                    data: {
+                        metadata: {
+                            ...currentMetadata,
+                            slides: updatedSlides
+                        }
+                    }
+                });
+            }
+        }
+
+        return asset;
     }
 
     /**
      * OpenAI DALL-E 3 Implementation
      */
-    private static async generateWithOpenAIDallE(version: any) {
+    private static async generateWithOpenAIDallE(version: any, prompt: string) {
         const response = await openai.images.generate({
             model: "dall-e-3",
-            prompt: version.imagePrompt,
+            prompt: prompt,
             n: 1,
             size: "1024x1024",
             quality: "hd",
@@ -125,13 +165,13 @@ export class VisualEngineService {
         const url = response.data?.[0]?.url;
         if (!url) throw new Error('DALL-E 3 failed: No URL returned');
 
-        return this.saveGeneratedAsset(version, url, 'dall-e-3');
+        return this.saveGeneratedAsset(version, url, 'dall-e-3', prompt);
     }
 
     /**
      * Google Vertex AI (Imagen 3) Implementation
      */
-    private static async generateWithGoogleImagen(version: any) {
+    private static async generateWithGoogleImagen(version: any, prompt: string) {
         const project = process.env.GCP_PROJECT_ID;
         const location = process.env.GCP_LOCATION || 'us-central1';
         const serviceAccountJson = process.env.GCP_SERVICE_ACCOUNT_JSON;
@@ -159,7 +199,7 @@ export class VisualEngineService {
         const client = new PredictionServiceClient(clientOptions);
         const endpoint = `projects/${project}/locations/${location}/publishers/google/models/imagen-3.0-generate-001`;
 
-        const promptValue = helpers.toValue({ prompt: version.imagePrompt });
+        const promptValue = helpers.toValue({ prompt: prompt });
         if (!promptValue) throw new Error('Failed to create GCP Value object');
 
         const instances = [promptValue];
@@ -207,17 +247,17 @@ export class VisualEngineService {
 
         const dataUrl = `data:image/png;base64,${bytesBase64}`;
 
-        return this.saveGeneratedAsset(version, dataUrl, 'imagen-3.0');
+        return this.saveGeneratedAsset(version, dataUrl, 'imagen-3.0', prompt);
     }
 
     /**
      * Helper to persist assets
      */
-    private static async saveGeneratedAsset(version: any, url: string, model: string) {
+    private static async saveGeneratedAsset(version: any, url: string, model: string, promptUsed: string) {
         return AssetService.uploadAndPersist(url, {
             brandProfileId: version.contentPiece.brandProfileId,
             contentPieceId: version.contentPieceId,
-            prompt: version.imagePrompt,
+            prompt: promptUsed,
             model: model,
             versionId: version.id,
         });
