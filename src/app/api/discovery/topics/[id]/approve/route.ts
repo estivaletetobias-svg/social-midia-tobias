@@ -5,8 +5,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     try {
         const { id } = await params;
         const body = await req.json().catch(() => ({}));
-        const { platforms } = body; // Array of platform strings, e.g. ['Instagram', 'LinkedIn']
-
+        const { platforms, format } = body; 
+        
         const topic = await prisma.topicCandidate.findUnique({ where: { id } });
         if (!topic) {
             return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
@@ -19,6 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         });
 
         const targetPlatforms = (platforms && platforms.length > 0) ? platforms : [topic.platform];
+        const targetFormat = format || topic.format || 'carousel';
 
         // Create Content Pieces for each requested platform
         const pieces = await Promise.all(targetPlatforms.map((plat: string) => 
@@ -28,7 +29,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
                     topicId: topic.id,
                     title: topic.title,
                     platform: plat,
-                    format: topic.format,
+                    format: targetFormat,
                     goal: topic.summary,
                     status: 'idea',
                 }

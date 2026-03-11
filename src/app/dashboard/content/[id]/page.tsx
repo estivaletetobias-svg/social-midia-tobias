@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search, UploadCloud, Copy } from "lucide-react";
+import { ArrowLeft, Save, Play, CheckCircle2, Image as ImageIcon, MessageSquare, Edit3, Wand2, Search, UploadCloud, Copy, Zap } from "lucide-react";
 import Link from "next/link";
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -23,6 +23,7 @@ export default function ContentEditor() {
     const [isSearchingGoogle, setIsSearchingGoogle] = useState(false);
     const [isSavingGoogle, setIsSavingGoogle] = useState(false);
     const [googleResults, setGoogleResults] = useState<any[]>([]);
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
 
     // Pre-populate search when opening modal
     useEffect(() => {
@@ -334,14 +335,76 @@ export default function ContentEditor() {
 
                 {/* Right Column: Copywriting Editor */}
                 <div className="col-span-1 lg:col-span-7 space-y-8">
+                    {/* Format-Specific Structured Content (TOP PRIORITY) */}
+                    {(piece.format === 'carousel' || piece.format === 'video script') && (
+                        <div className="glass-panel p-8 rounded-[40px] border-primary-100 bg-primary-50/10 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4">
+                                <span className="bg-primary-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">Estrutura IA</span>
+                            </div>
+                            
+                            {piece.format === 'carousel' && version.metadata?.slides && (
+                                <div className="space-y-6">
+                                    <h4 className="text-xl font-black text-gray-900 flex items-center">
+                                        <ImageIcon className="mr-3 h-6 w-6 text-primary-500" />
+                                        Deck de {version.metadata.slides.length} Slides (Carrossel)
+                                    </h4>
+                                    <div className="flex flex-row gap-4 overflow-x-auto pb-4 no-scrollbar">
+                                        {version.metadata.slides.map((slide: any, idx: number) => (
+                                            <div key={idx} className="min-w-[200px] max-w-[200px] bg-white border border-gray-100 p-5 rounded-3xl shadow-sm hover:border-primary-500 transition-all group">
+                                                <div className="flex items-center justify-between mb-3 text-[9px] font-black uppercase text-primary-500">
+                                                    Slide {slide.slideNumber || idx + 1}
+                                                </div>
+                                                <p className="text-xs font-black text-gray-800 mb-3 leading-tight line-clamp-4 min-h-[4rem]">{slide.textOnImage}</p>
+                                                <div className="text-[8px] font-medium text-gray-400 italic line-clamp-2">
+                                                    Visual: {slide.imagePrompt}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {piece.format === 'video script' && version.metadata?.videoScenes && (
+                                <div className="space-y-6">
+                                    <h4 className="text-xl font-black text-gray-900 flex items-center">
+                                        <Zap className="mr-3 h-6 w-6 text-primary-500" />
+                                        Roteiro de {version.metadata.videoScenes.length} Cenas (Reels/Vídeo)
+                                    </h4>
+                                    <div className="space-y-3">
+                                        {version.metadata.videoScenes.slice(0, 3).map((scene: any, idx: number) => (
+                                            <div key={idx} className="flex items-center gap-4 bg-white/60 p-4 rounded-2xl border border-white">
+                                                <span className="text-[10px] font-black text-primary-600 w-12">{scene.time}</span>
+                                                <div className="flex-1">
+                                                    <p className="text-xs font-black text-gray-900">{scene.audio}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">{scene.action}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {version.metadata.videoScenes.length > 3 && (
+                                            <p className="text-center text-[10px] font-black text-primary-500 uppercase tracking-widest">+ {version.metadata.videoScenes.length - 3} cenas abaixo</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     <div className="glass-panel p-8 rounded-[40px] border-white/60 hover:shadow-2xl transition-all duration-500 relative">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-xl font-black text-gray-900 flex items-center">
                                 <Edit3 className="mr-3 h-6 w-6 text-primary-500" />
                                 Cópia & Texto (Copywriting)
                             </h3>
-                            <div className="text-xs font-bold tracking-widest uppercase text-primary-500 bg-primary-50 px-3 py-1 rounded-full">
-                                Tom Autoritário
+                            <div className="flex items-center space-x-2">
+                                <div className="text-xs font-bold tracking-widest uppercase text-primary-500 bg-primary-50 px-3 py-1 rounded-full">
+                                    Tom Autoritário
+                                </div>
+                                <button 
+                                    onClick={() => setIsPreviewMode(!isPreviewMode)}
+                                    className={`ml-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border transition-all ${isPreviewMode ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-400 border-gray-100 hover:border-primary-200'}`}
+                                >
+                                    {isPreviewMode ? 'Sair do Preview' : 'Visualizar Formatado'}
+                                </button>
                             </div>
                         </div>
 
@@ -362,11 +425,32 @@ export default function ContentEditor() {
                                 <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">
                                     Corpo Principal do Post
                                 </label>
-                                <TextareaAutosize
-                                    defaultValue={version.body}
-                                    minRows={8}
-                                    className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
-                                />
+                                {isPreviewMode ? (
+                                    <div className="w-full min-h-[300px] text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm overflow-y-auto prose prose-sm max-w-none">
+                                        {version.body.split('\n').map((line: string, i: number) => {
+                                            if (line.startsWith('###')) return <h3 key={i} className="text-xl font-black text-gray-900 mt-6 mb-3">{line.replace('###', '')}</h3>;
+                                            if (line.startsWith('##')) return <h2 key={i} className="text-2xl font-black text-gray-900 mt-8 mb-4">{line.replace('##', '')}</h2>;
+                                            
+                                            // Handle bold **text**
+                                            const parts = line.split(/(\*\*.*?\*\*)/g);
+                                            return (
+                                                <p key={i} className="mb-4">
+                                                    {parts.map((part, j) => 
+                                                        part.startsWith('**') && part.endsWith('**') 
+                                                            ? <strong key={j} className="font-black text-gray-900">{part.slice(2, -2)}</strong> 
+                                                            : part
+                                                    )}
+                                                </p>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <TextareaAutosize
+                                        defaultValue={version.body}
+                                        minRows={8}
+                                        className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
+                                    />
+                                )}
                             </div>
 
                             <div>
@@ -405,37 +489,12 @@ export default function ContentEditor() {
                                 </div>
                             </div>
 
-                            {/* Carousel Slides Specific Section */}
-                            {piece.format === 'carousel' && version.metadata?.slides && version.metadata.slides.length > 0 && (
-                                <div className="mt-12 space-y-6 pt-12 border-t border-black/5">
-                                    <h4 className="text-lg font-black text-gray-900 flex items-center">
-                                        <ImageIcon className="mr-2 h-5 w-5 text-primary-500" />
-                                        Estrutura de Slides (Carrossel)
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {version.metadata.slides.map((slide: any, idx: number) => (
-                                            <div key={idx} className="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm hover:border-primary-200 transition-all group">
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary-500 bg-primary-50 px-2 py-1 rounded">
-                                                        Slide {slide.slideNumber || idx + 1}
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm font-black text-gray-800 mb-3 leading-tight">{slide.textOnImage}</p>
-                                                <div className="text-[10px] font-medium text-gray-400 italic line-clamp-2 group-hover:line-clamp-none transition-all">
-                                                    Prompt: {slide.imagePrompt}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Video Script Specific Section */}
+                            {/* Detailed Video/Carousel views at the bottom as well for deep editing */}
                             {piece.format === 'video script' && version.metadata?.videoScenes && version.metadata.videoScenes.length > 0 && (
                                 <div className="mt-12 space-y-6 pt-12 border-t border-black/5">
                                     <h4 className="text-lg font-black text-gray-900 flex items-center">
                                         <Wand2 className="mr-2 h-5 w-5 text-primary-500" />
-                                        Roteiro de Cenas
+                                        Roteiro Completo
                                     </h4>
                                     <div className="space-y-4">
                                         {version.metadata.videoScenes.map((scene: any, idx: number) => (
@@ -444,7 +503,6 @@ export default function ContentEditor() {
                                                     <span className="text-[10px] font-black text-white bg-gray-900 px-3 py-1 rounded-full uppercase">
                                                         {scene.time}
                                                     </span>
-                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Ação & Áudio</span>
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <div className="text-sm font-medium text-gray-600">

@@ -44,6 +44,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
                     strategy: generatedDraft.strategy,
                     structure: generatedDraft.structure,
                     brandValidation: generatedDraft.brandValidation,
+                    slides: generatedDraft.copy.slides,
+                    videoScenes: generatedDraft.copy.videoScenes,
                 }
             }
         });

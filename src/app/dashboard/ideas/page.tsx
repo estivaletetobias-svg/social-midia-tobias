@@ -14,6 +14,7 @@ export default function IdeasLibrary() {
     // Modal Aprovação
     const [topicToApprove, setTopicToApprove] = useState<any>(null);
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+    const [selectedFormat, setSelectedFormat] = useState<string>('carousel');
 
     // Filtros e Pesquisa
     const [searchQuery, setSearchQuery] = useState("");
@@ -51,8 +52,9 @@ export default function IdeasLibrary() {
 
     const initiateApprove = (topic: any) => {
         setTopicToApprove(topic);
-        // Default to the original platform of the topic
+        // Default to the original platform and format of the topic
         setSelectedPlatforms([topic.platform]);
+        setSelectedFormat(topic.format || 'carousel');
     };
 
     const handleConfirmApprove = async () => {
@@ -64,7 +66,10 @@ export default function IdeasLibrary() {
             const res = await fetch(`/api/discovery/topics/${topicId}/approve`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ platforms: selectedPlatforms })
+                body: JSON.stringify({ 
+                    platforms: selectedPlatforms,
+                    format: selectedFormat
+                })
             });
             const data = await res.json();
             if (data.success) {
@@ -424,6 +429,28 @@ export default function IdeasLibrary() {
                                 })}
                             </div>
 
+                            <div className="mt-10">
+                                <span className="inline-block px-4 py-1.5 rounded-full bg-gray-50 text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Formato da Entrega</span>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[
+                                        { id: 'carousel', label: 'Carrossel', icon: Sparkles },
+                                        { id: 'short post', label: 'Post Estático', icon: Zap },
+                                        { id: 'video script', label: 'Roteiro Vídeo', icon: Youtube },
+                                    ].map((f) => (
+                                        <button
+                                            key={f.id}
+                                            onClick={() => setSelectedFormat(f.id)}
+                                            className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 ${selectedFormat === f.id ? 'border-primary-500 bg-primary-50' : 'border-gray-50 bg-gray-50/50 hover:bg-gray-100'}`}
+                                        >
+                                            <f.icon className={`w-5 h-5 ${selectedFormat === f.id ? 'text-primary-500' : 'text-gray-400'}`} />
+                                            <span className={`text-[9px] font-black uppercase tracking-tight ${selectedFormat === f.id ? 'text-primary-700' : 'text-gray-400'}`}>
+                                                {f.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <button
                                 onClick={handleConfirmApprove}
                                 disabled={selectedPlatforms.length === 0 || isApproveLoading[topicToApprove.id]}
@@ -432,7 +459,7 @@ export default function IdeasLibrary() {
                                 {isApproveLoading[topicToApprove.id] ? (
                                     <RefreshCcw className="h-6 w-6 animate-spin" />
                                 ) : (
-                                    <>Criar {selectedPlatforms.length} Peças de Conteúdo</>
+                                    <>Criar {selectedPlatforms.length} Peças em {selectedFormat}</>
                                 )}
                             </button>
                         </div>

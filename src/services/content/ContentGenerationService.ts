@@ -21,7 +21,7 @@ export class ContentGenerationService {
      */
     static async generateDraft(request: GenerationRequest) {
         // Fetch brand profile with tone of voice and knowledge base
-        const brand = await prisma.brandProfile.findUnique({
+        const brand: any = await prisma.brandProfile.findUnique({
             where: { id: request.brandProfileId },
             include: {
                 editorialPillars: true,
@@ -150,25 +150,29 @@ export class ContentGenerationService {
       
       Constraints:
       - ALWAYS write in Brazilian Portuguese (PT-BR). This is mandatory.
-      - ZERO FLUFF: Do not write generic introductory sentences like "O treinamento X é muito importante" or "Muitas pessoas acham Y". Start immediately with the core technical hook or counter-intuitive insight.
-      - BE PROFOUND & TECHNICAL: Act as a high-level specialist writing for a smart audience. Use advanced terminology correctly. Explain the physiological, mechanical, or business reasons behind the concept (the deep "WHY" and "HOW").
-      - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
-      - DO NOT use generic hypothetical stories or fictional characters (e.g., "Maria de 68 anos sentiu...", "João melhorou seu..."). Use only factual concepts, objective arguments, and professional insights.
-      - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
-      - USE MARKDOWN FORMATTING: Use **bold** for key concepts, headers (###), and bullet points to make the text scannable and premium.
-      - Use active voice and assertive tone.
-      - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
+      - 🚨 ANTI-LAZINESS PROTOCOL: Never start with "Você sabia...", "No mundo de hoje...", "Muitas pessoas pensam...". Start exactly with a TECHNICAL HOOK or a PUNCHY STATEMENT of fact.
+      - 🧠 BE PROFOUND & TECHNICAL: Use industry terms (physiology, biomechanics, neurobiology, market metrics). Explain the "WHY" behind every claim. Do not stay on the surface.
+      - ZERO GENERIC AI WORDS: Ban words like "impactante", "mergulhe conosco", "desafios", "complexo", "jornada", "essencial".
+      - USE MARKDOWN FORMATTING: Use **bold** for the most important 5-10 words in the whole text. Use ### for headers. Use bullet points (-) for clarity.
+      - If Format is "carousel": Populate the "slides" array.
+      - If Format is "video script": Populate the "videoScenes" array.
 
       Return strictly a JSON object matching this interface where ALL values are in Brazilian Portuguese (including imagePrompt and visualConcept):
       {
-        "headline": "String - the main title or first slide",
+        "headline": "String - the main title",
         "hook": "String - the first lines designed to catch attention instantly",
         "body": "String - the main content, can be long-form depending on format",
         "caption": "String - the text that goes in the social media caption box",
         "cta": "String - the final call to action",
         "hashtags": ["Array", "of", "Strings"],
-        "imagePrompt": "String - A highly detailed visual description to be fed to an AI Image Generator for this post's aesthetic",
-        "visualConcept": "String - A conceptual description of the visual mood"
+        "imagePrompt": "String - A highly detailed visual description for the cover",
+        "visualConcept": "String - A conceptual description of the visual mood",
+        "slides": [
+             { "slideNumber": 1, "textOnImage": "Punchy title for slide", "imagePrompt": "Specific image prompt for this slide", "explanation": "Detailed explanation for the post body or designer" }
+        ],
+        "videoScenes": [
+             { "time": "00:00", "action": "What happens visually", "audio": "What is said or the ambient sound/music vibe" }
+        ]
       }
     `;
 
