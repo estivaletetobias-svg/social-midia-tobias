@@ -1,0 +1,14 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-news",
+      "schedule": "0 8 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/cron/(.*)",
+      "destination": "/api/cron/$1"
+    }
+  ]
+}
