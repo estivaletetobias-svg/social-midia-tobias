@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
@@ -49,7 +50,24 @@ async function main() {
         },
     })
 
-    console.log({ workspace, brand })
+    const hashedPassword = await bcrypt.hash('stelar2026', 10);
+
+    const user = await prisma.user.upsert({
+        where: { email: 'contato@tobiasestivalete.com.br' },
+        update: {
+            password: hashedPassword,
+            role: 'admin'
+        },
+        create: {
+            email: 'contato@tobiasestivalete.com.br',
+            name: 'Tobias Estivalete',
+            password: hashedPassword,
+            role: 'admin',
+            workspaceId: workspace.id,
+        },
+    })
+
+    console.log({ workspace, brand, user })
 }
 
 main()

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
     Home,
     Calendar,
@@ -14,7 +15,8 @@ import {
     PlusCircle,
     Plus,
     Zap,
-    BrainCircuit
+    BrainCircuit,
+    LogOut
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -144,6 +146,13 @@ export function Sidebar() {
                                 </p>
                             </div>
                         </label>
+                        <button 
+                            onClick={() => signOut({ callbackUrl: '/login' })}
+                            className="ml-auto p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            title="Sair do Sistema"
+                        >
+                            <LogOut className="h-5 w-5" />
+                        </button>
                     </div>
                 </div>
             </div>
