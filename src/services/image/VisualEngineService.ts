@@ -134,14 +134,22 @@ export class VisualEngineService {
     private static async generateWithGoogleImagen(version: any) {
         const project = process.env.GCP_PROJECT_ID;
         const location = process.env.GCP_LOCATION || 'us-central1';
-        const publisher = 'google';
-        const model = 'imagen-3.0-generate-001';
+        const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-        const client = new PredictionServiceClient({
+        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your .env');
+
+        const clientOptions: any = {
             apiEndpoint: `${location}-aiplatform.googleapis.com`,
-        });
+        };
 
-        const endpoint = `projects/${project}/locations/${location}/publishers/${publisher}/models/${model}`;
+        // If the user provided a key file path in .env, use it
+        if (keyFile) {
+            clientOptions.keyFilename = keyFile;
+        }
+
+        const client = new PredictionServiceClient(clientOptions);
+
+        const endpoint = `projects/${project}/locations/${location}/publishers/google/models/imagen-3.0-generate-001`;
 
         const promptValue = helpers.toValue({ prompt: version.imagePrompt });
         if (!promptValue) throw new Error('Failed to create GCP Value object');

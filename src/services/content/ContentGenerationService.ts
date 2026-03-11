@@ -187,11 +187,24 @@ export class ContentGenerationService {
 
     private static async callGemini(prompt: string, isJson: boolean) {
         const { helpers, PredictionServiceClient } = require('@google-cloud/aiplatform');
-        const client = new PredictionServiceClient({
-            apiEndpoint: `${process.env.GCP_LOCATION || 'us-central1'}-aiplatform.googleapis.com`,
-        });
+        
+        const project = process.env.GCP_PROJECT_ID;
+        const location = process.env.GCP_LOCATION || 'us-central1';
+        const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-        const endpoint = `projects/${process.env.GCP_PROJECT_ID}/locations/${process.env.GCP_LOCATION || 'us-central1'}/publishers/google/models/gemini-1.5-pro-002`;
+        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your .env');
+
+        const clientOptions: any = {
+            apiEndpoint: `${location}-aiplatform.googleapis.com`,
+        };
+
+        if (keyFile) {
+            clientOptions.keyFilename = keyFile;
+        }
+
+        const client = new PredictionServiceClient(clientOptions);
+
+        const endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro-002`;
 
         const instance = helpers.toValue({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
