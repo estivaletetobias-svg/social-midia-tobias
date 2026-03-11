@@ -286,16 +286,19 @@ async function tier5_DirectScrape(videoId: string): Promise<string | null> {
 // ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
     try {
-        const { url, title, tags, type } = await req.json();
+        const { url, title, tags, type, brandId } = await req.json();
 
         const videoId = extractVideoId(url);
         if (!videoId) {
             return NextResponse.json({ error: 'Link inválido. Cole um link do YouTube válido.' }, { status: 400 });
         }
 
-        const brand = await prisma.brandProfile.findFirst();
+        const brand = brandId 
+            ? await prisma.brandProfile.findUnique({ where: { id: brandId } })
+            : await prisma.brandProfile.findFirst();
+
         if (!brand) {
-            return NextResponse.json({ error: 'Configure o DNA da Marca antes de adicionar conhecimento.' }, { status: 400 });
+            return NextResponse.json({ error: 'Perfil de marca não encontrado. Selecione um DNA ativo.' }, { status: 400 });
         }
 
         console.log(`[YouTube] 🎬 Iniciando extração: ${videoId}`);

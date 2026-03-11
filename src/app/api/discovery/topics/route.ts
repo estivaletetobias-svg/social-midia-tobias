@@ -29,6 +29,17 @@ export async function GET(req: Request) {
             take: limit,
         });
 
+        // Mark them as not new anymore (asynchronously for better performance)
+        // @ts-ignore
+        const newIds = topics.filter(t => (t as any).isNew).map(t => t.id);
+        if (newIds.length > 0) {
+            // @ts-ignore
+            prisma.topicCandidate.updateMany({
+                where: { id: { in: newIds } },
+                data: { isNew: false }
+            }).catch(e => console.error('Failed to mark topics as seen:', e));
+        }
+
         return NextResponse.json({ success: true, data: topics });
     } catch (error: any) {
         console.error('Failed to fetch topics:', error.message);

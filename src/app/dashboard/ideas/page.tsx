@@ -321,7 +321,8 @@ export default function IdeasLibrary() {
                 )}
 
                 {!isLoading && filteredTopics.map((item, i) => {
-                    const isNew = item.createdAt && (new Date().getTime() - new Date(item.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+                    // @ts-ignore
+                    const isNew = item.isNew;
                     
                     return (
                         <div key={item.id || i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">

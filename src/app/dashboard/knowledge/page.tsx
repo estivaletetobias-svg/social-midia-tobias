@@ -59,7 +59,8 @@ export default function KnowledgeBase() {
                     title: newTitle,
                     content: newContent,
                     type: newType,
-                    tags: newTags.split(',').map(t => t.trim()).filter(Boolean)
+                    tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
+                    brandId: localStorage.getItem('active_brand_id')
                 })
             });
             const data = await res.json();
@@ -123,7 +124,8 @@ export default function KnowledgeBase() {
                     url,
                     title: newTitle || "Transcrição YT Temporária",
                     type: newType || "Vídeo Transcrito",
-                    tags: newTags || "YOUTUBE"
+                    tags: newTags || "YOUTUBE",
+                    brandId: localStorage.getItem('active_brand_id')
                 })
             });
             const data = await res.json();

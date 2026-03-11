@@ -135,6 +135,7 @@ model TopicCandidate {
   platform       String
   format         String
   status         String // suggestion, approved, rejected, used
+  isNew          Boolean        @default(true)
   contentPieces  ContentPiece[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
