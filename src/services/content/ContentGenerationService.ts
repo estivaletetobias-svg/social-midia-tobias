@@ -209,65 +209,42 @@ export class ContentGenerationService {
             clientOptions.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         }
 
-        const geminiLocation = 'us-central1';
-        
+        // Specific Model ID confirmed from Google Studio screenshot
+        const currentLoc = 'us-central1';
+        const modelId = 'gemini-2.5-flash';
         const clientOptionsGemini: any = {
             ...clientOptions,
-            apiEndpoint: `${geminiLocation}-aiplatform.googleapis.com`,
+            apiEndpoint: `${currentLoc}-aiplatform.googleapis.com`,
         };
         const client = new PredictionServiceClient(clientOptionsGemini);
+        const endpoint = `projects/${project}/locations/${currentLoc}/publishers/google/models/${modelId}`;
 
-        // Multi-region and multi-model fallback strategy
-        const trials = [
-            { loc: 'us-central1', mod: 'gemini-1.5-flash' }, // Most reliable in central
-            { loc: 'us-central1', mod: 'gemini-1.5-pro' },
-            { loc: 'us-east4', mod: 'gemini-2.5-flash' },    // Virginia often has newer models first
-            { loc: 'us-east4', mod: 'gemini-2.0-flash' },
-            { loc: 'us-east4', mod: 'gemini-1.5-flash' },
-            { loc: 'us-central1', mod: 'gemini-1.5-flash-002' }
-        ];
+        console.log(`Conectando ao motor validado: ${modelId} em ${currentLoc}...`);
+        
+        const generateParams = {
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2048,
+                responseMimeType: isJson ? 'application/json' : 'text/plain',
+            }
+        };
+
+        const instance = helpers.toValue(generateParams);
 
         let response;
-        let lastError = null;
-
-        for (const trial of trials) {
-            try {
-                const trialOptions: any = {
-                    ...clientOptions,
-                    apiEndpoint: `${trial.loc}-aiplatform.googleapis.com`,
-                };
-                const trialClient = new PredictionServiceClient(trialOptions);
-                const endpoint = `projects/${project}/locations/${trial.loc}/publishers/google/models/${trial.mod}`;
-
-                console.log(`Tentando motor Gemini: ${trial.mod} em ${trial.loc}...`);
-                
-                const generateParams = {
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048,
-                        responseMimeType: isJson ? 'application/json' : 'text/plain',
-                    }
-                };
-                const instance = helpers.toValue(generateParams);
-
-                [response] = await trialClient.predict({
-                    endpoint,
-                    instances: [instance],
-                });
-                
-                if (response) {
-                    console.log(`Sucesso com ${trial.mod} em ${trial.loc}`);
-                    break;
-                }
-            } catch (err: any) {
-                console.warn(`Falha no motor ${trial.mod} (${trial.loc}):`, err.message);
-                lastError = err;
-            }
+        try {
+            [response] = await client.predict({
+                endpoint,
+                instances: [instance],
+            });
+        } catch (err: any) {
+            console.error(`Erro crítico no motor ${modelId}:`, err.message);
+            throw new Error(`O Google Vertex AI retornou um erro para o modelo ${modelId}. Certifique-se de que a API está ativa: ${err.message}`);
         }
 
         if (!response) {
-            throw new Error(`Google Gemini indisponível após tentar várias regiões e modelos. Verifique se a API Vertex AI está ativa no projeto ${project}. Erro final: ${lastError?.message}`);
+            throw new Error(`Google Gemini indisponível para o modelo ${modelId}. Verifique se a API Vertex AI e o faturamento estão ativos no projeto ${project}.`);
         }
 
         // Resilience: Deep search for text in the complex Gemini response structure
