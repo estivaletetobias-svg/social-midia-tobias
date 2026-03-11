@@ -41,7 +41,7 @@ export function Sidebar() {
     const pathname = usePathname();
     const [brands, setBrands] = useState<any[]>([]);
     const [activeBrandId, setActiveBrandId] = useState<string>("");
-    const defaultAvatar = "https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+    const defaultAvatar = "https://ui-avatars.com/api/?name=" + (session?.user?.name || "User") + "&background=f3f4f6&color=111827&bold=true";
     const [profileImg, setProfileImg] = useState<string>(defaultAvatar);
 
     const isClient = (session?.user as any)?.role === 'client';
@@ -79,18 +79,21 @@ export function Sidebar() {
                     }
                 });
         }
-        const saved = localStorage.getItem('user_profile_img');
+        const userEmail = session?.user?.email;
+        const saved = userEmail ? localStorage.getItem(`user_profile_img_${userEmail}`) : null;
         if (saved) setProfileImg(saved);
 
-        // Sincronizar com o banco de dados para persistência real em outros dispositivos
-        fetch('/api/brand/avatar')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.avatarUrl) {
-                    setProfileImg(data.avatarUrl);
-                    localStorage.setItem('user_profile_img', data.avatarUrl);
-                }
-            });
+        // Fetch personal user profile image
+        if (userEmail) {
+            fetch('/api/user/profile')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.avatarUrl) {
+                        setProfileImg(data.avatarUrl);
+                        localStorage.setItem(`user_profile_img_${userEmail}`, data.avatarUrl);
+                    }
+                });
+        }
     }, []);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,11 +104,12 @@ export function Sidebar() {
         reader.onloadend = async () => {
             const base64 = reader.result as string;
             setProfileImg(base64);
-            localStorage.setItem('user_profile_img', base64);
+            const userEmail = session?.user?.email;
+            if (userEmail) localStorage.setItem(`user_profile_img_${userEmail}`, base64);
 
-            // Persistir no banco de dados
+            // Persistir no banco de dados (Individual User Profile)
             try {
-                await fetch('/api/brand/avatar', {
+                await fetch('/api/user/profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ avatarUrl: base64 })

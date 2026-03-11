@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
     Plus,
     ArrowUpRight,
@@ -13,7 +14,8 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export default function DashboardOverview() {
+export default function DashboardPage() {
+    const { data: session } = useSession();
     const router = useRouter();
     const [statsData, setStatsData] = useState({ draftsCount: 0, approvedCount: 0, topicsCount: 0, hoursSaved: 0 });
     const [recentPieces, setRecentPieces] = useState<any[]>([]);
@@ -65,7 +67,7 @@ export default function DashboardOverview() {
                 <div>
                     <h1 className="text-5xl font-black text-gray-900 tracking-tighter font-[family-name:var(--font-space)] uppercase mb-2">STELAR Architecture</h1>
                     <p className="text-lg text-gray-400 max-w-2xl font-medium tracking-tight">
-                        Bem-vindo, Tobias. Seu motor editorial identificou <span className="text-gray-900 font-bold">{statsData.topicsCount} novos insights</span> para sua audiência hoje.
+                        Bem-vindo, {session?.user?.name || 'Arquiteto'}. Seu motor editorial identificou <span className="text-gray-900 font-bold">{statsData.topicsCount} novos insights</span> para sua audiência hoje.
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
