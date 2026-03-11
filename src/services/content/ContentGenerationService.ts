@@ -145,14 +145,12 @@ export class ContentGenerationService {
       
       VISUAL DIRECTION FOR THE DESIGNER:
       - The 'imagePrompt' must be in ENGLISH and focused on RAW PHOTOGRAPHY (GCP Imagen 3 style). 
-      - Describe lighting (Chiaroscuro, Rembrandt, Rim light), textures (skin pores, fabric threads), and camera specifics.
-      - NEVER mention "AI", "Render", "Digital Art".
-
       Return strictly RAW JSON. NO CONVERSATIONAL TEXT.
       STRICT JSON RULES:
       1. Escape all double quotes inside strings using \".
-      2. No trailing commas.
-      3. Format according to this exact structure:
+      2. Escape ALL newlines inside strings using \n. ABSOLUTELY NO raw line breaks inside values.
+      3. No trailing commas in objects or arrays.
+      4. Format according to this exact structure:
       {
         "headline": "Main title (PT-BR)",
         "hook": "Magnetic first line (PT-BR)",
@@ -217,7 +215,7 @@ export class ContentGenerationService {
             model: modelName,
             generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 8192, // Increased to prevent truncation on long posts
                 responseMimeType: isJson ? 'application/json' : 'text/plain',
             },
         });
