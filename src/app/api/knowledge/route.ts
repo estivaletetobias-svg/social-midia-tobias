@@ -1,15 +1,23 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
-        const firstBrand = await prisma.brandProfile.findFirst();
-        if (!firstBrand) {
-            return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+        const { searchParams } = new URL(req.url);
+        const brandId = searchParams.get('brandId');
+
+        let targetBrandId = brandId;
+
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+            }
+            targetBrandId = firstBrand.id;
         }
 
         const items = await prisma.knowledgeItem.findMany({
-            where: { brandProfileId: firstBrand.id },
+            where: { brandProfileId: targetBrandId },
             orderBy: { createdAt: 'desc' }
         });
 
@@ -23,11 +31,16 @@ export async function GET() {
 export async function POST(req: Request) {
     try {
         const body = await req.json().catch(() => ({}));
-        let { title, content, sourceUrl, type, tags } = body;
+        let { title, content, sourceUrl, type, tags, brandId } = body;
 
-        const firstBrand = await prisma.brandProfile.findFirst();
-        if (!firstBrand) {
-            return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+        let targetBrandId = brandId;
+
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
+            }
+            targetBrandId = firstBrand.id;
         }
 
         if (!title || !content) {
@@ -36,7 +49,7 @@ export async function POST(req: Request) {
 
         const newItem = await prisma.knowledgeItem.create({
             data: {
-                brandProfileId: firstBrand.id,
+                brandProfileId: targetBrandId,
                 title,
                 content,
                 sourceUrl: sourceUrl || null,
