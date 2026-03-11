@@ -13,7 +13,8 @@ import {
     BarChart2,
     PlusCircle,
     Plus,
-    Zap
+    Zap,
+    BrainCircuit
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -28,6 +29,7 @@ const navigation = [
     { name: "Biblioteca de Ideias", href: "/dashboard/ideas", icon: Zap },
     { name: "Esteira de Produção", href: "/dashboard/content", icon: PenTool },
     { name: "Ativos Visuais", href: "/dashboard/assets", icon: ImageIcon },
+    { name: "DNA da Marca", href: "/dashboard/brand", icon: BrainCircuit },
     { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
     { name: "Automações", href: "/dashboard/automations", icon: Zap },
     { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
