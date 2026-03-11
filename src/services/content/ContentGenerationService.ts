@@ -211,7 +211,7 @@ export class ContentGenerationService {
 
         const client = new PredictionServiceClient(clientOptions);
 
-        const endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro-002`;
+        const endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro-001`;
 
         const instance = helpers.toValue({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -227,9 +227,34 @@ export class ContentGenerationService {
             instances: [instance],
         });
 
-        const textContent = response.predictions?.[0]?.structValue?.fields?.candidates?.listValue?.values?.[0]?.structValue?.fields?.content?.structValue?.fields?.parts?.listValue?.values?.[0]?.structValue?.fields?.text?.stringValue;
+        // Resilience: Deep search for text in the complex Gemini response structure
+        const deepFindText = (obj: any): string | null => {
+            if (!obj) return null;
+            if (typeof obj === 'string' && obj.length > 5) return obj;
+            if (typeof obj !== 'object') return null;
 
-        if (!textContent) throw new Error('Gemini failed to return content');
+            // Try common paths for Gemini/Vertex responses
+            const text = obj.text || 
+                         obj.stringValue || 
+                         obj.content?.parts?.[0]?.text ||
+                         obj.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (text && typeof text === 'string') return text;
+
+            for (const key in obj) {
+                const found: any = deepFindText(obj[key]);
+                if (found) return found;
+            }
+            return null;
+        };
+
+        const textContent = deepFindText(response.predictions?.[0]);
+
+        if (!textContent) {
+            console.error("Gemini Full Response Structure:", JSON.stringify(response, null, 2));
+            throw new Error('Google Gemini failed: No text content found in response.');
+        }
+
         return isJson ? JSON.parse(textContent) : textContent;
     }
 
