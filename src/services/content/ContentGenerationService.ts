@@ -25,6 +25,8 @@ export class ContentGenerationService {
             where: { id: request.brandProfileId },
             include: {
                 editorialPillars: true,
+                audienceSegments: true,
+                socialProfiles: { where: { isActive: true } },
                 voiceGuides: { where: { platform: request.platform } }
             },
         });
@@ -85,11 +87,10 @@ export class ContentGenerationService {
       INTERNAL REFERENCE KNOWLEDGE (RAG):
       ${knowledgeContext}
 
-      Generate a content strategy including:
-      1. Recommended specific goal
-      2. Key message (grounded in internal knowledge)
-      3. Target audience segment within the brand profile
-      4. Unique angle (must avoid generic social media tropes)
+      - relevanceScore: 0-1.
+      - alignmentScore: 0-1.
+      - recommendedPipeline: One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'}. (CRITICAL: Only use platforms active in the brand DNA).
+      - recommendedFormat: "carousel", "short post", "article", or "video script".
 
       Return as JSON.
     `;
@@ -154,7 +155,7 @@ export class ContentGenerationService {
       - DO NOT use generic AI words (e.g., "In conclusion", "Moreover", "In today's digital landscape", "Navigating the complexities", emoji overload, "Em conclusão", "Cenário atual", "Mergulhe conosco").
       - DO NOT use generic hypothetical stories or fictional characters (e.g., "Maria de 68 anos sentiu...", "João melhorou seu..."). Use only factual concepts, objective arguments, and professional insights.
       - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
-      - DO NOT use Markdown formatting (like **bold**, *italics*, or # headers). Output purely plain text suitable for direct copy-pasting into Instagram/LinkedIn text boxes. Use standard spacing and line breaks instead.
+      - USE MARKDOWN FORMATTING: Use **bold** for key concepts, headers (###), and bullet points to make the text scannable and premium.
       - Use active voice and assertive tone.
       - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
 

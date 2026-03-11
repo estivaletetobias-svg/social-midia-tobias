@@ -15,6 +15,7 @@ export class TopicDiscoveryService {
             include: {
                 editorialPillars: true,
                 audienceSegments: true,
+                socialProfiles: { where: { isActive: true } },
                 knowledgeItems: { take: 10, orderBy: { createdAt: 'desc' } }
             }
         });
@@ -39,8 +40,12 @@ export class TopicDiscoveryService {
       - summary: Brief strategic reasoning (PT-BR).
       - relevanceScore: 0-1.
       - alignmentScore: 0-1.
-      - recommendedPipeline: "Instagram" or "LinkedIn". (CRITICAL: Remember that Instagram is more B2C oriented, while LinkedIn is more B2P/Business-to-Person oriented. Classify the topic based on this logic).
+      - recommendedPipeline: One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'}. (CRITICAL: Only use platforms active in the brand DNA).
       - recommendedFormat: "carousel", "short post", "article", or "video script".
+      - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
+      - USE MARKDOWN FORMATTING: Use **bold** for key concepts (highly encouraged), headers (###), and bullet points to make the text scannable and premium.
+      - Use active voice and assertive tone.
+      - NEVER hallucinate or invent sources. If you mention scientific data, studies, or facts, you MUST cite REAL sources. If you don't know the exact source name, just adapt the sentence to state the fact technically WITHOUT any placeholder like [INSERIR FONTE]. Never output placeholders.
 
       Return strictly as JSON array of objects.
     `;
@@ -84,6 +89,7 @@ export class TopicDiscoveryService {
             include: {
                 editorialPillars: true,
                 audienceSegments: true,
+                socialProfiles: { where: { isActive: true } },
             }
         });
 
@@ -113,7 +119,7 @@ export class TopicDiscoveryService {
                 "proposedHeadline": "Título atraente (PT-BR)",
                 "proposedSummary": "Por que a marca deve falar sobre isso de forma estratégica (PT-BR)",
                 "score": 0.0 to 1.0 (float),
-                "recommendedPlatform": "LinkedIn" or "Instagram" (Lembre-se: Instagram é B2C, LinkedIn é B2P/Business-to-Person. Escolha sabiamente a rede),
+                "recommendedPlatform": One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'},
                 "recommendedFormat": "short post" or "article" or "carousel"
             }
         `;
