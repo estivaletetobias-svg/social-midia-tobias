@@ -8,7 +8,10 @@ export default function EditorialCalendar() {
     const [posts, setPosts] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch("/api/calendar/posts")
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) return;
+
+        fetch(`/api/calendar/posts?brandId=${activeBrandId}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

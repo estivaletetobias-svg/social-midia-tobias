@@ -15,11 +15,14 @@ export default function AnalyticsDashboard() {
         // Fetch real counts to make it feel alive
         const fetchStats = async () => {
             try {
+                const activeBrandId = localStorage.getItem('active_brand_id');
+                if (!activeBrandId) return;
+
                 const [k, i, c, a] = await Promise.all([
-                    fetch('/api/knowledge').then(r => r.json()),
-                    fetch('/api/discovery/topics').then(r => r.json()),
-                    fetch('/api/calendar/posts').then(r => r.json()),
-                    fetch('/api/assets').then(r => r.json())
+                    fetch(`/api/knowledge?brandId=${activeBrandId}`).then(r => r.json()),
+                    fetch(`/api/discovery/topics?brandId=${activeBrandId}`).then(r => r.json()),
+                    fetch(`/api/calendar/posts?brandId=${activeBrandId}`).then(r => r.json()),
+                    fetch(`/api/assets?brandId=${activeBrandId}`).then(r => r.json())
                 ]);
                 setCounts({
                     knowledge: k.items?.length || 0,

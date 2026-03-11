@@ -1,19 +1,27 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
-        const brand = await prisma.brandProfile.findFirst();
-        if (!brand) {
-            return NextResponse.json({ success: true, posts: [] });
+        const { searchParams } = new URL(req.url);
+        const brandId = searchParams.get('brandId');
+
+        let targetBrandId = brandId;
+
+        if (!targetBrandId) {
+            const firstBrand = await prisma.brandProfile.findFirst();
+            if (!firstBrand) {
+                return NextResponse.json({ success: true, posts: [] });
+            }
+            targetBrandId = firstBrand.id;
         }
 
         // Buscamos todas as peças de conteúdo
         // Se ela tiver publishingJob, pegamos a data de lá.
         // Se não tiver, para fins de demonstração visual (MVP), vamos espalhar as que já foram rascunhadas na semana.
-        const pieces = await prisma.contentPiece.findMany({
+        const pieces = await (prisma as any).contentPiece.findMany({
             where: {
-                brandProfileId: brand.id,
+                brandProfileId: targetBrandId,
             },
             include: {
                 publishingJob: true,
