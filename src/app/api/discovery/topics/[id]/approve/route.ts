@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
+        const body = await req.json().catch(() => ({}));
+        const { platforms } = body; // Array of platform strings, e.g. ['Instagram', 'LinkedIn']
 
         const topic = await prisma.topicCandidate.findUnique({ where: { id } });
         if (!topic) {
@@ -16,20 +18,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
             data: { status: 'approved' }
         });
 
-        // Create a Content Piece out of this idea
-        const piece = await prisma.contentPiece.create({
-            data: {
-                brandProfileId: topic.brandProfileId,
-                topicId: topic.id,
-                title: topic.title,
-                platform: topic.platform,
-                format: topic.format,
-                goal: topic.summary,
-                status: 'idea', // It goes into the "Ideas/Brainstorming" phase of the Pipeline
-            }
-        });
+        const targetPlatforms = (platforms && platforms.length > 0) ? platforms : [topic.platform];
 
-        return NextResponse.json({ success: true, piece });
+        // Create Content Pieces for each requested platform
+        const pieces = await Promise.all(targetPlatforms.map((plat: string) => 
+            prisma.contentPiece.create({
+                data: {
+                    brandProfileId: topic.brandProfileId,
+                    topicId: topic.id,
+                    title: topic.title,
+                    platform: plat,
+                    format: topic.format,
+                    goal: topic.summary,
+                    status: 'idea',
+                }
+            })
+        ));
+
+        return NextResponse.json({ success: true, pieces });
     } catch (e: any) {
         console.error('Approve Topic Error:', e);
         return NextResponse.json({ error: e.message }, { status: 500 });

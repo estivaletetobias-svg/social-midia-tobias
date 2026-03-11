@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw } from "lucide-react";
+import { Search, Plus, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw, Instagram, Linkedin, Youtube, Twitter, Globe } from "lucide-react";
 
 export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
@@ -9,6 +9,11 @@ export default function IdeasLibrary() {
     const [topics, setTopics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isApproveLoading, setIsApproveLoading] = useState<Record<string, boolean>>({});
+    const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
+
+    // Modal Aprovação
+    const [topicToApprove, setTopicToApprove] = useState<any>(null);
+    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
     // Filtros e Pesquisa
     const [searchQuery, setSearchQuery] = useState("");
@@ -22,10 +27,16 @@ export default function IdeasLibrary() {
     const loadTopics = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/discovery/topics');
-            const data = await res.json();
-            if (data.success) {
-                setTopics(data.data);
+            // Load Topics
+            const topicsRes = await fetch('/api/discovery/topics');
+            const topicsData = await topicsRes.json();
+            if (topicsData.success) setTopics(topicsData.data);
+
+            // Load Social Profiles
+            const dnaRes = await fetch('/api/brand/dna');
+            const dnaData = await dnaRes.json();
+            if (dnaData.success && dnaData.data.socialProfiles) {
+                setSocialProfiles(dnaData.data.socialProfiles.filter((p: any) => p.isActive));
             }
         } catch (error) {
             console.error(error);
@@ -38,15 +49,28 @@ export default function IdeasLibrary() {
         loadTopics();
     }, []);
 
-    const handleApprove = async (topicId: string) => {
+    const initiateApprove = (topic: any) => {
+        setTopicToApprove(topic);
+        // Default to the original platform of the topic
+        setSelectedPlatforms([topic.platform]);
+    };
+
+    const handleConfirmApprove = async () => {
+        if (!topicToApprove) return;
+        const topicId = topicToApprove.id;
+        
         setIsApproveLoading(prev => ({ ...prev, [topicId]: true }));
         try {
-            const res = await fetch(`/api/discovery/topics/${topicId}/approve`, { method: 'POST' });
+            const res = await fetch(`/api/discovery/topics/${topicId}/approve`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ platforms: selectedPlatforms })
+            });
             const data = await res.json();
             if (data.success) {
-                // remove from UI instantly
                 setTopics(topics.filter(t => t.id !== topicId));
-                alert(`Ideia "${data.piece.title}" enviada para Produção! Vá para "Esteira de Produção" para gerá-la.`);
+                setTopicToApprove(null);
+                alert(`Sucesso! Criamos ${selectedPlatforms.length} peças na sua esteira de produção.`);
             } else {
                 alert(`Erro ao aprovar: ${data.error}`);
             }
@@ -271,7 +295,7 @@ export default function IdeasLibrary() {
 
                         <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/5 space-x-3">
                             <button
-                                onClick={() => handleApprove(item.id)}
+                                onClick={() => initiateApprove(item)}
                                 disabled={isApproveLoading[item.id]}
                                 className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50"
                             >
@@ -342,6 +366,75 @@ export default function IdeasLibrary() {
                                     )}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Aprovação com Escolha de Redes */}
+            {topicToApprove && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-xl overflow-hidden transform animate-in zoom-in duration-300">
+                        <div className="p-10 border-b border-gray-100 items-start flex justify-between">
+                            <div>
+                                <span className="inline-block px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-[10px] font-black uppercase tracking-widest mb-4">Escolha os Canais</span>
+                                <h3 className="text-3xl font-black text-gray-900 leading-tight">Para onde vamos <span className="text-primary-500 italic">produzir</span>?</h3>
+                                <p className="text-gray-500 font-medium mt-3 leading-relaxed">Selecione as redes sociais cadastradas no seu DNA que devem receber este conteúdo.</p>
+                            </div>
+                            <button onClick={() => setTopicToApprove(null)} className="text-gray-300 hover:text-gray-900 transition-colors">
+                                <XCircle className="w-10 h-10" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-10">
+                            <div className="grid grid-cols-2 gap-4">
+                                {(socialProfiles.length > 0 ? socialProfiles : [
+                                    { platform: 'instagram' }, { platform: 'linkedin' }, { platform: 'youtube' }, { platform: 'tiktok' }
+                                ]).map((profile) => {
+                                    const platform = profile.platform.toLowerCase();
+                                    const isSelected = selectedPlatforms.some(p => p.toLowerCase() === platform);
+                                    
+                                    const icons: Record<string, any> = {
+                                        instagram: Instagram,
+                                        linkedin: Linkedin,
+                                        youtube: Youtube,
+                                        twitter: Twitter,
+                                        tiktok: Globe,
+                                        site: Globe
+                                    };
+                                    const Icon = icons[platform] || Globe;
+
+                                    return (
+                                        <button
+                                            key={platform}
+                                            onClick={() => {
+                                                if (isSelected) setSelectedPlatforms(selectedPlatforms.filter(p => p.toLowerCase() !== platform));
+                                                else setSelectedPlatforms([...selectedPlatforms, profile.platform]);
+                                            }}
+                                            className={`flex items-center gap-4 p-6 rounded-3xl border-2 transition-all text-left ${isSelected ? 'border-primary-500 bg-primary-50 shadow-inner' : 'border-gray-100 hover:border-gray-200'}`}
+                                        >
+                                            <div className={`p-3 rounded-2xl ${isSelected ? 'bg-primary-500 text-white' : 'bg-gray-50 text-gray-400'}`}>
+                                                <Icon className="w-6 h-6" />
+                                            </div>
+                                            <span className={`font-black uppercase tracking-widest text-xs ${isSelected ? 'text-primary-700' : 'text-gray-400'}`}>
+                                                {platform}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                onClick={handleConfirmApprove}
+                                disabled={selectedPlatforms.length === 0 || isApproveLoading[topicToApprove.id]}
+                                className="w-full h-20 bg-gray-900 text-white font-black rounded-[2rem] mt-10 hover:bg-black transition-all flex items-center justify-center shadow-2xl shadow-black/20 disabled:opacity-50 active:scale-95"
+                            >
+                                {isApproveLoading[topicToApprove.id] ? (
+                                    <RefreshCcw className="h-6 w-6 animate-spin" />
+                                ) : (
+                                    <>Criar {selectedPlatforms.length} Peças de Conteúdo</>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
