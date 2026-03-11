@@ -11,8 +11,9 @@ import prisma from '@/lib/prisma';
  */
 
 function extractVideoId(url: string): string | null {
+    console.log(`[YouTube] URL recebida para extração: "${url}"`);
     const match = url.match(
-        /(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/
+        /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([^"&?\/\s]{11})/
     );
     return match ? match[1] : null;
 }
