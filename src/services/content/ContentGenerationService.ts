@@ -209,9 +209,15 @@ export class ContentGenerationService {
             clientOptions.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         }
 
-        const client = new PredictionServiceClient(clientOptions);
+        const geminiLocation = 'us-central1';
+        
+        const clientOptionsGemini: any = {
+            ...clientOptions,
+            apiEndpoint: `${geminiLocation}-aiplatform.googleapis.com`,
+        };
+        const client = new PredictionServiceClient(clientOptionsGemini);
 
-        let endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-pro`;
+        let endpoint = `projects/${project}/locations/${geminiLocation}/publishers/google/models/gemini-2.0-flash-001`;
         
         const generateParams = {
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -226,14 +232,16 @@ export class ContentGenerationService {
 
         let response;
         try {
+            console.log(`Calling Gemini 2.0 Flash at ${geminiLocation}...`);
             [response] = await client.predict({
                 endpoint,
                 instances: [instance],
             });
         } catch (err: any) {
-            console.warn("Gemini Pro failed, attempting Flash fallback...", err.message);
-            // Fallback to Flash which is more widely available
-            endpoint = `projects/${project}/locations/${location}/publishers/google/models/gemini-1.5-flash`;
+            console.warn("Gemini 2.0 Flash failed, attempting 1.5 fallback...", err.message);
+            // Fallback attempt with a different naming convention if needed, 
+            // but docs suggest 2.0 is the way to go.
+            endpoint = `projects/${project}/locations/${geminiLocation}/publishers/google/models/gemini-2.0-flash-lite-001`;
             [response] = await client.predict({
                 endpoint,
                 instances: [instance],
