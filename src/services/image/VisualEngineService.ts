@@ -178,18 +178,31 @@ export class VisualEngineService {
         const prediction = response.predictions?.[0];
         if (!prediction) throw new Error('Google Imagen failed: No predictions returned');
 
-        // Resilience: Handle both direct fields and Struct fields
-        let bytesBase64 = '';
-        try {
-            const decoded = helpers.fromValue(prediction as any) as any;
-            bytesBase64 = decoded?.bytesBase64;
-        } catch (e) {
-            bytesBase64 = (prediction as any)?.structValue?.fields?.bytesBase64?.stringValue || (prediction as any)?.bytesBase64;
-        }
+        // Resilience: Deep search for bytesBase64 in the response object
+        const deepFindBytesBase64 = (obj: any): string | null => {
+            if (!obj) return null;
+            if (obj.bytesBase64) return obj.bytesBase64;
+            if (typeof obj !== 'object') return null;
+            
+            // Try common field names in GCP/Protobuf structures
+            const val = obj.bytesBase64 || 
+                        obj.stringValue || 
+                        obj.fields?.bytesBase64?.stringValue ||
+                        obj.structValue?.fields?.bytesBase64?.stringValue;
+            if (val && typeof val === 'string' && val.length > 100) return val;
+
+            for (const key in obj) {
+                const found: any = deepFindBytesBase64(obj[key]);
+                if (found) return found;
+            }
+            return null;
+        };
+
+        const bytesBase64 = deepFindBytesBase64(prediction);
 
         if (!bytesBase64) {
-            console.error("GCP Prediction Structure:", JSON.stringify(prediction));
-            throw new Error('Google Imagen failed: No image data (bytesBase64) found in response.');
+            console.error("GCP Prediction Full Structure:", JSON.stringify(prediction, null, 2));
+            throw new Error(`Google Imagen failed: Bytes not found. Keys: ${Object.keys(prediction || {}).join(', ')}`);
         }
 
         const dataUrl = `data:image/png;base64,${bytesBase64}`;
