@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
     Home,
     Calendar,
@@ -37,30 +37,48 @@ const navigation = [
 ];
 
 export function Sidebar() {
+    const { data: session } = useSession();
     const pathname = usePathname();
     const [brands, setBrands] = useState<any[]>([]);
     const [activeBrandId, setActiveBrandId] = useState<string>("");
     const defaultAvatar = "https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
     const [profileImg, setProfileImg] = useState<string>(defaultAvatar);
 
-    useEffect(() => {
-        // Load active brand
-        const savedBrandId = localStorage.getItem('active_brand_id');
-        if (savedBrandId) setActiveBrandId(savedBrandId);
+    const isClient = (session?.user as any)?.role === 'client';
+    const isAdmin = (session?.user as any)?.role === 'admin';
 
-        // Fetch all brands for the switcher
-        fetch('/api/brand/list')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    setBrands(data.brands);
-                    // If no active brand, pick the first one
-                    if (!savedBrandId && data.brands.length > 0) {
-                        setActiveBrandId(data.brands[0].id);
-                        localStorage.setItem('active_brand_id', data.brands[0].id);
+    // Filter navigation based on role
+    const filteredNavigation = navigation.filter(item => {
+        if (isClient && item.name === "Gestão de Clientes") return false;
+        return true;
+    });
+
+    useEffect(() => {
+        if (isClient && (session?.user as any)?.brandId) {
+            const clientBrandId = (session?.user as any).brandId;
+            setActiveBrandId(clientBrandId);
+            localStorage.setItem('active_brand_id', clientBrandId);
+        } else {
+            // Load active brand for admin
+            const savedBrandId = localStorage.getItem('active_brand_id');
+            if (savedBrandId) setActiveBrandId(savedBrandId);
+        }
+
+        // Fetch brands (only needed for admin to switch)
+        if (isAdmin) {
+            fetch('/api/brand/list')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setBrands(data.brands);
+                        const savedBrandId = localStorage.getItem('active_brand_id');
+                        if (!savedBrandId && data.brands.length > 0) {
+                            setActiveBrandId(data.brands[0].id);
+                            localStorage.setItem('active_brand_id', data.brands[0].id);
+                        }
                     }
-                }
-            });
+                });
+        }
         const saved = localStorage.getItem('user_profile_img');
         if (saved) setProfileImg(saved);
 
@@ -113,27 +131,29 @@ export function Sidebar() {
                         by Tobias Estivalete
                     </span>
 
-                    {/* Brand Switcher UI */}
-                    <div className="mt-8">
-                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assessorado Ativo</label>
-                        <select 
-                            value={activeBrandId}
-                            onChange={(e) => {
-                                setActiveBrandId(e.target.value);
-                                localStorage.setItem('active_brand_id', e.target.value);
-                                window.location.reload(); // Refresh to update all data context
-                            }}
-                            className="w-full bg-white/40 border border-white/60 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all appearance-none cursor-pointer"
-                        >
-                            {brands.map(brand => (
-                                <option key={brand.id} value={brand.id}>{brand.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* Brand Switcher UI - Hidden for Clients */}
+                    {isAdmin && (
+                        <div className="mt-8">
+                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assessorado Ativo</label>
+                            <select 
+                                value={activeBrandId}
+                                onChange={(e) => {
+                                    setActiveBrandId(e.target.value);
+                                    localStorage.setItem('active_brand_id', e.target.value);
+                                    window.location.reload(); // Refresh to update all data context
+                                }}
+                                className="w-full bg-white/40 border border-white/60 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all appearance-none cursor-pointer"
+                            >
+                                {brands.map(brand => (
+                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
                     <nav className="flex-1 px-4 py-8 space-y-2">
-                        {navigation.map((item) => {
+                        {filteredNavigation.map((item) => {
                             const active = pathname === item.href;
                             return (
                                 <Link
@@ -173,12 +193,12 @@ export function Sidebar() {
                                     <Plus className="h-6 w-6 text-white" />
                                 </div>
                             </div>
-                            <div className="ml-3">
+                             <div className="ml-3">
                                 <p className="text-sm font-black text-gray-900">
-                                    Tobias Estivalete
+                                    {session?.user?.name || "Usuário STELAR"}
                                 </p>
                                 <p className="text-xs font-bold text-primary-600/70 tracking-wide uppercase">
-                                    Administrador
+                                    {isAdmin ? "Arquiteto Chefe" : "Assessorado"}
                                 </p>
                             </div>
                         </label>

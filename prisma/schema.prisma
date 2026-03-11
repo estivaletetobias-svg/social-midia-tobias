@@ -26,6 +26,7 @@ model Workspace {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  brandId       String? // If set, this user is a client restricted to this brand
   email         String    @unique
   emailVerified DateTime?
   image         String?

@@ -24,6 +24,14 @@ export default function ClientsPage() {
     const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    
+    // Invite Modal State
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [clientEmail, setClientEmail] = useState("");
+    const [brandName, setBrandName] = useState("");
+    const [inviteResult, setInviteResult] = useState<any>(null);
+    const [isInviting, setIsInviting] = useState(false);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -41,6 +49,30 @@ export default function ClientsPage() {
             console.error("Erro ao buscar clientes:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleInviteClient = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsInviting(true);
+        try {
+            const res = await fetch('/api/clients/invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: clientEmail, brandName })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setInviteResult(data.clientInfo);
+                fetchBrands(); // Refresh list to show the new brand
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Falha ao enviar convite.");
+        } finally {
+            setIsInviting(false);
         }
     };
 
@@ -72,10 +104,10 @@ export default function ClientsPage() {
                 </div>
                 <div className="flex items-center space-x-4">
                     <button
-                        onClick={() => router.push('/dashboard/brand')}
+                        onClick={() => setIsInviteModalOpen(true)}
                         className="inline-flex items-center px-8 py-4 border-none text-xs font-black uppercase tracking-widest rounded-2xl shadow-2xl text-white bg-gray-900 hover:bg-black transition-all duration-300 transform hover:-translate-y-1">
                         <Plus className="-ml-1 mr-3 h-4 w-4" />
-                        Novo Cliente
+                        Convidar Arquiteto Social
                     </button>
                 </div>
             </div>
@@ -158,17 +190,100 @@ export default function ClientsPage() {
 
                     {/* Add New Client Card */}
                     <button 
-                        onClick={() => router.push('/dashboard/brand')}
+                        onClick={() => setIsInviteModalOpen(true)}
                         className="group p-10 rounded-[2.5rem] border-2 border-dashed border-gray-300 hover:border-gray-900 hover:bg-white/40 transition-all duration-500 flex flex-col items-center justify-center gap-4 min-h-[300px]"
                     >
                         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white transition-all">
                             <Plus className="h-8 w-8 text-gray-400 group-hover:text-white" />
                         </div>
                         <div className="text-center">
-                            <p className="text-lg font-black text-gray-900">Arquiteto de Nova Marca</p>
-                            <p className="text-xs font-medium text-gray-400">Clique para iniciar o DNA</p>
+                            <p className="text-lg font-black text-gray-900">Provisionar Conta</p>
+                            <p className="text-xs font-medium text-gray-400">Clique para convidar por email</p>
                         </div>
                     </button>
+                </div>
+            )}
+
+            {/* Invite Modal */}
+            {isInviteModalOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[3rem] p-10 max-w-lg w-full shadow-2xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-8">
+                            <button onClick={() => { setIsInviteModalOpen(false); setInviteResult(null); }} className="text-gray-400 hover:text-gray-900 transition-colors">
+                                <Plus className="h-6 w-6 rotate-45" />
+                            </button>
+                        </div>
+
+                        {!inviteResult ? (
+                            <form onSubmit={handleInviteClient} className="space-y-8">
+                                <div className="space-y-2 text-center">
+                                    <h2 className="text-3xl font-black text-gray-900 tracking-tighter uppercase">Convidar Novo Cliente</h2>
+                                    <p className="text-sm text-gray-400 font-medium">Provisione o espaço editorial para o seu novo assessorado.</p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Email do Cliente</label>
+                                        <input 
+                                            type="email"
+                                            required
+                                            value={clientEmail}
+                                            onChange={(e) => setClientEmail(e.target.value)}
+                                            placeholder="exemplo@gmail.com"
+                                            className="w-full h-16 px-6 bg-gray-50 border-none rounded-[1.5rem] focus:ring-2 focus:ring-gray-900/5 transition-all font-bold text-gray-900"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Nome da Marca / Perfil</label>
+                                        <input 
+                                            type="text"
+                                            required
+                                            value={brandName}
+                                            onChange={(e) => setBrandName(e.target.value)}
+                                            placeholder="Ex: João Performance"
+                                            className="w-full h-16 px-6 bg-gray-50 border-none rounded-[1.5rem] focus:ring-2 focus:ring-gray-900/5 transition-all font-bold text-gray-900"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button 
+                                    disabled={isInviting}
+                                    type="submit"
+                                    className="w-full h-20 bg-gray-900 text-white font-black uppercase tracking-[0.2em] text-xs rounded-[1.5rem] hover:bg-black transition-all shadow-xl shadow-black/5 flex items-center justify-center disabled:opacity-50"
+                                >
+                                    {isInviting ? "Provisionando..." : "Enviar Acesso e Criar DNA"}
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="space-y-8 py-4">
+                                <div className="text-center space-y-2">
+                                    <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-gray-900 tracking-tighter uppercase">Tudo Pronto!</h2>
+                                    <p className="text-sm text-gray-400 font-medium">Passe as credenciais abaixo para o cliente iniciar o DNA.</p>
+                                </div>
+
+                                <div className="bg-gray-50 p-8 rounded-[2rem] space-y-4 border border-black/5">
+                                    <div>
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Acesso:</p>
+                                        <p className="font-bold text-gray-900">{inviteResult.email}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Senha Provisória:</p>
+                                        <p className="text-2xl font-black text-gray-900 tracking-tighter select-all">{inviteResult.tempPassword}</p>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={() => { setIsInviteModalOpen(false); setInviteResult(null); setClientEmail(""); setBrandName(""); }}
+                                    className="w-full h-16 bg-gray-900 text-white font-black uppercase tracking-widest text-xs rounded-[1.5rem] hover:bg-black transition-all"
+                                >
+                                    Concluído
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
