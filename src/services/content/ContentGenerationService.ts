@@ -148,7 +148,11 @@ export class ContentGenerationService {
       - Describe lighting (Chiaroscuro, Rembrandt, Rim light), textures (skin pores, fabric threads), and camera specifics.
       - NEVER mention "AI", "Render", "Digital Art".
 
-      Return JSON (ALL content values in PT-BR except imagePrompt):
+      Return strictly RAW JSON. NO CONVERSATIONAL TEXT.
+      STRICT JSON RULES:
+      1. Escape all double quotes inside strings using \".
+      2. No trailing commas.
+      3. Format according to this exact structure:
       {
         "headline": "Main title (PT-BR)",
         "hook": "Magnetic first line (PT-BR)",
@@ -164,7 +168,6 @@ export class ContentGenerationService {
         "videoScenes": [
              { "time": "00:00", "action": "Visual action", "audio": "Voiceover/Audio" }
         ]
-      }
       }
     `;
 
@@ -235,8 +238,16 @@ export class ContentGenerationService {
 
         if (isJson) {
             try {
-                // Remove markdown blocks if present (e.g., ```json ... ```)
-                const cleanedJson = textContent.replace(/```json\n?|```\n?/g, '').trim();
+                // Better cleaner: Find the first '{' and the last '}' 
+                // This handles markdown markers and any conversational noise
+                const firstBrace = textContent.indexOf('{');
+                const lastBrace = textContent.lastIndexOf('}');
+                
+                if (firstBrace === -1 || lastBrace === -1) {
+                    throw new Error("No JSON object found in response");
+                }
+
+                const cleanedJson = textContent.substring(firstBrace, lastBrace + 1);
                 return JSON.parse(cleanedJson);
             } catch (e) {
                 console.error("JSON Parse Error. Content received:", textContent);
