@@ -37,11 +37,37 @@ export default function AnalyticsDashboard() {
         fetchStats();
     }, []);
 
+    const hasData = counts.content > 0 || counts.knowledge > 0;
+
     const metrics = [
-        { name: "Brand Consistency", value: "98.4%", icon: Target, trend: "+2.1%", color: "text-primary-500" },
-        { name: "Content Velocity", value: `${counts.content} posts/mês`, icon: Zap, trend: "+12%", color: "text-amber-500" },
-        { name: "Knowledge Depth", value: `${counts.knowledge} fontes`, icon: Brain, trend: "Ativo", color: "text-blue-500" },
-        { name: "Predictive Reach", value: "42.5K", icon: Share2, trend: "+5.4%", color: "text-purple-500" },
+        { 
+            name: "Consistency Index", 
+            value: hasData ? "98.4%" : "0.0%", 
+            icon: Target, 
+            trend: hasData ? "+2.1%" : "0%", 
+            color: "text-primary-500" 
+        },
+        { 
+            name: "Content Velocity", 
+            value: `${counts.content} posts/mês`, 
+            icon: Zap, 
+            trend: hasData ? "+12%" : "0%", 
+            color: "text-amber-500" 
+        },
+        { 
+            name: "Knowledge Depth", 
+            value: `${counts.knowledge} fontes`, 
+            icon: Brain, 
+            trend: counts.knowledge > 0 ? "Ativo" : "Vazio", 
+            color: "text-blue-500" 
+        },
+        { 
+            name: "Predictive Reach", 
+            value: hasData ? "42.5K" : "0", 
+            icon: Share2, 
+            trend: hasData ? "+5.4%" : "0%", 
+            color: "text-purple-500" 
+        },
     ];
 
     return (
@@ -127,28 +153,28 @@ export default function AnalyticsDashboard() {
                         <div className="space-y-3">
                             <div className="flex justify-between text-xs font-black uppercase tracking-widest">
                                 <span>Instagram</span>
-                                <span className="text-primary-500">65%</span>
+                                <span className="text-primary-500">{hasData ? "65%" : "0%"}</span>
                             </div>
                             <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary-500 w-[65%] rounded-full" />
+                                <div className={`h-full bg-primary-500 rounded-full transition-all duration-1000`} style={{ width: hasData ? '65%' : '0%' }} />
                             </div>
                         </div>
                         <div className="space-y-3">
                             <div className="flex justify-between text-xs font-black uppercase tracking-widest">
                                 <span>LinkedIn</span>
-                                <span className="text-blue-500">25%</span>
+                                <span className="text-blue-500">{hasData ? "25%" : "0%"}</span>
                             </div>
                             <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-500 w-[25%] rounded-full" />
+                                <div className={`h-full bg-blue-500 rounded-full transition-all duration-1000`} style={{ width: hasData ? '25%' : '0%' }} />
                             </div>
                         </div>
                         <div className="space-y-3">
                             <div className="flex justify-between text-xs font-black uppercase tracking-widest">
                                 <span>TikTok/Reels</span>
-                                <span className="text-purple-500">10%</span>
+                                <span className="text-purple-500">{hasData ? "10%" : "0%"}</span>
                             </div>
                             <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-purple-500 w-[10%] rounded-full" />
+                                <div className={`h-full bg-purple-500 rounded-full transition-all duration-1000`} style={{ width: hasData ? '10%' : '0%' }} />
                             </div>
                         </div>
                     </div>
