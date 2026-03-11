@@ -1,20 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import OpenAI from 'openai';
+import { VisualEngineService } from '@/services/image/VisualEngineService';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
-export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
+        const body = await req.json().catch(() => ({}));
+        const { provider = 'OPENAI' } = body;
 
         const contentPiece = await prisma.contentPiece.findUnique({
             where: { id },
             include: {
-                versions: { orderBy: { createdAt: 'desc' }, take: 1 },
-                assets: true
+                versions: { orderBy: { createdAt: 'desc' }, take: 1 }
             }
         });
 
@@ -24,45 +21,23 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
 
         const latestVersion = contentPiece.versions[0];
 
-        if (!latestVersion.imagePrompt) {
-            return NextResponse.json({ error: 'Nenhum prompt visual gerado para este post.' }, { status: 400 });
-        }
-
-        // Enhance prompt for strict ultra-realism
-        const enhancedPrompt = `A candid, authentic, ultra-realist photography. Raw unedited look, natural lighting, looking like a real post. NOT a 3D render, NOT an illustration, NO cartoons, NO text. ${latestVersion.imagePrompt}`;
-
-        // Call DALL-E 3
-        const response = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: enhancedPrompt,
-            n: 1,
-            size: "1024x1024",
-            quality: "standard",
-            style: "natural" // This forces DALL-E to avoid vector/illustration presets
-        });
-
-        const imageUrl = response?.data?.[0]?.url;
-
-        if (!imageUrl) {
-            throw new Error('Falha ao obter a URL da imagem da OpenAI.');
-        }
-
-        // Save as Asset in DB
-        const asset = await prisma.asset.create({
+        // Ensure metadata has the provider
+        await prisma.contentVersion.update({
+            where: { id: latestVersion.id },
             data: {
-                brandProfileId: contentPiece.brandProfileId,
-                contentPieceId: id,
-                type: 'image',
-                url: imageUrl || '',
-                key: `generated-${Date.now()}`,
-                prompt: latestVersion.imagePrompt,
-                model: 'dall-e-3'
+                metadata: {
+                    ...(latestVersion.metadata as object || {}),
+                    provider
+                }
             }
         });
 
+        // Use our universal Visual Engine
+        const asset = await VisualEngineService.generateImage(latestVersion.id);
+
         return NextResponse.json({ success: true, asset });
     } catch (error: any) {
-        console.error("DALL-E Generation Error:", error);
+        console.error("Image Generation Route Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

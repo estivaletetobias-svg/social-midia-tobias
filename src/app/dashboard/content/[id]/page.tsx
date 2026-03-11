@@ -24,6 +24,7 @@ export default function ContentEditor() {
     const [isSavingGoogle, setIsSavingGoogle] = useState(false);
     const [googleResults, setGoogleResults] = useState<any[]>([]);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [imageProvider, setImageProvider] = useState<'OPENAI' | 'GOOGLE'>('GOOGLE');
 
     // Pre-populate search when opening modal
     useEffect(() => {
@@ -65,7 +66,11 @@ export default function ContentEditor() {
     const handleGenerateImage = async () => {
         setIsGeneratingImg(true);
         try {
-            const res = await fetch(`/api/content/${id}/generate-image`, { method: "POST" });
+            const res = await fetch(`/api/content/${id}/generate-image`, { 
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ provider: imageProvider })
+            });
             const data = await res.json();
             if (data.success) {
                 setAsset(data.asset);
@@ -308,7 +313,20 @@ export default function ContentEditor() {
                                     </p>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt Técnico (DALL-E 3)</label>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-[10px] font-black tracking-widest uppercase text-gray-400">Provedor de IA Visual</label>
+                                        <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                                            <button 
+                                                onClick={() => setImageProvider('GOOGLE')}
+                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${imageProvider === 'GOOGLE' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >GOOGLE (IMAGEN 3)</button>
+                                            <button 
+                                                onClick={() => setImageProvider('OPENAI')}
+                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${imageProvider === 'OPENAI' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >OPENAI (DALL-E 3)</button>
+                                        </div>
+                                    </div>
+                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt Técnico ({imageProvider})</label>
                                     <div className="relative group">
                                         <textarea
                                             readOnly
@@ -324,8 +342,9 @@ export default function ContentEditor() {
                                     <button
                                         onClick={handleGenerateImage}
                                         disabled={isGeneratingImg}
-                                        className="mt-2 w-full h-8 bg-black text-white text-[10px] font-black rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50">
-                                        {isGeneratingImg ? "Gerando..." : "Gerar com DALL-E 3"}
+                                        className={`mt-2 w-full h-10 text-white text-[10px] font-black rounded-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${imageProvider === 'GOOGLE' ? 'bg-primary-600 hover:bg-black' : 'bg-gray-900 hover:bg-primary-600'}`}>
+                                        <Zap className={`h-3 w-3 ${isGeneratingImg ? 'animate-pulse' : ''}`} />
+                                        <span>{isGeneratingImg ? "Sintonizando Frequência..." : `GERAR COM ${imageProvider === 'GOOGLE' ? 'GOOGLE IMAGEN 3' : 'DALL-E 3'}`}</span>
                                     </button>
                                 </div>
                             </div>
@@ -426,18 +445,23 @@ export default function ContentEditor() {
                                     Corpo Principal do Post
                                 </label>
                                 {isPreviewMode ? (
-                                    <div className="w-full min-h-[300px] text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm overflow-y-auto prose prose-sm max-w-none">
+                                    <div className="w-full min-h-[400px] text-base font-medium leading-relaxed text-gray-700 bg-white p-10 rounded-3xl border border-gray-100 shadow-sm overflow-y-auto prose-custom max-w-none">
                                         {version.body.split('\n').map((line: string, i: number) => {
-                                            if (line.startsWith('###')) return <h3 key={i} className="text-xl font-black text-gray-900 mt-6 mb-3">{line.replace('###', '')}</h3>;
-                                            if (line.startsWith('##')) return <h2 key={i} className="text-2xl font-black text-gray-900 mt-8 mb-4">{line.replace('##', '')}</h2>;
+                                            if (line.trim().startsWith('###')) {
+                                                return <h3 key={i} className="text-xl font-black text-gray-900 mt-8 mb-4 tracking-tight border-l-4 border-primary-500 pl-4">{line.replace('###', '').trim()}</h3>;
+                                            }
+                                            if (line.trim().startsWith('##')) {
+                                                return <h2 key={i} className="text-2xl font-black text-gray-900 mt-10 mb-6 tracking-tighter">{line.replace('##', '').trim()}</h2>;
+                                            }
+                                            if (line.trim() === '') return <div key={i} className="h-4" />;
                                             
-                                            // Handle bold **text**
+                                            // Enhanced bold and list handling
                                             const parts = line.split(/(\*\*.*?\*\*)/g);
                                             return (
-                                                <p key={i} className="mb-4">
+                                                <p key={i} className="mb-4 text-gray-700 leading-relaxed last:mb-0">
                                                     {parts.map((part, j) => 
                                                         part.startsWith('**') && part.endsWith('**') 
-                                                            ? <strong key={j} className="font-black text-gray-900">{part.slice(2, -2)}</strong> 
+                                                            ? <strong key={j} className="font-black text-gray-900 bg-primary-500/5 px-1 rounded">{part.slice(2, -2)}</strong> 
                                                             : part
                                                     )}
                                                 </p>
