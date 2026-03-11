@@ -110,13 +110,19 @@ export default function IdeasLibrary() {
     };
 
     const handleManualIdeaSubmit = async () => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) return;
         if (!manualIdea.trim()) return;
+
         setIsGeneratingManual(true);
         try {
             const res = await fetch('/api/discovery/manual-idea', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: manualIdea })
+                body: JSON.stringify({ 
+                    text: manualIdea,
+                    brandId: activeBrandId
+                })
             });
             const data = await res.json();
             if (data.success) {
@@ -161,12 +167,18 @@ export default function IdeasLibrary() {
     };
 
     const handleSyncRSS = async () => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) return;
+
         setIsSyncing(true);
         try {
             const res = await fetch('/api/discovery/sync-rss', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ feedUrl: rssUrl })
+                body: JSON.stringify({ 
+                    feedUrl: rssUrl,
+                    brandId: activeBrandId
+                })
             });
             const data = await res.json();
             if (data.success) {

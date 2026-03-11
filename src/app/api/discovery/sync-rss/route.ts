@@ -9,15 +9,17 @@ export async function POST(req: Request) {
     try {
         const body = await req.json().catch(() => ({}));
 
-        let { brandProfileId, feedUrl } = body;
+        let { brandId, feedUrl } = body;
+
+        let targetBrandId = brandId;
 
         // If no brand is specified, we get the first one (useful for the MVP)
-        if (!brandProfileId) {
+        if (!targetBrandId) {
             const firstBrand = await prisma.brandProfile.findFirst();
             if (!firstBrand) {
                 return NextResponse.json({ error: 'No brand profile found. Create one first.' }, { status: 400 });
             }
-            brandProfileId = firstBrand.id;
+            targetBrandId = firstBrand.id;
         }
 
         let finalFeedUrl = feedUrl || DEFAULT_FEED_URL;
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
         }
 
         // Trigger the AI Discovery Engine
-        const result = await RssDiscoveryService.ingestNews(brandProfileId, finalFeedUrl);
+        const result = await RssDiscoveryService.ingestNews(targetBrandId, finalFeedUrl);
 
         return NextResponse.json({
             success: true,

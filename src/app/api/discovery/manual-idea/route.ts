@@ -4,10 +4,18 @@ import { TopicDiscoveryService } from '@/services/discovery/TopicDiscoveryServic
 
 export async function POST(req: Request) {
     try {
-        const { text } = await req.json();
+        const body = await req.json().catch(() => ({}));
+        const { text, brandId } = body;
 
-        // Temporary MVP: get the configured brand profile.
-        const brand = await prisma.brandProfile.findFirst();
+        let brand;
+        if (brandId) {
+            brand = await prisma.brandProfile.findUnique({
+                where: { id: brandId }
+            });
+        } else {
+            brand = await prisma.brandProfile.findFirst();
+        }
+
         if (!brand) {
             return NextResponse.json({ error: 'Nenhum DNA configurado.' }, { status: 400 });
         }
