@@ -208,8 +208,8 @@ export class ContentGenerationService {
 
         const vertex_ai = new VertexAI(authOptions);
         
-        // Use gemini-1.5-flash which is the most widely available stable version for Generative AI SDK
-        const modelName = 'gemini-1.5-flash';
+        // Use gemini-2.5-flash which is confirmed active in your Model Garden
+        const modelName = 'gemini-2.5-flash';
         const generativeModel = vertex_ai.getGenerativeModel({
             model: modelName,
             generationConfig: {
