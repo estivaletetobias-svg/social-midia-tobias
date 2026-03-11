@@ -12,6 +12,17 @@ const libreBaskerville = Libre_Baskerville({ weight: ['400', '700'], subsets: ["
 export const metadata: Metadata = {
     title: "STELAR | The Social Architect System",
     description: "Personal Social Midia by Tobias Estivalete",
+    icons: {
+        icon: "/icon.png",
+        apple: "/apple-icon.png",
+    },
+    manifest: "/manifest.json",
+    themeColor: "#000000",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "STELAR",
+    },
 };
 
 export default function RootLayout({
