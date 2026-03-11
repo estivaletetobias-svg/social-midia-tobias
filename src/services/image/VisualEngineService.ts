@@ -134,21 +134,29 @@ export class VisualEngineService {
     private static async generateWithGoogleImagen(version: any) {
         const project = process.env.GCP_PROJECT_ID;
         const location = process.env.GCP_LOCATION || 'us-central1';
-        const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+        const serviceAccountJson = process.env.GCP_SERVICE_ACCOUNT_JSON;
 
-        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your .env');
+        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your Vercel/Env variables');
 
         const clientOptions: any = {
             apiEndpoint: `${location}-aiplatform.googleapis.com`,
+            projectId: project,
         };
 
-        // If the user provided a key file path in .env, use it
-        if (keyFile) {
-            clientOptions.keyFilename = keyFile;
+        // If on Vercel, we use the JSON string from ENV
+        if (serviceAccountJson) {
+            try {
+                clientOptions.credentials = JSON.parse(serviceAccountJson);
+            } catch (e) {
+                console.error("Failed to parse GCP_SERVICE_ACCOUNT_JSON", e);
+            }
+        } 
+        // Fallback to local file if path exists
+        else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+            clientOptions.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         }
 
         const client = new PredictionServiceClient(clientOptions);
-
         const endpoint = `projects/${project}/locations/${location}/publishers/google/models/imagen-3.0-generate-001`;
 
         const promptValue = helpers.toValue({ prompt: version.imagePrompt });

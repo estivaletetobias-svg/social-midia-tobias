@@ -190,16 +190,23 @@ export class ContentGenerationService {
         
         const project = process.env.GCP_PROJECT_ID;
         const location = process.env.GCP_LOCATION || 'us-central1';
-        const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+        const serviceAccountJson = process.env.GCP_SERVICE_ACCOUNT_JSON;
 
-        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your .env');
+        if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your Vercel/Env variables');
 
         const clientOptions: any = {
             apiEndpoint: `${location}-aiplatform.googleapis.com`,
+            projectId: project,
         };
 
-        if (keyFile) {
-            clientOptions.keyFilename = keyFile;
+        if (serviceAccountJson) {
+            try {
+                clientOptions.credentials = JSON.parse(serviceAccountJson);
+            } catch (e) {
+                console.error("Failed to parse GCP_SERVICE_ACCOUNT_JSON for Gemini", e);
+            }
+        } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+            clientOptions.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         }
 
         const client = new PredictionServiceClient(clientOptions);
