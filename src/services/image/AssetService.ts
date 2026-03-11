@@ -1,12 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '@/lib/prisma';
-import fs from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
 export class AssetService {
     /**
-     * Uploads an image from a URL or Base64 string.
-     * Fallback to local storage (public/uploads) if S3 is not configured.
+     * Uploads an image to Storage (Supabase or S3) and persists the record.
      */
     static async uploadAndPersist(
         imageSource: string,
@@ -18,30 +16,50 @@ export class AssetService {
             versionId?: string;
         }
     ) {
-        const isS3Configured = 
-            process.env.AWS_ACCESS_KEY_ID && 
-            process.env.AWS_ACCESS_KEY_ID !== '...' &&
-            process.env.AWS_SECRET_ACCESS_KEY && 
-            process.env.AWS_SECRET_ACCESS_KEY !== '...';
-
         const fileName = `${uuidv4()}.png`;
-        const key = `generated/${metadata.brandProfileId}/${fileName}`;
+        const path = `generated/${metadata.brandProfileId}/${fileName}`;
         let buffer: Buffer;
 
-        // 1. Prepare Buffer
+        // 1. Prepare Buffer from source
         if (imageSource.startsWith('data:image')) {
             const base64Data = imageSource.replace(/^data:image\/\w+;base64,/, '');
             buffer = Buffer.from(base64Data, 'base64');
         } else {
             const response = await fetch(imageSource);
-            if (!response.ok) throw new Error(`Failed to fetch image from URL: ${response.statusText}`);
+            if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
             const arrayBuffer = await response.arrayBuffer();
             buffer = Buffer.from(arrayBuffer);
         }
 
-        let finalUrl = '';
+        let finalUrl = imageSource; // Default to source if everything fails
 
-        if (isS3Configured) {
+        // 2. Try Supabase Storage (Preferred)
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (supabaseUrl && supabaseKey) {
+            try {
+                const supabase = createClient(supabaseUrl, supabaseKey);
+                const { data, error } = await supabase.storage
+                    .from('assets')
+                    .upload(path, buffer, {
+                        contentType: 'image/png',
+                        upsert: true
+                    });
+
+                if (error) throw error;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('assets')
+                    .getPublicUrl(path);
+                
+                finalUrl = publicUrl;
+            } catch (supaError) {
+                console.error("Supabase Storage error:", supaError);
+            }
+        } 
+        // 3. Fallback to S3 if configured
+        else if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== '...') {
             try {
                 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
                 const s3Client = new S3Client({
@@ -52,36 +70,29 @@ export class AssetService {
                     }
                 });
 
-                await s3Client.send(
-                    new PutObjectCommand({
-                        Bucket: process.env.AWS_S3_BUCKET || 'ai-content-engine',
-                        Key: key,
-                        Body: buffer,
-                        ContentType: 'image/png',
-                    })
-                );
+                await s3Client.send(new PutObjectCommand({
+                    Bucket: process.env.AWS_S3_BUCKET || 'ai-content-engine',
+                    Key: path,
+                    Body: buffer,
+                    ContentType: 'image/png',
+                }));
 
                 finalUrl = process.env.AWS_ENDPOINT_URL_S3
-                    ? `${process.env.AWS_ENDPOINT_URL_S3}/${process.env.AWS_S3_BUCKET}/${key}`
-                    : `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+                    ? `${process.env.AWS_ENDPOINT_URL_S3}/${process.env.AWS_S3_BUCKET}/${path}`
+                    : `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${path}`;
             } catch (s3Error) {
-                console.error("S3 Upload failed, falling back to data URL:", s3Error);
-                finalUrl = imageSource.startsWith('data:image') ? imageSource : imageSource;
+                console.error("S3 Fallback failed:", s3Error);
             }
-        } else {
-            // No S3, use Data URL or Local Path
-            console.warn("AWS S3 not configured. Using direct source URL.");
-            finalUrl = imageSource;
         }
 
-        // 2. Persist in Database
+        // 4. Record in Database
         return prisma.asset.create({
             data: {
                 brandProfileId: metadata.brandProfileId,
                 contentPieceId: metadata.contentPieceId,
                 type: 'image',
                 url: finalUrl,
-                key: key,
+                key: path,
                 prompt: metadata.prompt,
                 model: metadata.model,
                 metadata: metadata.versionId ? { versionId: metadata.versionId } : {},
