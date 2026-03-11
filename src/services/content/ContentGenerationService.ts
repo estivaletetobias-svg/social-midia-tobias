@@ -233,7 +233,18 @@ export class ContentGenerationService {
             throw new Error('Google Gemini failed: No text content found in response.');
         }
 
-        return isJson ? JSON.parse(textContent) : textContent;
+        if (isJson) {
+            try {
+                // Remove markdown blocks if present (e.g., ```json ... ```)
+                const cleanedJson = textContent.replace(/```json\n?|```\n?/g, '').trim();
+                return JSON.parse(cleanedJson);
+            } catch (e) {
+                console.error("JSON Parse Error. Content received:", textContent);
+                throw new Error(`Erro ao processar resposta da IA: ${e instanceof Error ? e.message : 'Formato inválido'}`);
+            }
+        }
+
+        return textContent;
     }
 
     private static async validateBrandVoice(copy: any, brand: any) {
