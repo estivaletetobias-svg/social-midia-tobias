@@ -217,35 +217,57 @@ export class ContentGenerationService {
         };
         const client = new PredictionServiceClient(clientOptionsGemini);
 
-        let endpoint = `projects/${project}/locations/${geminiLocation}/publishers/google/models/gemini-2.0-flash-001`;
-        
-        const generateParams = {
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048,
-                responseMimeType: isJson ? 'application/json' : 'text/plain',
-            }
-        };
-
-        const instance = helpers.toValue(generateParams);
+        // Multi-region and multi-model fallback strategy
+        const trials = [
+            { loc: 'us-central1', mod: 'gemini-1.5-flash' }, // Most reliable in central
+            { loc: 'us-central1', mod: 'gemini-1.5-pro' },
+            { loc: 'us-east4', mod: 'gemini-2.5-flash' },    // Virginia often has newer models first
+            { loc: 'us-east4', mod: 'gemini-2.0-flash' },
+            { loc: 'us-east4', mod: 'gemini-1.5-flash' },
+            { loc: 'us-central1', mod: 'gemini-1.5-flash-002' }
+        ];
 
         let response;
-        try {
-            console.log(`Calling Gemini 2.0 Flash at ${geminiLocation}...`);
-            [response] = await client.predict({
-                endpoint,
-                instances: [instance],
-            });
-        } catch (err: any) {
-            console.warn("Gemini 2.0 Flash failed, attempting 1.5 fallback...", err.message);
-            // Fallback attempt with a different naming convention if needed, 
-            // but docs suggest 2.0 is the way to go.
-            endpoint = `projects/${project}/locations/${geminiLocation}/publishers/google/models/gemini-2.0-flash-lite-001`;
-            [response] = await client.predict({
-                endpoint,
-                instances: [instance],
-            });
+        let lastError = null;
+
+        for (const trial of trials) {
+            try {
+                const trialOptions: any = {
+                    ...clientOptions,
+                    apiEndpoint: `${trial.loc}-aiplatform.googleapis.com`,
+                };
+                const trialClient = new PredictionServiceClient(trialOptions);
+                const endpoint = `projects/${project}/locations/${trial.loc}/publishers/google/models/${trial.mod}`;
+
+                console.log(`Tentando motor Gemini: ${trial.mod} em ${trial.loc}...`);
+                
+                const generateParams = {
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 2048,
+                        responseMimeType: isJson ? 'application/json' : 'text/plain',
+                    }
+                };
+                const instance = helpers.toValue(generateParams);
+
+                [response] = await trialClient.predict({
+                    endpoint,
+                    instances: [instance],
+                });
+                
+                if (response) {
+                    console.log(`Sucesso com ${trial.mod} em ${trial.loc}`);
+                    break;
+                }
+            } catch (err: any) {
+                console.warn(`Falha no motor ${trial.mod} (${trial.loc}):`, err.message);
+                lastError = err;
+            }
+        }
+
+        if (!response) {
+            throw new Error(`Google Gemini indisponível após tentar várias regiões e modelos. Verifique se a API Vertex AI está ativa no projeto ${project}. Erro final: ${lastError?.message}`);
         }
 
         // Resilience: Deep search for text in the complex Gemini response structure
