@@ -12,6 +12,13 @@ export async function POST(req: Request) {
 
         const buffer = Buffer.from(await file.arrayBuffer());
 
+        // Polyfill for DOMMatrix (needed by pdf-parse on Node server)
+        if (typeof global !== 'undefined' && !((global as any).DOMMatrix)) {
+            (global as any).DOMMatrix = class DOMMatrix {
+                constructor() {}
+            };
+        }
+
         const pdfModule = await import('pdf-parse');
         // @ts-ignore
         const parser = pdfModule.default || pdfModule;

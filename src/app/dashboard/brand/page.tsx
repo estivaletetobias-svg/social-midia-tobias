@@ -139,7 +139,7 @@ export default function BrandDnaPage() {
   if (loading) return <div className="p-12 animate-pulse text-gray-500 font-bold uppercase tracking-widest text-sm">Carregando DNA da Marca...</div>;
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-6 pb-24">
+    <div className="w-full py-8 md:px-6 pb-24">
       {/* Header */}
       <header className="flex items-center justify-between mb-12">
         <div>
@@ -166,7 +166,7 @@ export default function BrandDnaPage() {
         <div className="lg:col-span-8 space-y-8">
           
           {/* Card: Essência */}
-          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60 relative overflow-hidden group">
+          <section className="glass-panel p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/60 relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                <Sparkles className="h-40 w-40" />
              </div>
@@ -202,7 +202,7 @@ export default function BrandDnaPage() {
           </section>
 
           {/* Card: Canais & Redes Sociais */}
-          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60">
+          <section className="glass-panel p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/60">
              <div className="flex items-center justify-between mb-10">
                <h2 className="text-xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-tighter">
                  <ExternalLink className="h-6 w-6 text-primary-500" />
@@ -285,7 +285,7 @@ export default function BrandDnaPage() {
           </section>
 
           {/* Card: Pilares Editoriais */}
-          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60">
+          <section className="glass-panel p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/60">
              <div className="flex items-center justify-between mb-10">
                <h2 className="text-xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-tighter">
                  <ShieldCheck className="h-6 w-6 text-primary-500" />
@@ -341,7 +341,7 @@ export default function BrandDnaPage() {
         <div className="lg:col-span-4 space-y-8">
           
           {/* Card: Tom de Voz */}
-          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60">
+          <section className="glass-panel p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/60">
              <h2 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-tighter">
                <MessageSquare className="h-6 w-6 text-primary-500" />
                Tom de Voz
@@ -356,7 +356,7 @@ export default function BrandDnaPage() {
           </section>
 
           {/* Card: Público Alvo */}
-          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60">
+          <section className="glass-panel p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/60">
              <div className="flex items-center justify-between mb-6">
                <h2 className="text-lg font-black text-gray-900 flex items-center gap-2 uppercase tracking-tighter">
                  <Target className="h-6 w-6 text-primary-500" />
@@ -394,9 +394,9 @@ export default function BrandDnaPage() {
           </section>
 
           {/* NOVO: Link para Base de Conhecimento */}
-          <section className="bg-gradient-to-br from-gray-900 to-black p-10 rounded-[2.5rem] text-white overflow-hidden relative group border border-white/5 shadow-2xl">
-             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
-               <Plus className="h-40 w-40" />
+          <section className="bg-gradient-to-br from-gray-900 to-black p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] text-white overflow-hidden relative group border border-white/5 shadow-2xl">
+             <div className="absolute -top-10 -right-10 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+               <Plus className="h-32 w-32 md:h-40 md:w-40" />
              </div>
              <h3 className="text-lg font-black uppercase tracking-tighter mb-4 flex items-center gap-2">
                <Sparkles className="h-5 w-5 text-primary-500" /> Enriquecer DNA
@@ -406,7 +406,7 @@ export default function BrandDnaPage() {
              </p>
              <button 
                onClick={() => window.location.href = '/dashboard/knowledge'}
-               className="w-full py-4 bg-white text-gray-900 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
+               className="w-full py-4 bg-white text-gray-900 font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl hover:bg-gray-100 transition-all active:scale-95 shadow-xl"
              >
                Subir Arquivos e Transcrições
              </button>

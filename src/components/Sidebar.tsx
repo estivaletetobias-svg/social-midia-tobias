@@ -37,7 +37,12 @@ const navigation = [
     { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+    isMobile?: boolean;
+    onClose?: () => void;
+}
+
+export function Sidebar({ isMobile, onClose }: SidebarProps) {
     const { data: session } = useSession();
     const pathname = usePathname();
     const [brands, setBrands] = useState<any[]>([]);
@@ -130,101 +135,111 @@ export function Sidebar() {
         reader.readAsDataURL(file);
     };
 
-    return (
-        <div className="hidden lg:flex lg:w-72 lg:flex-col lg:relative p-6">
-            <div className="flex flex-col flex-1 glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 overflow-hidden border-white/20 shadow-none">
-                <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-black/5">
-                    <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
-                        STELAR
-                    </span>
-                    <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
-                        The Social Architect System
-                    </span>
-                    <span className="text-[10px] font-black text-gray-800/80 mt-3 uppercase tracking-[0.25em] border-t border-black/5 pt-3 w-fit">
-                        by Tobias Estivalete
-                    </span>
+    const sidebarContent = (
+        <div className={cn(
+            "flex flex-col flex-1 overflow-hidden",
+            !isMobile ? "glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 border-white/20 shadow-none" : "h-full"
+        )}>
+            <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-black/5">
+                <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
+                    STELAR
+                </span>
+                <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
+                    The Social Architect System
+                </span>
+                <span className="text-[10px] font-black text-gray-800/80 mt-3 uppercase tracking-[0.25em] border-t border-black/5 pt-3 w-fit">
+                    by Tobias Estivalete
+                </span>
 
-                    {/* Brand Switcher UI - Hidden for Clients */}
-                    {isAdmin && (
-                        <div className="mt-8">
-                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assessorado Ativo</label>
-                            <select 
-                                value={activeBrandId}
-                                onChange={(e) => {
-                                    setActiveBrandId(e.target.value);
-                                    localStorage.setItem('active_brand_id', e.target.value);
-                                    window.location.reload(); // Refresh to update all data context
-                                }}
-                                className="w-full bg-white/40 border border-white/60 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all appearance-none cursor-pointer"
-                            >
-                                {brands.map(brand => (
-                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-                </div>
-                <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
-                    <nav className="flex-1 px-4 py-8 space-y-2">
-                        {filteredNavigation.map((item) => {
-                            const active = pathname === item.href;
-                            return (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={cn(
-                                        active
-                                            ? "bg-white/60 text-primary-700 shadow-sm border border-white/50"
-                                            : "text-gray-500 hover:bg-white/40 hover:text-gray-900 border border-transparent",
-                                        "group flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
-                                    )}
-                                >
-                                    <item.icon
-                                        className={cn(
-                                            active ? "text-primary-700" : "text-gray-400 group-hover:text-gray-500",
-                                            "mr-3 flex-shrink-0 h-5 w-5"
-                                        )}
-                                        aria-hidden="true"
-                                    />
-                                    {item.name}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
-                <div className="flex-shrink-0 flex border-t border-white/40 p-5 bg-white/20">
-                    <div className="flex-shrink-0 w-full group block">
-                        <label className="flex items-center group cursor-pointer hover:bg-white/40 p-2 rounded-2xl transition-all">
-                            <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
-                            <div className="relative">
-                                <img
-                                    className="inline-block h-14 w-14 rounded-full border-2 border-white shadow-sm object-cover"
-                                    src={profileImg}
-                                    alt="Tobias Estivalete"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Plus className="h-6 w-6 text-white" />
-                                </div>
-                            </div>
-                             <div className="ml-3">
-                                <p className="text-sm font-black text-gray-900">
-                                    {session?.user?.name || "Usuário STELAR"}
-                                </p>
-                                <p className="text-xs font-bold text-primary-600/70 tracking-wide uppercase">
-                                    {isAdmin ? "Arquiteto Chefe" : "Assessorado"}
-                                </p>
-                            </div>
-                        </label>
-                        <button 
-                            onClick={() => signOut({ callbackUrl: '/login' })}
-                            className="ml-auto p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                            title="Sair do Sistema"
+                {/* Brand Switcher UI - Hidden for Clients */}
+                {isAdmin && (
+                    <div className="mt-8">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assessorado Ativo</label>
+                        <select
+                            value={activeBrandId}
+                            onChange={(e) => {
+                                setActiveBrandId(e.target.value);
+                                localStorage.setItem('active_brand_id', e.target.value);
+                                window.location.reload(); // Refresh to update all data context
+                            }}
+                            className="w-full bg-white/40 border border-white/60 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all appearance-none cursor-pointer"
                         >
-                            <LogOut className="h-5 w-5" />
-                        </button>
+                            {brands.map(brand => (
+                                <option key={brand.id} value={brand.id}>{brand.name}</option>
+                            ))}
+                        </select>
                     </div>
+                )}
+            </div>
+            <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
+                <nav className="flex-1 px-4 py-8 space-y-2">
+                    {filteredNavigation.map((item) => {
+                        const active = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                onClick={onClose}
+                                className={cn(
+                                    active
+                                        ? "bg-white/60 text-primary-700 shadow-sm border border-white/50"
+                                        : "text-gray-500 hover:bg-white/40 hover:text-gray-900 border border-transparent",
+                                    "group flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
+                                )}
+                            >
+                                <item.icon
+                                    className={cn(
+                                        active ? "text-primary-700" : "text-gray-400 group-hover:text-gray-500",
+                                        "mr-3 flex-shrink-0 h-5 w-5"
+                                    )}
+                                    aria-hidden="true"
+                                />
+                                {item.name}
+                            </Link>
+                        );
+                    })}
+                </nav>
+            </div>
+            <div className="flex-shrink-0 flex border-t border-white/40 p-5 bg-white/20">
+                <div className="flex-shrink-0 w-full group block">
+                    <label className="flex items-center group cursor-pointer hover:bg-white/40 p-2 rounded-2xl transition-all">
+                        <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
+                        <div className="relative">
+                            <img
+                                className="inline-block h-14 w-14 rounded-full border-2 border-white shadow-sm object-cover"
+                                src={profileImg}
+                                alt="Tobias Estivalete"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Plus className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm font-black text-gray-900">
+                                {session?.user?.name || "Usuário STELAR"}
+                            </p>
+                            <p className="text-xs font-bold text-primary-600/70 tracking-wide uppercase">
+                                {isAdmin ? "Arquiteto Chefe" : "Assessorado"}
+                            </p>
+                        </div>
+                    </label>
+                    <button
+                        onClick={() => signOut({ callbackUrl: '/login' })}
+                        className="ml-auto p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        title="Sair do Sistema"
+                    >
+                        <LogOut className="h-5 w-5" />
+                    </button>
                 </div>
             </div>
+        </div>
+    );
+
+    if (isMobile) return sidebarContent;
+
+    return (
+        <div className="hidden lg:flex lg:w-72 lg:flex-col lg:relative p-6">
+            {sidebarContent}
         </div>
     );
 }

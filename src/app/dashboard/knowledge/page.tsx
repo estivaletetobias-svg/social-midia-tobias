@@ -153,7 +153,7 @@ export default function KnowledgeBase() {
             const data = await res.json();
             if (data.success) {
                 alert("Mágica Concluída! Suas peças derivadas (Carrossel, Post e Roteiro) estão te esperando na Esteira de Produção.");
-                router.push('/dashboard/workspace');
+                router.push('/dashboard/content');
             } else {
                 alert(`Erro: ${data.error}`);
             }
