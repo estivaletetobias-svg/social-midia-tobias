@@ -86,10 +86,10 @@ export function Sidebar() {
                     <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
                         STELAR
                     </span>
-                    <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
+                    <span className="text-[10px] font-medium text-gray-500 font-serif italic tracking-widest uppercase">
                         The Social Architect System
                     </span>
-                    <span className="text-[9px] font-black text-gray-300 mt-2 uppercase tracking-[0.2em]">
+                    <span className="text-[10px] font-black text-gray-800/80 mt-3 uppercase tracking-[0.25em] border-t border-black/5 pt-3 w-fit">
                         by Tobias Estivalete
                     </span>
                 </div>

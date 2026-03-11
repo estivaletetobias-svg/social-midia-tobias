@@ -57,16 +57,16 @@ export default function DashboardOverview() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl tracking-tight">Centro de Comando</h1>
-                    <p className="mt-2 text-lg text-gray-500 max-w-2xl font-medium">
-                        Bem-vindo, Tobias. Seu Motor Editorial automático possui {statsData.topicsCount} novas pautas para você revisar.
+                    <h1 className="text-5xl font-black text-gray-900 tracking-tighter font-[family-name:var(--font-space)] uppercase mb-2">STELAR Architecture</h1>
+                    <p className="text-lg text-gray-400 max-w-2xl font-medium tracking-tight">
+                        Bem-vindo, Tobias. Seu motor editorial identificou <span className="text-gray-900 font-bold">{statsData.topicsCount} novos insights</span> para sua audiência hoje.
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={() => router.push('/dashboard/ideas')}
-                        className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-lg shadow-primary-500/20 text-white bg-primary-600 hover:bg-primary-700 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        <Plus className="-ml-1 mr-2 h-5 w-5" />
+                        className="inline-flex items-center px-8 py-4 border-none text-xs font-black uppercase tracking-widest rounded-2xl shadow-2xl text-white bg-gray-900 hover:bg-black transition-all duration-300 transform hover:-translate-y-1">
+                        <Plus className="-ml-1 mr-3 h-4 w-4" />
                         Ver Novas Pautas
                     </button>
                 </div>
@@ -139,17 +139,17 @@ export default function DashboardOverview() {
 
                 {/* Sidebar widgets */}
                 <div className="space-y-8">
-                    <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-4 translate-y-4 group-hover:scale-125 transition-transform duration-700">
-                            <Sparkles className="h-32 w-32" />
+                    <div className="bg-[#1C1C1C] rounded-[40px] shadow-2xl p-10 text-white relative overflow-hidden group border border-white/5">
+                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-125 transition-transform duration-700">
+                            <Sparkles className="h-40 w-40" />
                         </div>
-                        <h3 className="text-2xl font-black relative">Descoberta de Pautas</h3>
-                        <p className="mt-4 text-primary-100 font-medium leading-relaxed relative">
-                            Nosso motor semântico cruzou feed de notícias e encontrou <strong>{statsData.topicsCount} novos insights magnéticos</strong> para as suas redes sociais nas últimas horas.
+                        <h3 className="text-3xl font-black relative font-[family-name:var(--font-space)] uppercase tracking-tighter">Insights do Vault</h3>
+                        <p className="mt-6 text-gray-400 font-medium leading-relaxed relative text-lg">
+                            Nosso motor semântico cruzou feed de notícias e encontrou <strong>{statsData.topicsCount} ganchos magnéticos</strong> para as suas redes sociais.
                         </p>
                         <button
                             onClick={() => router.push('/dashboard/ideas')}
-                            className="mt-8 w-full flex items-center justify-center py-4 px-6 bg-white text-primary-700 font-black rounded-2xl shadow-lg hover:bg-primary-50 transition-all transform hover:scale-[1.02] active:scale-100 relative">
+                            className="mt-10 w-full flex items-center justify-center py-5 px-8 bg-white text-gray-900 font-black uppercase tracking-widest text-xs rounded-2xl shadow-lg hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-100 relative">
                             Explorar Ideias
                         </button>
                     </div>
