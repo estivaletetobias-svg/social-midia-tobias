@@ -7,6 +7,7 @@ export async function GET() {
             include: {
                 editorialPillars: true,
                 audienceSegments: true,
+                socialProfiles: true,
             }
         });
 
@@ -23,7 +24,7 @@ export async function GET() {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { id, name, description, toneOfVoice, writingRules, editorialPillars, audienceSegments } = body;
+        const { id, name, description, toneOfVoice, writingRules, editorialPillars, audienceSegments, socialProfiles } = body;
 
         // Se não tiver ID, pegamos o primeiro (comportamento de MVP)
         let brandId = id;
@@ -68,6 +69,20 @@ export async function POST(req: Request) {
                     name: s.name,
                     painPoints: s.painPoints || [],
                     desires: s.desires || [],
+                }))
+            });
+        }
+
+        // Update Social Profiles
+        if (socialProfiles) {
+            await prisma.socialProfile.deleteMany({ where: { brandProfileId: brandId } });
+            await prisma.socialProfile.createMany({
+                data: socialProfiles.map((s: any) => ({
+                    brandProfileId: brandId,
+                    platform: s.platform.toLowerCase(),
+                    handle: s.handle || '',
+                    url: s.url || '',
+                    isActive: s.isActive !== undefined ? s.isActive : true,
                 }))
             });
         }

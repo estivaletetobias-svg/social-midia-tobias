@@ -45,6 +45,7 @@ model BrandProfile {
   audienceSegments AudienceSegment[]
   editorialPillars EditorialPillar[]
   voiceGuides      VoiceGuide[]
+  socialProfiles   SocialProfile[]
   offers           Offer[]
   knowledgeItems   KnowledgeItem[]
   topics           TopicCandidate[]
@@ -52,6 +53,20 @@ model BrandProfile {
   assets           Asset[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+}
+
+model SocialProfile {
+  id             String       @id @default(cuid())
+  brandProfileId String
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  platform       String       // instagram, linkedin, tiktok, youtube, twitter, facebook
+  handle         String?
+  url            String?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([brandProfileId, platform])
 }
 
 model VoiceGuide {

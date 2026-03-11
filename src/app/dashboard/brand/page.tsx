@@ -5,12 +5,19 @@ import {
   Save, 
   Trash2, 
   Plus, 
-  Target, 
-  MessageSquare, 
-  Info,
-  ShieldCheck,
   BrainCircuit,
-  Sparkles
+  Sparkles,
+  ExternalLink,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Youtube,
+  Globe,
+  CheckCircle2,
+  ShieldCheck,
+  Target,
+  MessageSquare,
+  Info
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 
@@ -26,6 +33,14 @@ interface Audience {
   painPoints: string[];
 }
 
+interface SocialProfile {
+  id?: string;
+  platform: string;
+  handle: string;
+  url: string;
+  isActive: boolean;
+}
+
 export default function BrandDnaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -39,6 +54,16 @@ export default function BrandDnaPage() {
   // Listas
   const [pillars, setPillars] = useState<Pillar[]>([]);
   const [audience, setAudience] = useState<Audience[]>([]);
+  const [socialProfiles, setSocialProfiles] = useState<SocialProfile[]>([]);
+
+  const platforms = [
+    { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'text-pink-600' },
+    { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-blue-700' },
+    { id: 'youtube', label: 'YouTube', icon: Youtube, color: 'text-red-600' },
+    { id: 'twitter', label: 'Twitter/X', icon: Twitter, color: 'text-slate-900' },
+    { id: 'tiktok', label: 'TikTok', icon: Globe, color: 'text-black' },
+    { id: 'site', label: 'WebSite', icon: Globe, color: 'text-green-600' },
+  ];
 
   useEffect(() => {
     fetch('/api/brand/dna')
@@ -52,6 +77,7 @@ export default function BrandDnaPage() {
           setToneOfVoice(b.toneOfVoice || "");
           setPillars(b.editorialPillars || []);
           setAudience(b.audienceSegments || []);
+          setSocialProfiles(b.socialProfiles || []);
         }
         setLoading(false);
       });
@@ -69,7 +95,8 @@ export default function BrandDnaPage() {
           description,
           toneOfVoice,
           editorialPillars: pillars,
-          audienceSegments: audience
+          audienceSegments: audience,
+          socialProfiles: socialProfiles
         })
       });
       const data = await resp.json();
@@ -160,6 +187,78 @@ export default function BrandDnaPage() {
                     className="w-full bg-white/40 border border-white/60 rounded-2xl px-10 py-4 text-lg font-medium text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
                   />
                 </div>
+             </div>
+          </section>
+
+          {/* Card: Canais & Redes Sociais */}
+          <section className="glass-panel p-10 rounded-[2.5rem] border border-white/60">
+             <div className="flex items-center justify-between mb-10">
+               <h2 className="text-xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-tighter">
+                 <ExternalLink className="h-6 w-6 text-primary-500" />
+                 Canais & Redes Sociais
+               </h2>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {platforms.map((platform) => {
+                  const savedProfile = socialProfiles.find(p => p.platform === platform.id);
+                  const isActive = savedProfile?.isActive ?? false;
+
+                  return (
+                    <div key={platform.id} className={`p-6 rounded-[1.5rem] border transition-all ${isActive ? 'bg-white/60 border-primary-200 ring-1 ring-primary-100' : 'bg-white/20 border-white/40 grayscale opacity-60'}`}>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl bg-white shadow-sm ${platform.color}`}>
+                            <platform.icon className="h-5 w-5" />
+                          </div>
+                          <span className="font-black text-gray-900">{platform.label}</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const newProfiles = [...socialProfiles];
+                            const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                            if (idx >= 0) {
+                              newProfiles[idx].isActive = !newProfiles[idx].isActive;
+                            } else {
+                              newProfiles.push({ platform: platform.id, handle: '', url: '', isActive: true });
+                            }
+                            setSocialProfiles(newProfiles);
+                          }}
+                          className={`w-12 h-6 rounded-full relative transition-colors ${isActive ? 'bg-primary-600' : 'bg-gray-300'}`}
+                        >
+                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isActive ? 'right-1' : 'left-1'}`} />
+                        </button>
+                      </div>
+
+                      {isActive && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <input 
+                            value={savedProfile?.handle || ""}
+                            onChange={e => {
+                              const newProfiles = [...socialProfiles];
+                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                              newProfiles[idx].handle = e.target.value;
+                              setSocialProfiles(newProfiles);
+                            }}
+                            placeholder="@usuario ou handle"
+                            className="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2 text-sm font-bold text-gray-900 focus:outline-none"
+                          />
+                          <input 
+                            value={savedProfile?.url || ""}
+                            onChange={e => {
+                              const newProfiles = [...socialProfiles];
+                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                              newProfiles[idx].url = e.target.value;
+                              setSocialProfiles(newProfiles);
+                            }}
+                            placeholder="Link do perfil"
+                            className="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2 text-sm font-medium text-gray-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
              </div>
           </section>
 
