@@ -92,8 +92,21 @@ export default function IdeasLibrary() {
         }
     };
 
-    const handleReject = (topicId: string) => {
-        setTopics(topics.filter(t => t.id !== topicId));
+    const handleReject = async (topicId: string) => {
+        try {
+            const res = await fetch(`/api/discovery/topics/${topicId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                setTopics(topics.filter(t => t.id !== topicId));
+            } else {
+                alert(`Erro ao excluir: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Falha ao excluir ideia.');
+        }
     };
 
     const handleManualIdeaSubmit = async () => {
@@ -122,9 +135,16 @@ export default function IdeasLibrary() {
     };
 
     const handleDailyNews = async () => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) return;
+
         setIsSyncing(true);
         try {
-            const res = await fetch('/api/discovery/daily-trends', { method: 'POST' });
+            const res = await fetch('/api/discovery/daily-trends', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ brandId: activeBrandId })
+            });
             const data = await res.json();
             if (data.success) {
                 alert(`Motor Diário: Analisei as principais notícias dos seus pilares e gerei ${data.data.savedToLibrary} novas pautas quentes para você hoje.`);
@@ -279,48 +299,58 @@ export default function IdeasLibrary() {
                     </div>
                 )}
 
-                {!isLoading && topics.length > 0 && filteredTopics.length === 0 && (
+                {!isLoading && filteredTopics.length === 0 && (
                     <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 text-gray-500 font-bold glass-panel rounded-[40px]">
                         Nenhuma ideia encontrada com esses filtros.
                     </div>
                 )}
 
-                {!isLoading && filteredTopics.map((item, i) => (
-                    <div key={item.id || i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">
-                        {/* Glow effect on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {!isLoading && filteredTopics.map((item, i) => {
+                    const isNew = item.createdAt && (new Date().getTime() - new Date(item.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+                    
+                    return (
+                        <div key={item.id || i} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden border-white/60">
+                            {/* Glow effect on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            
+                            {isNew && (
+                                <div className="absolute -right-12 top-8 rotate-45 bg-amber-400 text-black text-[10px] font-black px-12 py-1 shadow-xl z-20 uppercase tracking-widest border-b border-black/5 flex items-center justify-center">
+                                    <Sparkles className="w-3 h-3 mr-1 fill-black" /> Novo
+                                </div>
+                            )}
 
-                        <div className="relative z-10 flex items-center justify-between mb-8">
-                            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-primary-600 px-4 py-2 rounded-2xl border border-primary-100/50 shadow-sm shadow-primary-500/5">
-                                <Zap className="h-4 w-4 fill-primary-600/20" />
-                                <span className="text-xs font-black tracking-widest uppercase truncate">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Relevância</span>
+                            <div className="relative z-10 flex items-center justify-between mb-8">
+                                <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-primary-600 px-4 py-2 rounded-2xl border border-primary-100/50 shadow-sm shadow-primary-500/5">
+                                    <Zap className="h-4 w-4 fill-primary-600/20" />
+                                    <span className="text-xs font-black tracking-widest uppercase truncate">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Relevância</span>
+                                </div>
+                                <span className="text-[10px] font-black tracking-[0.2em] text-gray-400/80 bg-black/5 px-4 py-2 rounded-full uppercase border border-white/50">
+                                    {item.platform}
+                                </span>
                             </div>
-                            <span className="text-[10px] font-black tracking-[0.2em] text-gray-400/80 bg-black/5 px-4 py-2 rounded-full uppercase border border-white/50">
-                                {item.platform}
-                            </span>
-                        </div>
 
-                        <h3 className="relative z-10 text-2xl font-black text-gray-900 leading-tight group-hover:text-primary-600 transition-colors tracking-tight">{item.title}</h3>
-                        <p className="relative z-10 mt-5 text-gray-500/80 font-medium leading-relaxed flex-grow text-lg">{item.summary}</p>
+                            <h3 className="relative z-10 text-2xl font-black text-gray-900 leading-tight group-hover:text-primary-600 transition-colors tracking-tight">{item.title}</h3>
+                            <p className="relative z-10 mt-5 text-gray-500/80 font-medium leading-relaxed flex-grow text-lg">{item.summary}</p>
 
-                        <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/5 space-x-3">
-                            <button
-                                onClick={() => initiateApprove(item)}
-                                disabled={isApproveLoading[item.id]}
-                                className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50"
-                            >
-                                <CheckCircle2 className={`mr-2 h-5 w-5 ${isApproveLoading[item.id] ? "animate-pulse" : "group-hover/btn:scale-110 transition-transform"}`} />
-                                {isApproveLoading[item.id] ? "Movendo..." : "Aprovar Ideia"}
-                            </button>
-                            <button
-                                onClick={() => handleReject(item.id)}
-                                className="h-16 w-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-2xl transition-all duration-300 flex items-center justify-center"
-                            >
-                                <XCircle className="h-6 w-6" />
-                            </button>
+                            <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/5 space-x-3">
+                                <button
+                                    onClick={() => initiateApprove(item)}
+                                    disabled={isApproveLoading[item.id]}
+                                    className="flex-1 h-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-900 text-sm font-black rounded-2xl hover:bg-primary-500 hover:border-primary-500 hover:text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300 flex items-center justify-center group/btn disabled:opacity-50"
+                                >
+                                    <CheckCircle2 className={`mr-2 h-5 w-5 ${isApproveLoading[item.id] ? "animate-pulse" : "group-hover/btn:scale-110 transition-transform"}`} />
+                                    {isApproveLoading[item.id] ? "Movendo..." : "Aprovar Ideia"}
+                                </button>
+                                <button
+                                    onClick={() => handleReject(item.id)}
+                                    className="h-16 w-16 bg-white border border-white/60 shadow-sm shadow-black/5 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-2xl transition-all duration-300 flex items-center justify-center"
+                                >
+                                    <XCircle className="h-6 w-6" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 {/* Create Card */}
                 <button

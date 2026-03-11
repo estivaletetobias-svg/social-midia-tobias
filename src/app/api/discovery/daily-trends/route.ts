@@ -2,11 +2,22 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { RssDiscoveryService } from '@/services/discovery/RssDiscoveryService';
 
-export async function POST() {
+export async function POST(req: Request) {
     try {
-        const brand = await prisma.brandProfile.findFirst({
-            include: { editorialPillars: true }
-        });
+        const body = await req.json().catch(() => ({}));
+        const { brandId } = body;
+
+        let brand;
+        if (brandId) {
+            brand = await prisma.brandProfile.findUnique({
+                where: { id: brandId },
+                include: { editorialPillars: true }
+            });
+        } else {
+            brand = await prisma.brandProfile.findFirst({
+                include: { editorialPillars: true }
+            });
+        }
 
         if (!brand) {
             return NextResponse.json({ error: 'DNA da marca não encontrado. Configure o perfil primeiro.' }, { status: 400 });
@@ -14,7 +25,7 @@ export async function POST() {
 
         // Se não houver pilares, usamos o nome da marca como termo de busca
         const searchTerms = brand.editorialPillars.length > 0
-            ? brand.editorialPillars.map((p: any) => p.title)
+            ? brand.editorialPillars.map((p: any) => p.title).filter((t: string) => t && t.trim() !== "")
             : [brand.name];
 
         let totalScraped = 0;
