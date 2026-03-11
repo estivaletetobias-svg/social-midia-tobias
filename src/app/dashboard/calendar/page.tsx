@@ -6,6 +6,7 @@ import Link from "next/link";
 
 export default function EditorialCalendar() {
     const [posts, setPosts] = useState<any[]>([]);
+    const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const activeBrandId = localStorage.getItem('active_brand_id');
@@ -27,6 +28,7 @@ export default function EditorialCalendar() {
 
         if (!confirm("Tem certeza que deseja apagar essa ideia/post para sempre?")) return;
 
+        setDeletingIds(prev => new Set(prev).add(postId));
         try {
             const res = await fetch(`/api/content/${postId}`, {
                 method: 'DELETE'
@@ -37,6 +39,12 @@ export default function EditorialCalendar() {
             }
         } catch (error) {
             console.error("Failed to delete", error);
+        } finally {
+            setDeletingIds(prev => {
+                const next = new Set(prev);
+                next.delete(postId);
+                return next;
+            });
         }
     };
 
@@ -160,7 +168,9 @@ export default function EditorialCalendar() {
                                             className="transform transition-transform hover:scale-[1.02] active:scale-95 z-10 relative cursor-grab active:cursor-grabbing"
                                         >
                                             <Link href={`/dashboard/content/${post.id}`}>
-                                                <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
+                                                <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all ${
+                                                    deletingIds.has(post.id) ? 'opacity-20 pointer-events-none' : ''
+                                                } ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
                                                     post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
                                                         'border-gray-500 bg-gray-50 hover:bg-gray-100'
                                                     }`}>
@@ -171,7 +181,7 @@ export default function EditorialCalendar() {
                                                             }`}>
                                                             {post.platform}
                                                         </p>
-                                                        <button onClick={(e) => handleDeletePost(e, post.id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                                        <button onClick={(e) => handleDeletePost(e, post.id)} className="text-gray-400 hover:text-red-500 transition-colors p-1">
                                                             <Trash2 className="w-3 h-3" />
                                                         </button>
                                                     </div>
@@ -186,7 +196,19 @@ export default function EditorialCalendar() {
                                                         </div>
                                                     )}
 
-                                                    <p className="mt-1 text-xs font-bold text-gray-900 line-clamp-2" title={post.title}>{post.title}</p>
+                                                    <p className="mt-1 text-[11px] font-black text-gray-900 line-clamp-2 leading-tight" title={post.title}>{post.title}</p>
+                                                    
+                                                    <div className="mt-2 flex items-center justify-between">
+                                                        <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded-md ${
+                                                            post.status === 'scheduled' ? 'bg-green-500 text-white' :
+                                                            post.status === 'approved' ? 'bg-primary-500 text-white' :
+                                                            'bg-gray-200 text-gray-500'
+                                                        }`}>
+                                                            {post.status === 'idea' ? 'Rascunho' : 
+                                                             post.status === 'draft' ? 'Cópia' :
+                                                             post.status === 'approved' ? 'Pronto' : post.status}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </Link>
                                         </div>

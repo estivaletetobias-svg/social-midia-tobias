@@ -25,6 +25,8 @@ export default function ContentEditor() {
     const [googleResults, setGoogleResults] = useState<any[]>([]);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [imageProvider, setImageProvider] = useState<'OPENAI' | 'GOOGLE'>('GOOGLE');
+    const [textProvider, setTextProvider] = useState<'OPENAI' | 'GOOGLE'>('OPENAI');
+    const [isGeneratingText, setIsGeneratingText] = useState(false);
 
     // Pre-populate search when opening modal
     useEffect(() => {
@@ -167,6 +169,28 @@ export default function ContentEditor() {
         reader.readAsDataURL(file);
     };
 
+    const handleRegenerateText = async () => {
+        setIsGeneratingText(true);
+        try {
+            const res = await fetch(`/api/content/${id}/generate-text`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ provider: textProvider })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setVersion(data.version);
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to regenerate text", error);
+            alert("Falha ao reescrever o texto.");
+        } finally {
+            setIsGeneratingText(false);
+        }
+    };
+
     const handleApprove = async () => {
         try {
             const res = await fetch(`/api/content/${id}`, {
@@ -225,18 +249,19 @@ export default function ContentEditor() {
                     </h1>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                     <button
                         onClick={() => alert("Texto salvo na nuvem com sucesso!")}
-                        className="h-12 px-6 glass-panel border border-white/60 shadow-sm shadow-black/5 text-gray-700 text-sm font-black rounded-xl hover:bg-white transition-all flex items-center">
-                        <Save className="mr-2 h-4 w-4" />
-                        Salvar
+                        className="h-14 px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
+                        <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                        Salvar Rascunho
                     </button>
                     <button
                         onClick={handleApprove}
-                        className="h-12 px-8 bg-gray-900 text-white text-sm font-black rounded-xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
-                        <CheckCircle2 className="mr-2 h-4 w-4" />
-                        Aprovar e Avançar
+                        className="h-14 px-8 min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <CheckCircle2 className="mr-3 h-5 w-5 text-primary-400" />
+                        <span className="relative z-10 whitespace-nowrap">APROVAR E AVANÇAR</span>
                     </button>
                 </div>
             </div>
@@ -441,9 +466,30 @@ export default function ContentEditor() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">
-                                    Corpo Principal do Post
-                                </label>
+                                <div className="flex items-center justify-between mb-3">
+                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center">
+                                        Corpo Principal do Post
+                                    </label>
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 scale-90">
+                                            <button 
+                                                onClick={() => setTextProvider('OPENAI')}
+                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'OPENAI' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >GPT-4o</button>
+                                            <button 
+                                                onClick={() => setTextProvider('GOOGLE')}
+                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'GOOGLE' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >GEMINI</button>
+                                        </div>
+                                        <button
+                                            onClick={handleRegenerateText}
+                                            disabled={isGeneratingText}
+                                            className="h-8 px-3 bg-primary-500/10 text-primary-600 text-[10px] font-black rounded-lg hover:bg-primary-500 hover:text-white transition-all flex items-center disabled:opacity-50">
+                                            <Wand2 className={`mr-2 h-3.5 w-3.5 ${isGeneratingText ? 'animate-spin' : ''}`} />
+                                            {isGeneratingText ? 'REESCREVENDO...' : 'REFAZER'}
+                                        </button>
+                                    </div>
+                                </div>
                                 {isPreviewMode ? (
                                     <div className="w-full min-h-[400px] text-base font-medium leading-relaxed text-gray-700 bg-white p-10 rounded-3xl border border-gray-100 shadow-sm overflow-y-auto prose-custom max-w-none">
                                         {version.body.split('\n').map((line: string, i: number) => {

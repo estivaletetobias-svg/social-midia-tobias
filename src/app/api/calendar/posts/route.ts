@@ -34,10 +34,10 @@ export async function GET(req: Request) {
 
         // Adaptação dos dados de POST para o calendário
         const formattedPosts = pieces.map((piece: any) => {
-            // Data real agendada, ou fake (criada + 2 dias) para MVP ter volume na tela
-            let date = piece.publishingJob?.scheduledAt
+            // Data real agendada, ou fallback para data de criação (estável)
+            const date = piece.publishingJob?.scheduledAt
                 ? new Date(piece.publishingJob.scheduledAt)
-                : new Date(new Date(piece.createdAt).getTime() + (Math.random() * 5 * 24 * 60 * 60 * 1000));
+                : new Date(piece.createdAt);
 
             return {
                 id: piece.id,

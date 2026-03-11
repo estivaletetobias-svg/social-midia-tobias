@@ -12,6 +12,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
         }
 
+        if (topic.status === 'approved') {
+            return NextResponse.json({ success: true, message: 'Já aprovado anteriormente.' });
+        }
+
         // Move the candidate to approved
         await prisma.topicCandidate.update({
             where: { id },
