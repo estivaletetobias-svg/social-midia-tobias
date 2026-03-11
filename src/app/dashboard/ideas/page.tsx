@@ -182,14 +182,14 @@ export default function IdeasLibrary() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0 pb-10 border-b border-black/5">
                 <div>
                     <div className="flex items-center space-x-3 mb-3 animate-fade-in">
-                        <Sparkles className="h-5 w-5 text-primary-500 fill-primary-500/20" />
-                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-[0.2em] shadow-sm">Business Intelligence & Trends</span>
+                        <div className="h-1.5 w-8 bg-gray-900 rounded-full" />
+                        <span className="text-xs font-black text-gray-400 uppercase tracking-[0.3em]">Business Intelligence</span>
                     </div>
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-gray-900 leading-tight">
-                        Ideas <span className="text-primary-500">Library</span>
+                    <h1 className="text-6xl lg:text-8xl font-black tracking-tighter text-gray-900 leading-[0.85] font-[family-name:var(--font-space)] uppercase">
+                        Ideas <span className="text-gray-400/30">Vault</span>
                     </h1>
-                    <p className="mt-5 text-xl text-gray-500/80 max-w-3xl font-medium leading-relaxed">
-                        Curadoria inteligente de pautas baseadas no seu DNA e tendências em tempo real.
+                    <p className="mt-8 text-xl text-gray-400 max-w-2xl font-medium leading-relaxed">
+                        Curadoria algorítmica de pautas baseadas no seu DNA e tendências em tempo real.
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">

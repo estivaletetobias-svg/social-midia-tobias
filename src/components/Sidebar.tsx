@@ -81,10 +81,16 @@ export function Sidebar() {
 
     return (
         <div className="hidden lg:flex lg:w-72 lg:flex-col lg:relative p-6">
-            <div className="flex flex-col flex-1 glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 overflow-hidden">
-                <div className="flex items-center h-20 flex-shrink-0 px-8 border-b border-white/40">
-                    <span className="text-xl font-black text-gray-900 tracking-tighter">
-                        Social <span className="text-primary-500">Midia</span>
+            <div className="flex flex-col flex-1 glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 overflow-hidden border-white/20 shadow-none">
+                <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-black/5">
+                    <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
+                        STELAR
+                    </span>
+                    <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
+                        The Social Architect System
+                    </span>
+                    <span className="text-[9px] font-black text-gray-300 mt-2 uppercase tracking-[0.2em]">
+                        by Tobias Estivalete
                     </span>
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">

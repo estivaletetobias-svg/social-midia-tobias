@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: '--font-space' });
+const libreBaskerville = Libre_Baskerville({ weight: ['400', '700'], subsets: ["latin"], variable: '--font-baskerville' });
 
 export const metadata: Metadata = {
-    title: "Motor de Conteúdo AI | Tobias Estivalete",
-    description: "Sistema operacional editorial automatizado para redes sociais.",
+    title: "STELAR | The Social Architect System",
+    description: "Personal Social Midia by Tobias Estivalete",
 };
 
 export default function RootLayout({
@@ -16,8 +18,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className="h-full antialiased">
-            <body className={`${inter.className} h-full bg-transparent`}>
+        <html lang="en" className={`h-full antialiased ${inter.variable} ${spaceGrotesk.variable} ${libreBaskerville.variable}`}>
+            <body className="h-full bg-transparent font-sans">
                 <div className="flex h-full min-h-screen">
                     <Sidebar />
                     <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">
