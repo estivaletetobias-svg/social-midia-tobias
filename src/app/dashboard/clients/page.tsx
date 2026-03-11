@@ -9,7 +9,9 @@ import {
     ArrowRight, 
     MoreVertical,
     CheckCircle2,
-    Briefcase
+    Briefcase,
+    Copy,
+    Check
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -74,6 +76,16 @@ export default function ClientsPage() {
         } finally {
             setIsInviting(false);
         }
+    };
+
+    const [copied, setCopied] = useState(false);
+    const handleCopyToClipboard = () => {
+        if (!inviteResult) return;
+        const text = `Olá! Seu acesso ao STELAR - The Social Architect System está pronto.\n\n🔗 Link: ${window.location.origin}/login\n📧 Email: ${inviteResult.email}\n🔑 Senha Provisória: ${inviteResult.tempPassword}\n\nAo entrar, o primeiro passo é configurar o DNA da sua marca para treinarmos sua IA.`;
+        
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const handleSelectClient = (brandId: string) => {
@@ -269,11 +281,23 @@ export default function ClientsPage() {
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Acesso:</p>
                                         <p className="font-bold text-gray-900">{inviteResult.email}</p>
                                     </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Senha Provisória:</p>
-                                        <p className="text-2xl font-black text-gray-900 tracking-tighter select-all">{inviteResult.tempPassword}</p>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Senha Provisória:</p>
+                                            <p className="text-2xl font-black text-gray-900 tracking-tighter select-all">{inviteResult.tempPassword}</p>
+                                        </div>
+                                        <button 
+                                            onClick={handleCopyToClipboard}
+                                            className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all ${copied ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-black shadow-lg shadow-black/10'}`}
+                                        >
+                                            {copied ? <Check className="h-6 w-6" /> : <Copy className="h-6 w-6" />}
+                                        </button>
                                     </div>
                                 </div>
+
+                                <p className="text-[10px] text-center text-gray-400 font-bold uppercase tracking-widest">
+                                    {copied ? "Texto copiado para o clipboard!" : "Clique no botão acima para copiar o convite"}
+                                </p>
 
                                 <button 
                                     onClick={() => { setIsInviteModalOpen(false); setInviteResult(null); setClientEmail(""); setBrandName(""); }}
