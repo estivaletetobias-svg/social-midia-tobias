@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
         FacebookProvider({
             clientId: process.env.FACEBOOK_CLIENT_ID!,
             clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+            allowDangerousEmailAccountLinking: true,
             authorization: {
                 params: {
                     scope: 'instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_read_engagement,public_profile,email',
@@ -31,21 +32,21 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
-                    return null;
+                    throw new Error("E-mail e senha são obrigatórios");
                 }
 
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials.email }
+                    where: { email: credentials.email.toLowerCase() }
                 });
 
                 if (!user || !user.password) {
-                    return null;
+                    throw new Error("Usuário não encontrado ou sem senha cadastrada");
                 }
 
                 const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {
-                    return null;
+                    throw new Error("Senha incorreta");
                 }
 
                 return {
@@ -59,7 +60,9 @@ export const authOptions: NextAuthOptions = {
             }
         })
     ],
+    debug: process.env.NODE_ENV === 'development',
     callbacks: {
+
         async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
