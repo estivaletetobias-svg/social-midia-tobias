@@ -229,21 +229,24 @@ export default function BrandDnaPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           {isActive && isInstagram && (
-                             <button 
-                               onClick={() => {
-                                   if (brandId) {
-                                       window.location.href = `/api/instagram/auth?brandId=${brandId}`;
-                                   } else {
-                                       alert('Brand ID não encontrado. Por favor, recarregue a página.');
-                                   }
-                               }}
-                               className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
-                               title="Conectar Conta Profissional"
-                             >
-                               <Instagram className="h-3 w-3" />
-                               Conectar
-                             </button>
-                          )}
+                              <button 
+                                onClick={() => {
+                                    // Tenta pegar do state ou do localStorage como fallback
+                                    const currentBrandId = brandId || localStorage.getItem('active_brand_id');
+                                    
+                                    if (currentBrandId) {
+                                        window.location.href = `/api/instagram/auth?brandId=${currentBrandId}`;
+                                    } else {
+                                        alert('Por favor, clique no botão "SALVAR ALTERAÇÕES" no topo da página primeiro para criar o registro da sua marca antes de conectar o Instagram.');
+                                    }
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
+                                title="Conectar Conta Profissional"
+                              >
+                                <Instagram className="h-3 w-3" />
+                                Conectar
+                              </button>
+                           )}
                           <button 
                             onClick={() => {
                               const newProfiles = [...socialProfiles];
