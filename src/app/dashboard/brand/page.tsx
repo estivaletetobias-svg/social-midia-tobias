@@ -20,6 +20,8 @@ import {
   Info
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
+import { signIn, useSession } from "next-auth/react";
+
 
 interface Pillar {
   id?: string;
@@ -214,6 +216,7 @@ export default function BrandDnaPage() {
                 {platforms.map((platform) => {
                   const savedProfile = socialProfiles.find(p => p.platform === platform.id);
                   const isActive = savedProfile?.isActive ?? false;
+                  const isInstagram = platform.id === 'instagram';
 
                   return (
                     <div key={platform.id} className={`p-6 rounded-[1.5rem] border transition-all ${isActive ? 'bg-white/60 border-primary-200 ring-1 ring-primary-100' : 'bg-white/20 border-white/40 grayscale opacity-60'}`}>
@@ -225,13 +228,14 @@ export default function BrandDnaPage() {
                           <span className="font-black text-gray-900">{platform.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {isActive && (
+                          {isActive && isInstagram && (
                              <button 
-                               onClick={() => alert(`Sincronização Ativada! O STELAR irá escanear ${platform.label} para enriquecer seu DNA periodicamente.`)}
-                               className="p-1.5 text-primary-500 hover:bg-primary-50 rounded-lg transition-all"
-                               title="Sincronizar Perfil"
+                               onClick={() => signIn('facebook', { callbackUrl: window.location.href })}
+                               className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
+                               title="Conectar Conta Profissional"
                              >
-                               <Sparkles className="h-4 w-4" />
+                               <Instagram className="h-3 w-3" />
+                               Conectar
                              </button>
                           )}
                           <button 

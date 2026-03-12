@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import FacebookProvider from "next-auth/providers/facebook";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
@@ -13,6 +14,15 @@ export const authOptions: NextAuthOptions = {
         signIn: "/login",
     },
     providers: [
+        FacebookProvider({
+            clientId: process.env.FACEBOOK_CLIENT_ID!,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+            authorization: {
+                params: {
+                    scope: 'instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_read_engagement,public_profile,email',
+                },
+            },
+        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -50,12 +60,15 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
                 token.role = (user as any).role;
                 token.workspaceId = (user as any).workspaceId;
                 token.brandId = (user as any).brandId;
+            }
+            if (account) {
+                token.accessToken = account.access_token;
             }
             return token;
         },
@@ -65,6 +78,7 @@ export const authOptions: NextAuthOptions = {
                 (session.user as any).role = token.role;
                 (session.user as any).workspaceId = token.workspaceId;
                 (session.user as any).brandId = token.brandId;
+                (session.user as any).accessToken = token.accessToken;
             }
             return session;
         }
