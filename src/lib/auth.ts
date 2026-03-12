@@ -62,25 +62,15 @@ export const authOptions: NextAuthOptions = {
     ],
     debug: process.env.NODE_ENV === 'development',
     callbacks: {
-
-        async jwt({ token, user, account }) {
+        async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
-                token.role = (user as any).role;
-                token.brandId = (user as any).brandId;
-            }
-            if (account) {
-                // Apenas salvar o token, sem metadados gigantes
-                token.accessToken = account.access_token;
+                token.uid = user.id;
             }
             return token;
         },
         async session({ session, token }) {
             if (token && session.user) {
-                (session.user as any).id = token.id;
-                (session.user as any).role = token.role;
-                (session.user as any).brandId = token.brandId;
-                (session.user as any).accessToken = token.accessToken;
+                (session.user as any).id = token.uid;
             }
             return session;
         }
