@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import FacebookProvider from "next-auth/providers/facebook";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
@@ -14,16 +13,6 @@ export const authOptions: NextAuthOptions = {
         signIn: "/login",
     },
     providers: [
-        FacebookProvider({
-            clientId: process.env.FACEBOOK_CLIENT_ID!,
-            clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-            allowDangerousEmailAccountLinking: true,
-            authorization: {
-                params: {
-                    scope: 'instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_read_engagement,public_profile,email',
-                },
-            },
-        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -54,28 +43,23 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.name,
                     role: (user as any).role,
-                    workspaceId: user.workspaceId,
-                    brandId: user.brandId
+                    brandId: (user as any).brandId
                 } as any;
             }
         })
     ],
-    debug: process.env.NODE_ENV === 'development',
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                // APENAS o ID. Nada de tokens gigantes aqui.
-                token.sub = user.id;
+                token.id = user.id;
             }
             return token;
         },
         async session({ session, token }) {
             if (token && session.user) {
-                (session.user as any).id = token.sub;
+                (session.user as any).id = token.id;
             }
             return session;
         }
     }
-
-
 };
