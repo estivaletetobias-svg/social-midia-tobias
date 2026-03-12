@@ -67,10 +67,10 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = (user as any).role;
-                token.workspaceId = (user as any).workspaceId;
                 token.brandId = (user as any).brandId;
             }
             if (account) {
+                // Apenas salvar o token, sem metadados gigantes
                 token.accessToken = account.access_token;
             }
             return token;
@@ -79,7 +79,6 @@ export const authOptions: NextAuthOptions = {
             if (token && session.user) {
                 (session.user as any).id = token.id;
                 (session.user as any).role = token.role;
-                (session.user as any).workspaceId = token.workspaceId;
                 (session.user as any).brandId = token.brandId;
                 (session.user as any).accessToken = token.accessToken;
             }
