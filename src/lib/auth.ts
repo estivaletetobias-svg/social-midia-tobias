@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {
-        strategy: "database",
+        strategy: "jwt",
     },
     pages: {
         signIn: "/login",
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
                 });
 
                 if (!user || !user.password) {
-                    throw new Error("Usuário não encontrado ou sem senha cadastrada");
+                    throw new Error("Usuário não encontrado");
                 }
 
                 const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
@@ -62,14 +62,20 @@ export const authOptions: NextAuthOptions = {
     ],
     debug: process.env.NODE_ENV === 'development',
     callbacks: {
-        async session({ session, user }) {
-            if (session.user) {
-                (session.user as any).id = user.id;
-                (session.user as any).role = (user as any).role;
-                (session.user as any).brandId = (user as any).brandId;
+        async jwt({ token, user }) {
+            if (user) {
+                // APENAS o ID. Nada de tokens gigantes aqui.
+                token.sub = user.id;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (token && session.user) {
+                (session.user as any).id = token.sub;
             }
             return session;
         }
     }
+
 
 };
