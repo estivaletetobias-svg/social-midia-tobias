@@ -10,7 +10,7 @@ export default function DataDeletionPage() {
           <div className="space-y-6 text-gray-600 font-medium">
             <p>Para remover seu vínculo com o Instagram:</p>
             <ol className="list-decimal ml-6 space-y-2">
-              <li>Acesse seu Facebook > Configurações > Aplicativos e Sites.</li>
+              <li>Acesse seu Facebook &gt; Configurações &gt; Aplicativos e Sites.</li>
               <li>Remova o acesso do "Tobias Content Engine".</li>
               <li>Pronto, seus tokens serão invalidados automaticamente.</li>
             </ol>
