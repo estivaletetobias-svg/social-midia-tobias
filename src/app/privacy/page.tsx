@@ -3,20 +3,26 @@ export const metadata = {
   description: 'Privacidade e segurança dos seus dados.',
 };
 
-// Usamos um layout nulo para estas páginas para evitar conflitos com o dashboard
 export default function PrivacyPage() {
   return (
-    <html>
-      <body style={{ margin: 0, padding: '40px', fontFamily: 'sans-serif', backgroundColor: '#f9fafb' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: 'white', padding: '40px', borderRadius: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#111827' }}>Política de Privacidade</h1>
-          <p>Este aplicativo respeita a sua privacidade.</p>
-          <h2 style={{ fontSize: '18px', marginTop: '24px' }}>1. Dados</h2>
-          <p>Coletamos apenas o necessário para integração via API oficial.</p>
-          <h2 style={{ fontSize: '18px', marginTop: '24px' }}>2. Exclusão</h2>
-          <p>Solicite a remoção para: contato@tobiasestivalete.com.br</p>
+    <div className="min-h-screen bg-[#EAEAE5] py-20 px-6">
+        <div className="max-w-2xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-xl shadow-black/5 border border-white/60">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase mb-8">Política de Privacidade</h1>
+          
+          <div className="space-y-6 text-gray-600 font-medium">
+            <p>Este aplicativo (Tobias Content Engine) respeita a sua privacidade e a segurança dos seus dados.</p>
+            
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">1. Coleta de Dados</h2>
+              <p>Coletamos apenas as informações necessárias para a integração com o Instagram via API oficial da Meta.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">2. Exclusão de Dados</h2>
+              <p>Você pode solicitar a exclusão total enviando um e-mail para: <span className="text-gray-900 font-black">contato@tobiasestivalete.com.br</span></p>
+            </section>
+          </div>
         </div>
-      </body>
-    </html>
+    </div>
   );
 }

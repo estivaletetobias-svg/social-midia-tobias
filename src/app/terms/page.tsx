@@ -1,20 +1,16 @@
 export const metadata = {
-  title: 'Termos de Serviço | Tobias Content Engine',
-  description: 'Termos de serviço do Tobias Content Engine.',
+  title: 'Termos de Serviço | STELAR',
 };
 
 export default function TermsPage() {
   return (
-    <div className="max-w-2xl mx-auto py-20 px-6 font-sans text-gray-800">
-      <h1 className="text-3xl font-black mb-6">Termos de Serviço</h1>
-      <p className="mb-4">Ao utilizar o Tobias Content Engine, você concorda com estes termos básicos.</p>
-      <h2 className="text-xl font-bold mt-6 mb-2">1. Uso do Serviço</h2>
-      <p className="mb-4">Nossa ferramenta facilita o gerenciamento de conteúdo para redes sociais. Você é responsável pelo conteúdo que publica.</p>
-      <h2 className="text-xl font-bold mt-6 mb-2">2. Integrações</h2>
-      <p className="mb-4">Utilizamos as APIs oficiais da Meta (Facebook/Instagram) e seguimos rigorosamente suas políticas de uso.</p>
-      <h2 className="text-xl font-bold mt-6 mb-2">3. Limitação de Responsabilidade</h2>
-      <p className="mb-4">Não nos responsabilizamos por perdas decorrentes do uso inadequado da ferramenta ou mudanças nas diretrizes das redes sociais.</p>
-      <p className="mt-10 text-sm text-gray-500">Última atualização: 12 de Março de 2026</p>
+    <div className="min-h-screen bg-[#EAEAE5] py-20 px-6">
+        <div className="max-w-2xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-xl shadow-black/5 border border-white/60">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase mb-8">Termos de Serviço</h1>
+          <div className="space-y-6 text-gray-600 font-medium">
+            <p>Ao utilizar o STELAR, você concorda com nossas diretrizes de uso responsável das APIs de redes sociais.</p>
+          </div>
+        </div>
     </div>
   );
 }
