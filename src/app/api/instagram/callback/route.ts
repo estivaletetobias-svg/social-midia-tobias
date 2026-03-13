@@ -36,7 +36,31 @@ export async function GET(req: NextRequest) {
 
     const accessToken = longLivedResponse.data.access_token;
 
-    // 3. Salvar no Banco de Dados (SocialProfile)
+    // 3. Buscar detalhes do perfil do Instagram automaticamente
+    let handle = "";
+    let externalId = "";
+    let metadata = {};
+
+    try {
+      const { InstagramService } = require("@/services/instagram");
+      const accounts = await InstagramService.getConnectedProfiles(accessToken);
+      
+      if (accounts && accounts.length > 0) {
+        const primary = accounts[0]; // Pegamos a primeira conta vinculada
+        handle = primary.username;
+        externalId = primary.instagramId;
+        metadata = {
+          profilePicture: primary.profilePicture,
+          igName: primary.igName,
+          pageId: primary.pageId,
+          pageName: primary.pageName
+        };
+      }
+    } catch (e) {
+      console.error("Erro ao enriquecer perfil:", e);
+    }
+
+    // 4. Salvar no Banco de Dados (SocialProfile)
     await prisma.socialProfile.upsert({
       where: {
         brandProfileId_platform: {
@@ -46,6 +70,9 @@ export async function GET(req: NextRequest) {
       },
       update: {
         accessToken: accessToken,
+        handle: handle || undefined,
+        externalId: externalId || undefined,
+        metadata: metadata,
         isActive: true,
         updatedAt: new Date(),
       },
@@ -53,12 +80,15 @@ export async function GET(req: NextRequest) {
         brandProfileId: brandId,
         platform: "instagram",
         accessToken: accessToken,
+        handle: handle,
+        externalId: externalId,
+        metadata: metadata,
         isActive: true,
       },
     });
 
 
-    // 4. Redirecionar de volta para o Dashboard com sucesso
+    // 5. Redirecionar de volta para o Dashboard com sucesso
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/dashboard/brand?social=connected`);
   } catch (error: any) {
     console.error("Erro no callback do Instagram:", error.response?.data || error.message);

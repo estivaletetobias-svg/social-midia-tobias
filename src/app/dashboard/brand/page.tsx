@@ -41,7 +41,11 @@ interface SocialProfile {
   handle: string;
   url: string;
   isActive: boolean;
+  metadata?: any;
+  accessToken?: string;
 }
+
+
 
 export default function BrandDnaPage() {
   const [loading, setLoading] = useState(true);
@@ -222,27 +226,50 @@ export default function BrandDnaPage() {
                     <div key={platform.id} className={`p-6 rounded-[1.5rem] border transition-all ${isActive ? 'bg-white/60 border-primary-200 ring-1 ring-primary-100' : 'bg-white/20 border-white/40 grayscale opacity-60'}`}>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-xl bg-white shadow-sm ${platform.color}`}>
-                            <platform.icon className="h-5 w-5" />
+                          <div className={`relative p-2 rounded-xl bg-white shadow-sm ${platform.color}`}>
+                            {isActive && savedProfile?.metadata?.profilePicture ? (
+                              <img 
+                                src={savedProfile.metadata.profilePicture} 
+                                alt={platform.label}
+                                className="h-6 w-6 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <platform.icon className="h-5 w-5" />
+                            )}
+                            {isActive && (
+                              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+                            )}
                           </div>
-                          <span className="font-black text-gray-900">{platform.label}</span>
+                          <div className="flex flex-col">
+                            <span className="font-black text-gray-900 text-sm leading-tight">{platform.label}</span>
+                            {isActive && savedProfile?.handle && (
+                              <span className="text-[10px] text-gray-400 font-bold">@{savedProfile.handle}</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {isActive && isInstagram && (
-                              <button 
-                                onClick={() => {
-                                    // Pega o ID de onde estiver disponível
-                                    const currentBrandId = brandId || localStorage.getItem('active_brand_id') || '';
-                                    window.location.href = `/api/instagram/auth?brandId=${currentBrandId}`;
-                                }}
 
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
-                                title="Conectar Conta Profissional"
-                              >
-                                <Instagram className="h-3 w-3" />
-                                Conectar
-                              </button>
-                           )}
+                        <div className="flex items-center gap-2">
+                           {isActive && isInstagram && (
+                             savedProfile?.accessToken ? (
+                               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 text-[10px] font-black rounded-lg border border-green-200 uppercase tracking-wider">
+                                 <CheckCircle2 className="h-3 w-3" />
+                                 Conectado
+                               </div>
+                             ) : (
+                               <button 
+                                 onClick={() => {
+                                     // Pega o ID de onde estiver disponível
+                                     const currentBrandId = brandId || localStorage.getItem('active_brand_id') || '';
+                                     window.location.href = `/api/instagram/auth?brandId=${currentBrandId}`;
+                                 }}
+                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
+                                 title="Conectar Conta Profissional"
+                               >
+                                 <Instagram className="h-3 w-3" />
+                                 Conectar
+                               </button>
+                             )
+                            )}
                           <button 
                             onClick={() => {
                               const newProfiles = [...socialProfiles];
