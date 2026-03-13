@@ -1,14 +1,20 @@
+export const metadata = {
+  title: 'Exclusão de Dados | Tobias Content Engine',
+};
+
 export default function DataDeletionPage() {
   return (
-    <div className="max-w-2xl mx-auto py-20 px-6 font-sans text-gray-800">
-      <h1 className="text-3xl font-black mb-6">Exclusão de Dados do Usuário</h1>
-      <p className="mb-4">Para solicitar a exclusão dos seus dados vinculados ao Tobias Content Engine, siga os passos abaixo:</p>
-      <ol className="list-decimal ml-6 space-y-2">
-        <li>Acesse as configurações do seu perfil no nosso dashboard.</li>
-        <li>Clique em "Desconectar Redes Sociais".</li>
-        <li>Envie um e-mail para <strong>contato@tobiasestivalete.com.br</strong> com o assunto "Exclusão de Dados" informando seu e-mail de cadastro.</li>
-      </ol>
-      <p className="mt-6">Seus dados serão removidos de nossos servidores em até 48 horas após a solicitação.</p>
-    </div>
+    <html>
+      <body style={{ margin: 0, padding: '40px', fontFamily: 'sans-serif', backgroundColor: '#f9fafb' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: 'white', padding: '40px', borderRadius: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#111827' }}>Exclusão de Dados</h1>
+          <p>Para remover seus dados ou desconectar seu Instagram:</p>
+          <ol>
+            <li>Desconecte o app nas configurações do seu Facebook.</li>
+            <li>Ou envie e-mail para contato@tobiasestivalete.com.br solicitando o "wipe" da conta.</li>
+          </ol>
+        </div>
+      </body>
+    </html>
   );
 }
