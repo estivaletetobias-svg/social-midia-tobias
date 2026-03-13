@@ -9,14 +9,12 @@ export default withAuth({
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api/auth (NextAuth)
-         * - privacy, terms, data-deletion (Compliance)
-         * - login (Sign in)
-         * - _next/static, _next/image, favicon.ico (Static)
+         * Protegemos apenas o dashboard e a API do dashboard.
+         * Todas as outras rotas (/, /privacy, /terms, etc) ficam públicas para o Facebook.
          */
         "/dashboard/:path*",
         "/api/dashboard/:path*",
     ],
 };
+
 
