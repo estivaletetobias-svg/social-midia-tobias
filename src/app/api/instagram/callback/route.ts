@@ -37,8 +37,6 @@ export async function GET(req: NextRequest) {
     const accessToken = longLivedResponse.data.access_token;
 
     // 3. Salvar no Banco de Dados (SocialProfile)
-    // Nota: Aqui salvamos direto na tabela de SocialProfile da Marca, 
-    // bypassando qualquer limite de header/cookie da Vercel.
     await prisma.socialProfile.upsert({
       where: {
         brandProfileId_platform: {
@@ -49,6 +47,7 @@ export async function GET(req: NextRequest) {
       update: {
         accessToken: accessToken,
         isActive: true,
+        updatedAt: new Date(),
       },
       create: {
         brandProfileId: brandId,
@@ -57,6 +56,7 @@ export async function GET(req: NextRequest) {
         isActive: true,
       },
     });
+
 
     // 4. Redirecionar de volta para o Dashboard com sucesso
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/dashboard/brand?social=connected`);
