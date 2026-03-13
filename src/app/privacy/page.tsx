@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'Política de Privacidade | Tobias Content Engine',
+  description: 'Política de privacidade do Tobias Content Engine.',
+};
+
 export default function PrivacyPage() {
   return (
     <div className="max-w-2xl mx-auto py-20 px-6 font-sans text-gray-800">

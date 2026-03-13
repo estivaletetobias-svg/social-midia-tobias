@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'Termos de Serviço | Tobias Content Engine',
+  description: 'Termos de serviço do Tobias Content Engine.',
+};
+
 export default function TermsPage() {
   return (
     <div className="max-w-2xl mx-auto py-20 px-6 font-sans text-gray-800">
