@@ -36,13 +36,23 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const workspaceId = (session.user as any).workspaceId;
+    if (!session || !session.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     try {
+        // Buscamos o usuário no banco para pegar o workspaceId oficial
+        const user = await prisma.user.findUnique({
+            where: { id: (session.user as any).id },
+            select: { workspaceId: true }
+        });
+
+        if (!user || !user.workspaceId) {
+            return NextResponse.json({ error: 'Usuário sem workspace vinculado' }, { status: 400 });
+        }
+
+        const workspaceId = user.workspaceId;
         const body = await req.json();
         const { id, name, description, toneOfVoice, writingRules, editorialPillars, audienceSegments, socialProfiles } = body;
+
 
         let brandId = id;
 
