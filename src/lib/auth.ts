@@ -43,7 +43,8 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.name,
                     role: (user as any).role,
-                    brandId: (user as any).brandId
+                    brandId: (user as any).brandId,
+                    workspaceId: user.workspaceId
                 } as any;
             }
         })

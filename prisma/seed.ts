@@ -56,7 +56,8 @@ async function main() {
         where: { email: 'contato@tobiasestivalete.com.br' },
         update: {
             password: hashedPassword,
-            role: 'admin'
+            role: 'admin',
+            workspaceId: workspace.id,
         },
         create: {
             email: 'contato@tobiasestivalete.com.br',

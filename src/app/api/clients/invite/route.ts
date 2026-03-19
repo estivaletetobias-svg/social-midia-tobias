@@ -19,7 +19,18 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Email e Nome da Marca são obrigatórios.' }, { status: 400 });
         }
 
-        const workspaceId = (session.user as any).workspaceId;
+        const user = await prisma.user.findUnique({
+            where: { id: (session.user as any).id },
+            select: { workspaceId: true }
+        });
+
+        if (!user || !user.workspaceId) {
+            return NextResponse.json({ 
+                error: 'O seu usuário administrador não possui um workspace vinculado. Por favor, contate o suporte.' 
+            }, { status: 400 });
+        }
+
+        const workspaceId = user.workspaceId;
 
         // 1. Check if user already exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
