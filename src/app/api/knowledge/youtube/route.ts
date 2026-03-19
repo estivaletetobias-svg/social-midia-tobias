@@ -304,12 +304,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Link inválido. Cole um link do YouTube válido.' }, { status: 400 });
         }
 
-        const brand = brandId 
-            ? await prisma.brandProfile.findUnique({ where: { id: brandId } })
-            : await prisma.brandProfile.findFirst();
+        const brand = await prisma.brandProfile.findUnique({ where: { id: activeBrandId } });
 
         if (!brand) {
-            return NextResponse.json({ error: 'Perfil de marca não encontrado. Selecione um DNA ativo.' }, { status: 400 });
+            return NextResponse.json({ error: 'Perfil de marca não encontrado. Selecione um DNA ativo no menu lateral.' }, { status: 400 });
         }
 
         console.log(`[YouTube] 🎬 Iniciando extração: ${videoId}`);
@@ -361,21 +359,15 @@ export async function POST(req: Request) {
         }
 
         if (!transcript) {
+            const hasSupaKey = !!process.env.SUPADATA_API_KEY;
             return NextResponse.json({
                 error: 'Não foi possível extrair a transcrição deste vídeo.',
-                details: errors.join(' | '),
+                details: errors.join(' | ') + (!hasSupaKey ? ' | SUPADATA_API_KEY não configurada' : ''),
                 videoId,
                 videoTitle,
-                recommendation: 'Este vídeo pode estar com as legendas desativadas ou o YouTube bloqueou temporariamente o acesso. Tente um vídeo que você saiba que possui legendas (CC).'
-            }, { status: 400 });
-        }
-
-        if (!transcript) {
-            return NextResponse.json({
-                error: 'Não foi possível extrair a transcrição deste vídeo.',
-                details: 'Configure SUPADATA_API_KEY na Vercel para resolver definitivamente.',
-                videoId,
-                videoTitle,
+                recommendation: !hasSupaKey 
+                    ? 'Configure a chave SUPADATA_API_KEY no ambiente para resolver bloqueios do YouTube.'
+                    : 'Este vídeo pode estar com as legendas desativadas ou o YouTube bloqueou o acesso temporariamente. Tente um vídeo que você saiba que possui legendas (CC).'
             }, { status: 400 });
         }
 

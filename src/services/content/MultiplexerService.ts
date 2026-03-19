@@ -69,7 +69,13 @@ export class MultiplexerService {
         });
 
         const rawContent = response.choices[0].message.content || '{"pieces": []}';
-        const result = JSON.parse(rawContent).pieces;
+        const parsed = JSON.parse(rawContent);
+        const result = parsed.pieces || parsed.data || [];
+
+        if (result.length === 0) {
+            console.error("GPT failed to return pieces in expected format:", rawContent);
+            throw new Error("A IA não gerou as peças no formato esperado. Tente novamente.");
+        }
 
         console.log("GPT Multiplex Result:", result);
 

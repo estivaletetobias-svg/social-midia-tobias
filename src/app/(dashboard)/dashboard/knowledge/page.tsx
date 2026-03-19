@@ -26,9 +26,15 @@ export default function KnowledgeBase() {
     const [isChatLoading, setIsChatLoading] = useState(false);
 
     const loadItems = async () => {
+        const activeBrandId = localStorage.getItem('active_brand_id');
+        if (!activeBrandId) {
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const res = await fetch('/api/knowledge');
+            const res = await fetch(`/api/knowledge?brandId=${activeBrandId}`);
             const data = await res.json();
             if (data.success) {
                 setItems(data.items);
