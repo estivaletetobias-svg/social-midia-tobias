@@ -333,23 +333,45 @@ export default function EditorialCalendar() {
                                         const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
                                         
                                         return (
-                                            <div key={i} className="min-h-[400px] bg-white p-4 hover:bg-gray-50 transition-colors">
+                                            <div 
+                                                key={i} 
+                                                onDragOver={handleDragOver}
+                                                onDrop={(e) => handleDrop(e, day, month, year)}
+                                                className="min-h-[400px] bg-white p-4 hover:bg-gray-50 transition-colors"
+                                            >
                                                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-50">
                                                     <span className={`text-lg font-black ${isToday ? 'text-primary-600' : 'text-gray-900'}`}>{day}</span>
                                                     {isToday && <span className="text-[8px] font-black text-white bg-primary-600 px-1.5 py-0.5 rounded-full uppercase">Hoje</span>}
                                                 </div>
                                                 <div className="space-y-3">
                                                     {posts.filter(p => p.day === day && p.month === month && p.year === year).map(post => (
-                                                        <Link key={post.id} href={`/dashboard/content/${post.id}`}>
-                                                            <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary-200 hover:bg-white transition-all hover:shadow-lg hover:shadow-black/5 group">
-                                                                <p className="text-[8px] font-black text-primary-500 uppercase mb-1">{post.platform}</p>
-                                                                <p className="text-xs font-bold text-gray-900 line-clamp-3 leading-tight mb-2">{post.title}</p>
+                                                        <div
+                                                            key={post.id}
+                                                            draggable
+                                                            onDragStart={(e) => handleDragStart(e, post.id)}
+                                                            className="cursor-grab active:cursor-grabbing transform transition-all hover:scale-[1.02]"
+                                                        >
+                                                            <div className={`p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary-200 hover:bg-white transition-all hover:shadow-lg hover:shadow-black/5 group ${deletingIds.has(post.id) ? 'opacity-20 pointer-events-none' : ''}`}>
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <p className="text-[8px] font-black text-primary-500 uppercase">{post.platform}</p>
+                                                                    <button 
+                                                                        onClick={(e) => handleDeletePost(e, post.id)} 
+                                                                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
+                                                                    >
+                                                                        <Trash2 className="h-3 w-3" />
+                                                                    </button>
+                                                                </div>
+                                                                
+                                                                <Link href={`/dashboard/content/${post.id}`}>
+                                                                    <p className="text-xs font-bold text-gray-900 line-clamp-3 leading-tight mb-2 group-hover:text-primary-600 transition-colors">{post.title}</p>
+                                                                </Link>
+                                                                
                                                                 <div className="flex items-center gap-1.5 mt-2">
                                                                     <div className={`h-1.5 w-1.5 rounded-full ${post.status === 'approved' ? 'bg-green-500' : 'bg-gray-300'}`} />
                                                                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">{post.status}</span>
                                                                 </div>
                                                             </div>
-                                                        </Link>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
@@ -367,8 +389,9 @@ export default function EditorialCalendar() {
                         <div className="grid grid-cols-12 gap-4 px-8 py-4 border-b border-gray-50 bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                             <div className="col-span-2">Data</div>
                             <div className="col-span-2">Plataforma</div>
-                            <div className="col-span-6">Título do Conteúdo</div>
-                            <div className="col-span-2 text-right">Status</div>
+                            <div className="col-span-5">Título do Conteúdo</div>
+                            <div className="col-span-2 text-center">Status</div>
+                            <div className="col-span-1 text-right">Ações</div>
                         </div>
                         <div className="divide-y divide-gray-50">
                             {[...posts].sort((a,b) => {
@@ -393,15 +416,23 @@ export default function EditorialCalendar() {
                                                 {post.platform}
                                             </span>
                                         </div>
-                                        <div className="col-span-6 font-black text-gray-900 truncate pr-10 group-hover:text-primary-600 transition-colors">
+                                        <div className="col-span-5 font-black text-gray-900 truncate pr-10 group-hover:text-primary-600 transition-colors">
                                             {post.title}
                                         </div>
-                                        <div className="col-span-2 text-right">
+                                        <div className="col-span-2 text-center">
                                             <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border ${
                                                 post.status === 'approved' ? 'bg-green-500 border-transparent text-white' : 'bg-white border-gray-200 text-gray-500'
                                             }`}>
                                                 {post.status.toUpperCase()}
                                             </span>
+                                        </div>
+                                        <div className="col-span-1 text-right">
+                                            <button 
+                                                onClick={(e) => handleDeletePost(e, post.id)}
+                                                className={`p-2 text-gray-400 hover:text-red-500 transition-all ${deletingIds.has(post.id) ? 'animate-pulse' : ''}`}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
                                         </div>
                                     </Link>
                                 );
