@@ -280,12 +280,12 @@ export default function IdeasLibrary() {
                             <div className="p-5 bg-orange-500 rounded-3xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-transform">
                                 <Zap className="h-8 w-8 text-white fill-white" />
                             </div>
-                            <div className="text-left space-y-2">
-                                <div className="flex items-center gap-3">
-                                    <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">Lapidar Ideia</h3>
-                                    <Plus className="h-5 w-5 text-orange-500 animate-pulse" />
+                            <div className="text-left">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-white">Lapidar Ideia</h3>
+                                    <Plus className="h-4 w-4 text-orange-500 animate-pulse" />
                                 </div>
-                                <p className="text-sm text-gray-100 font-bold leading-relaxed max-w-[280px]">Transforma seu comando em uma pauta estratégica de autoridade.</p>
+                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest leading-tight">Transforma seu comando <br/> em uma pauta estratégica</p>
                             </div>
                         </button>
 
@@ -298,9 +298,9 @@ export default function IdeasLibrary() {
                             <div className="p-5 bg-emerald-500 rounded-3xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
                                 <Globe className="h-8 w-8 text-white" />
                             </div>
-                            <div className="text-left space-y-2">
-                                <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">Explorar na Web</h3>
-                                <p className="text-sm text-gray-100 font-bold leading-relaxed max-w-[280px]">Busca referências atuais e cria 5+ ganchos magnéticos.</p>
+                            <div className="text-left">
+                                <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Explorar na Web</h3>
+                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e cria 5+ ganchos magnéticos</p>
                             </div>
                         </button>
                     </div>
