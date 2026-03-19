@@ -218,8 +218,8 @@ export default function IdeasLibrary() {
             {/* 3-PATH INTELLIGENCE HUB HEADER */}
             <div className="bg-[#0A0D14] rounded-[60px] p-10 lg:p-16 text-white relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/10">
                 {/* Visual Glows */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[130px] -mr-40 -mt-40 rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-500/5 blur-[120px] -ml-20 -mb-20 rounded-full" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[130px] -mr-40 -mt-40 rounded-full" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-600/5 blur-[120px] -ml-20 -mb-20 rounded-full" />
                 
                 <div className="relative z-10 space-y-12">
                     {/* TOP LINE: TITLE & RADAR */}
@@ -238,14 +238,14 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleDailyNews}
                             disabled={isSyncing}
-                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 hover:border-indigo-500/60 rounded-[35px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40"
+                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/40 rounded-[35px] transition-all hover:-translate-y-1 hover:bg-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40 backdrop-blur-sm"
                         >
-                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
+                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.4)] group-hover:scale-110 transition-transform">
                                 <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
                             </div>
                             <div className="text-left">
                                 <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Radar do DNA</h3>
-                                <p className="text-xs text-indigo-100/70 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
+                                <p className="text-xs text-indigo-100/80 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
                             </div>
                         </button>
                     </div>
@@ -254,7 +254,7 @@ export default function IdeasLibrary() {
                     <div className="relative space-y-6">
                         <div className="flex items-center gap-3 ml-8 text-gray-400">
                             <Sparkles className="h-4 w-4 text-orange-400" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] brightness-125">No que você está pensando agora?</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] brightness-150">No que você está pensando agora?</span>
                         </div>
                         <div className="relative group/input">
                             <input 
@@ -275,17 +275,17 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 hover:border-orange-500/60 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-orange-500/20 hover:shadow-2xl hover:shadow-orange-500/20 disabled:opacity-20 backdrop-blur-sm"
                         >
-                            <div className="p-5 bg-orange-500 rounded-3xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-transform">
-                                <Zap className="h-8 w-8 text-white fill-white" />
+                            <div className="p-4 bg-orange-600 rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)] group-hover:rotate-12 transition-transform">
+                                <Zap className="h-6 w-6 text-white fill-white" />
                             </div>
                             <div className="text-left">
                                 <div className="flex items-center gap-2 mb-1">
                                     <h3 className="text-lg font-black uppercase tracking-tight text-white">Lapidar Ideia</h3>
-                                    <Plus className="h-4 w-4 text-orange-500 animate-pulse" />
+                                    <Plus className="h-4 w-4 text-orange-400 animate-pulse" />
                                 </div>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest leading-tight">Transforma seu comando <br/> em uma pauta estratégica</p>
+                                <p className="text-xs text-orange-100/80 font-bold uppercase tracking-widest leading-tight">Transforma seu comando <br/> em uma pauta estratégica</p>
                             </div>
                         </button>
 
@@ -293,14 +293,14 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/60 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/20 disabled:opacity-20 backdrop-blur-sm"
                         >
-                            <div className="p-5 bg-emerald-500 rounded-3xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                                <Globe className="h-8 w-8 text-white" />
+                            <div className="p-4 bg-emerald-600 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.4)] group-hover:scale-110 transition-transform">
+                                <Globe className="h-6 w-6 text-white" />
                             </div>
                             <div className="text-left">
                                 <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Explorar na Web</h3>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e cria 5+ ganchos magnéticos</p>
+                                <p className="text-xs text-emerald-100/80 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e cria 5+ ganchos magnéticos</p>
                             </div>
                         </button>
                     </div>
