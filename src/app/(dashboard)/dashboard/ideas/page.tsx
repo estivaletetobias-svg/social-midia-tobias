@@ -215,68 +215,85 @@ export default function IdeasLibrary() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0 pb-10 border-b border-black/5">
-                <div>
-                    <div className="flex items-center space-x-3 mb-3 animate-fade-in">
-                        <div className="h-1.5 w-8 bg-gray-900 rounded-full" />
-                        <span className="text-xs font-black text-gray-400 uppercase tracking-[0.3em]">Business Intelligence</span>
-                    </div>
-                    <h1 className="text-6xl lg:text-8xl font-black tracking-tighter text-gray-900 leading-[0.85] font-[family-name:var(--font-space)] uppercase">
-                        Ideas <span className="text-gray-400/30">Vault</span>
-                    </h1>
-                    <p className="mt-8 text-xl text-gray-400 max-w-2xl font-medium leading-relaxed">
-                        Curadoria algorítmica de pautas baseadas no seu DNA e tendências em tempo real.
-                    </p>
+            {/* Unified Creation Header - DARK PREMIUM */}
+            <div className="bg-gray-900 rounded-[40px] p-12 lg:p-16 text-white relative overflow-hidden shadow-2xl border border-white/5 group">
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+                    <Sparkles className="w-96 h-96 text-primary-400 absolute -top-20 -right-20 transform rotate-12" />
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="h-16 px-10 bg-gray-900 text-white text-sm font-black rounded-3xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300"
-                    >
-                        <Plus className="mr-3 h-5 w-5" />
-                        Ideia Manual
-                    </button>
-                    <button
-                        onClick={handleDailyNews}
-                        disabled={isSyncing}
-                        className="h-16 px-10 bg-primary-500 text-white text-sm font-black rounded-3xl shadow-2xl hover:bg-primary-600 transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/30 duration-300 disabled:opacity-50"
-                    >
-                        {isSyncing ? (
-                            <RefreshCcw className="mr-3 h-5 w-5 animate-spin" />
-                        ) : (
-                            <Zap className="mr-3 h-5 w-5 fill-white/20" />
-                        )}
-                        Pautas do Dia
-                    </button>
+                
+                <div className="relative z-10 max-w-3xl space-y-8">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="h-1.5 w-10 bg-primary-500 rounded-full" />
+                            <span className="text-xs font-black text-gray-400 uppercase tracking-[0.4em]">Stelar Intelligence</span>
+                        </div>
+                        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[0.95] uppercase">
+                            Biblioteca de <span className="text-primary-500 italic">Pautas</span>
+                        </h1>
+                        <p className="text-xl text-gray-400 font-medium leading-relaxed max-w-xl">
+                            O cofre onde a inteligência da sua marca se encontra com as tendências do mundo. Transforme ideias soltas em conteúdos estratégicos.
+                        </p>
+                    </div>
+
+                    {/* Unified Command Center */}
+                    <div className="flex flex-col md:flex-row gap-4 pt-4">
+                        <div className="relative flex-1 group/input">
+                            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/input:text-primary-400 transition-colors">
+                                <Plus className="h-6 w-6" />
+                            </div>
+                            <input 
+                                value={manualIdea}
+                                onChange={(e) => setManualIdea(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleManualIdeaSubmit()}
+                                placeholder="Digite uma ideia, cole um link ou palavra-chave..."
+                                className="w-full h-18 pl-16 pr-6 bg-white/5 border border-white/10 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-white font-bold placeholder:text-gray-500"
+                            />
+                        </div>
+                        <button 
+                            onClick={handleManualIdeaSubmit}
+                            disabled={!manualIdea.trim() || isGeneratingManual}
+                            className="h-18 px-10 bg-primary-500 text-white font-black rounded-[24px] hover:bg-primary-600 transition-all flex items-center justify-center shadow-xl shadow-primary-500/20 disabled:opacity-50 transform hover:-translate-y-1 active:scale-95 shrink-0"
+                        >
+                            {isGeneratingManual ? (
+                                <RefreshCcw className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <>
+                                    <Zap className="mr-3 h-5 w-5 fill-white/20" />
+                                    Criar Ideia IA
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Quick AI Proactive Actions */}
+                    <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Ações Proativas:</span>
+                        <button 
+                            onClick={handleDailyNews}
+                            disabled={isSyncing}
+                            className="flex items-center text-xs font-black text-gray-300 hover:text-primary-400 transition-colors uppercase tracking-wider disabled:opacity-50"
+                        >
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Escaneamento Diário de Pautas
+                        </button>
+                        <div className="h-4 w-px bg-white/10" />
+                        <button 
+                            onClick={handleSyncRSS}
+                            disabled={isSyncing}
+                            className="flex items-center text-xs font-black text-gray-300 hover:text-primary-400 transition-colors uppercase tracking-wider disabled:opacity-50"
+                        >
+                            <Globe className="mr-2 h-4 w-4" />
+                            Monitorar Fontes de Tendência (RSS)
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Ingestion Bar (Advanced) */}
-            <div className="glass-panel p-2 rounded-[32px] border-white/60 shadow-lg shadow-black/5 flex flex-col md:flex-row items-center gap-2">
-                <div className="flex-1 flex items-center px-6 space-x-4 w-full">
-                    <Search className="h-5 w-5 text-gray-400" />
-                    <input
-                        value={rssUrl}
-                        onChange={(e) => setRssUrl(e.target.value)}
-                        placeholder="Pesquisar por Tópico ou URL RSS customizada..."
-                        className="bg-transparent border-none focus:outline-none w-full h-12 text-sm font-bold text-gray-700 placeholder:text-gray-400"
-                    />
-                </div>
-                <button
-                    onClick={handleSyncRSS}
-                    disabled={isSyncing}
-                    className="h-14 px-8 bg-black/5 border border-black/5 text-gray-700 text-xs font-black rounded-[24px] hover:bg-gray-900 hover:text-white transition-all flex items-center uppercase tracking-widest disabled:opacity-50"
-                >
-                    {isSyncing ? (
-                        <RefreshCcw className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    {isSyncing ? "Escaneando..." : "Explorar Tópico"}
-                </button>
-            </div>
+            {/* Ingestion Bar (Hidden/Integrated) - Keeping logic for reference but original RSS bar is now in banner above */}
 
             {/* Tabs & Search */}
-            <div className="flex flex-col xl:flex-row items-center justify-between gap-6 pb-4">
+            <div className="flex flex-col xl:flex-row items-center justify-between gap-6 pb-4 pt-4">
                 <div className="flex items-center space-x-2 glass-panel p-2 rounded-[24px] w-full xl:w-auto overflow-x-auto no-scrollbar">
                     {categories.map((cat, i) => (
                         <button
@@ -368,18 +385,6 @@ export default function IdeasLibrary() {
                     );
                 })}
 
-                {/* Create Card */}
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="group relative p-8 rounded-[40px] border-4 border-dashed border-primary-500/10 hover:border-primary-400/30 hover:bg-white/40 transition-all duration-500 flex flex-col items-center justify-center text-center space-y-5 h-full min-h-[400px]">
-                    <div className="h-20 w-20 bg-white shadow-xl shadow-black/5 rounded-full flex items-center justify-center text-gray-300 group-hover:bg-primary-500 group-hover:text-white group-hover:scale-110 transition-all duration-500">
-                        <Plus className="h-8 w-8" />
-                    </div>
-                    <div>
-                        <p className="text-xl font-black text-gray-900">Ideia Customizada</p>
-                        <p className="text-sm font-bold text-gray-400/80 mt-2 tracking-wide">Adicione sua própria faísca criativa</p>
-                    </div>
-                </button>
             </div>
 
             {/* Modal */}
