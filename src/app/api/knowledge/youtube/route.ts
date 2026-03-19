@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 /**
  * YouTube Knowledge Ingestion - v5 (Production Grade)
@@ -285,8 +287,17 @@ async function tier5_DirectScrape(videoId: string): Promise<string | null> {
 // HANDLER PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     try {
         const { url, title, tags, type, brandId } = await req.json();
+
+        // Security check: ensure user has access to this brand
+        const activeBrandId = brandId || (session.user as any).brandId;
+        if (!activeBrandId) {
+            return NextResponse.json({ error: 'No active brand selected' }, { status: 400 });
+        }
 
         const videoId = extractVideoId(url);
         if (!videoId) {
