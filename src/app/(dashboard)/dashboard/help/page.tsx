@@ -17,99 +17,106 @@ export default function HelpCenterPage() {
     const topics = [
         {
             id: 'dna',
-            title: "1. DNA da Marca",
+            title: "1. DNA da Marca (A Fundação)",
             icon: <BrainCircuit className="w-8 h-8 text-primary-500" />,
             summary: "O alicerce da sua inteligência artificial. Se o DNA estiver vago, os posts serão genéricos. Se o DNA estiver profundo e detalhado, o sistema escreverá exatamente como você falaria.",
             details: [
                 {
-                    subtitle: "Essência e Autoridade",
-                    text: "No campo de Bio profissional, coloque sua história, os termos técnicos que você usa no dia a dia e suas maiores conquistas. Isso dá 'corpo' para a fala da IA."
+                    subtitle: "Essência e Autoridade Professional",
+                    text: "No campo de 'Bio profissional', não tenha medo de colar sua história completa, conquistas e até transcrições de como você explicaria seu negócio para um amigo. Isso dá o 'recheio' que a IA precisa para soar autêntica."
                 },
                 {
-                    subtitle: "Tom de Voz Definido",
-                    text: "Escolha se sua persona no digital deve ser Formal (ex: corporativo), Acolhedor (ex: médico/terapeuta) ou focado em resultados rápidos (ex: coach/performance)."
+                    subtitle: "Tom de Voz e Personalidade",
+                    text: "Defina se você é Amigável, Técnico, Ácido ou Visionário. A IA usará os adjetivos que você colocar lá para escolher quais palavras e jargões usar em cada legenda."
                 },
                 {
-                    subtitle: "Os 3 Pilares de Autoridade",
-                    text: "Defina os assuntos que você domina. A IA sempre tentará trazer o conteúdo de volta para um desses 3 eixos, garantindo que você não perca seu posicionamento."
+                    subtitle: "Pilares Editoriais Estratégicos",
+                    text: "Escolha 3 temas principais que você domina. Ex: Atleta pode ter 'Treino', 'Nutrição' e 'Mentalidade'. Isso impede que o sistema fale de coisas que não agregam ao seu posicionamento."
                 },
                 {
-                    subtitle: "Mapeamento de Público",
-                    text: "Descreva seu seguidor ideal: o que ele teme? O que ele deseja? Posts que resolvem dores reais geram 10x mais conexão do que postagens genéricas."
+                    subtitle: "Mapeamento Dores do Público",
+                    text: "Descreva quem é seu cliente ideal. O que tira o sono dele? Quais são as 3 maiores dificuldades que ele enfrenta? Isso ensina a IA a criar conteúdos que geram 'conexão real'."
                 }
             ]
         },
         {
             id: 'brain',
-            title: "2. Cérebro Semântico",
+            title: "2. Cérebro Semântico (Hub de Conhecimento)",
             icon: <BookOpen className="w-8 h-8 text-primary-500" />,
-            summary: "É a sua biblioteca particular. Aqui você ensina à IA o que você sabe, suas opiniões técnicas e o seu 'jeito' de explicar as coisas.",
+            summary: "Sua biblioteca particular digital. Aqui você ensina à IA o que você sabe, suas opiniões técnicas e o seu 'jeito' de explicar as coisas.",
             details: [
                 {
-                    subtitle: "Alimentando com Arquivos",
-                    text: "Suba PDFs de estudos, transcrições de reuniões ou roteiros de aulas. O sistema lerá todo o conteúdo e passará a usá-lo como base de dados para escrever."
+                    subtitle: "Importação de PDFs e Documentos",
+                    text: "O STELAR lê quase qualquer PDF técnico. Clique em 'Adicionar Fonte' e suba estudos científicos, roteiros ou ebooks. A IA absorve esses dados em segundos."
                 },
                 {
-                    subtitle: "Sincronização com YouTube",
-                    text: "Cole o link de um vídeo seu e o STELAR fará a transcrição total, aprendendo o ritmo da sua voz e as palavras específicas que você costuma usar."
+                    subtitle: "Extração de Texto do YouTube",
+                    text: "Cole o link de um vídeo seu e o sistema transcreverá todo o áudio. É a melhor forma de a IA aprender as gírias e o ritmo natural da sua voz."
                 },
                 {
-                    subtitle: "Pesquisa por Contexto",
-                    text: "Use o Chat na base de conhecimento para perguntar: 'O que eu falei sobre [Assunto X] no meu roteiro de 2024?'. A IA buscará a resposta exata em segundos."
-                }
-            ]
-        },
-        {
-            id: 'ideas',
-            title: "3. Biblioteca de Ideias",
-            icon: <Zap className="w-8 h-8 text-primary-500" />,
-            summary: "A faísca inicial. O STELAR busca tendências e cruza com seu conhecimento para sugerir temas que estão 'quentes' no momento.",
-            details: [
-                {
-                    subtitle: "Descoberta de Tendências",
-                    text: "O robô de notícias traz o que está sendo falado no mundo e sugere como VOCÊ pode comentar aquele assunto sob a sua ótica profissional."
-                },
-                {
-                    subtitle: "Filtro de Relevância",
-                    text: "Nem tudo que é 'hype' serve para você. Avalie as sugestões e selecione apenas o que faz sentido para o seu posicionamento atual."
+                    subtitle: "Chat com Seus Arquivos",
+                    text: "Use o Chat na base de conhecimento para 'perguntar' aos seus arquivos. Ex: 'O que eu disse sobre creatina no meu PDF de estudos?'. A IA buscará o trecho exato."
                 }
             ]
         },
         {
             id: 'execution',
-            title: "4. Esteira de Produção",
+            title: "3. Esteira de Produção (Workflow Diário)",
             icon: <PenTool className="w-8 h-8 text-primary-500" />,
-            summary: "Onde o rascunho vira post final. Revisão técnica e ajuste de tom ocorrem nesta etapa crucial.",
+            summary: "O campo de batalha onde as estratégias se tornam posts. Da sugestão inicial à aprovação final, tudo é gerenciado aqui.",
             details: [
                 {
-                    subtitle: "Refinamento Assistido",
-                    text: "Não gostou de uma legenda? Use o botão 'Ajustar' e peça para a IA ser mais curta, mais profunda ou mudar a chamada final (CTA)."
+                    subtitle: "Refinamento Manual Assistido",
+                    text: "Não gostou de um trecho? Clique em 'Ajustar' e use os botões rápidos para 'Aprofundar', 'Encurtar' ou 'Mudar CTA'. Você também pode digitar um comando livre."
                 },
                 {
-                    subtitle: "Imagens e Design",
-                    text: "Visualize o conceito visual sugerido e aprove o post para que ele seja automaticamente formatado para a rede social definitiva."
+                    subtitle: "Conceito Visual Sugerido",
+                    text: "Cada post traz um conceito visual para imagem ou vídeo. Você pode pedir para a IA mudar o estilo (ex: 'Quero um visual mais futurista') clicando no botão de refinamento."
                 },
                 {
-                    subtitle: "Aprovação Final",
-                    text: "Ao clicar em 'Aprovar', o post sai da esteira e 'viaja' direto para o seu Calendário Editorial estrategicamente."
+                    subtitle: "Aprovação para o Calendário",
+                    text: "Ao clicar em 'Aprovar e Avançar', o post recebe uma 'passagem só de ida' para o seu Calendário Editorial estrategicamente."
                 }
             ]
         },
         {
             id: 'strategy',
-            title: "5. Calendário Editorial",
+            title: "4. Calendário Editorial (Sua Visão Áerea)",
             icon: <Calendar className="w-8 h-8 text-primary-500" />,
-            summary: "Sua visão de águia. Onde você planeja o futuro e garante que não haja furos na sua presença digital.",
+            summary: "Sua visão estratégica do tempo. Aqui você garante que a sua autoridade está sendo construída dia após dia, sem furos na programação.",
             details: [
                 {
-                    subtitle: "Planejamento Semanal",
-                    text: "Veja todos os posts aprovados distribuídos no tempo. Isso ajuda a entender se você está variando os assuntos de forma equilibrada."
+                    subtitle: "Planejamento Estratégico Temporal",
+                    text: "Veja todos os posts aprovados distribuídos na semana. Isso ajuda a entender se você está variando os assuntos de forma equilibrada no feed."
                 },
                 {
-                    subtitle: "Status de Postagem",
-                    text: "Acompanhe o que está pronto e o que ainda está em fase de rascunho. Tenha o controle total do seu ecossistema digital."
+                    subtitle: "Status e Organização",
+                    text: "Acompanhe o que já está provisoriamente agendado e o que ainda precisa de uma revisão técnica sua antes da publicação final."
                 }
             ]
+        }
+    ];
+
+    const faqItems = [
+        {
+            q: "Como troco minha foto de perfil ou senha?",
+            a: "No canto inferior esquerdo do menu lateral, clique na sua foto atual. Lá você pode fazer upload de uma nova imagem ou alterar seus dados de acesso."
+        },
+        {
+            q: "A IA não está usando o meu tom de voz, o que eu faço?",
+            a: "Vá em 'DNA da Marca' e refine o campo 'Tom de Voz'. Use adjetivos fortes como: 'Direto, sem gírias, focado em ciência' ou 'Acolhedor, piadista e motivacional'. O sistema se adapta instantaneamente."
+        },
+        {
+            q: "Qual o limite de tamanho para arquivos PDF?",
+            a: "O STELAR processa PDFs de até 20MB. Recomendamos arquivos de texto puro para uma leitura mais rápida da IA."
+        },
+        {
+            q: "Como o STELAR sabe o que está sendo falado no mercado?",
+            a: "Nossa 'Biblioteca de Ideias' usa um robô rastreador que monitora tendências e cruzamento de nichos em tempo real, sugerindo pautas que ainda não estão saturadas."
+        },
+        {
+            q: "O sistema posta direto no meu Instagram?",
+            a: "Atualmente, o STELAR é seu Arquiteto e Redator. Ele prepara os posts (texto e imagem) no calendário. Você copia o conteúdo finalizado e faz a postagem na rede social desejada."
         }
     ];
 
@@ -125,21 +132,21 @@ export default function HelpCenterPage() {
                 <div className="relative z-10 max-w-3xl space-y-6">
                     <div className="flex items-center space-x-3 mb-4 animate-fade-in opacity-80">
                         <div className="h-1 w-6 bg-primary-500 rounded-full" />
-                        <span className="text-xs font-black uppercase tracking-[0.3em] scroll-px-10">Manual Operacional</span>
+                        <span className="text-xs font-black uppercase tracking-[0.3em] scroll-px-10">Guia de Onboarding Oficial</span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase">
                         Central de <span className="text-primary-500 italic">Comandos</span>
                     </h1>
                     <p className="text-lg md:text-xl text-gray-400 font-medium tracking-wide leading-relaxed max-w-xl">
-                        Aprenda a orquestrar seu Sistema de Arquitetura Social e escalar sua autoridade técnica com auxílio do STELAR.
+                        Tudo o que você precisa saber para operar seu sistema de arquitetura social com autonomia total.
                     </p>
                 </div>
             </div>
 
             {/* Steps / Guide List */}
-            <div className="space-y-24 px-4">
+            <div className="space-y-32 px-4">
                 {topics.map((topic, index) => (
-                    <div key={topic.id} className="grid grid-cols-1 lg:grid-cols-12 gap-12 group">
+                    <div key={topic.id} className="grid grid-cols-1 lg:grid-cols-12 gap-12 group border-b border-gray-100 pb-20 last:border-none">
                         
                         {/* Summary Column */}
                         <div className="lg:col-span-5 space-y-6">
@@ -178,7 +185,29 @@ export default function HelpCenterPage() {
                 ))}
             </div>
 
-            {/* FAQ / Final Tip */}
+            {/* FAQ Section */}
+            <div className="pt-24 space-y-12">
+                <div className="text-center space-y-4">
+                    <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter italic">Dúvidas Frequentes (FAQ)</h2>
+                    <p className="text-gray-500 font-medium">Respostas rápidas para os problemas do dia-a-dia.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+                    {faqItems.map((item, i) => (
+                        <div key={i} className="bg-white p-8 rounded-[32px] shadow-lg shadow-black/[0.03] border border-gray-50 hover:-translate-y-1 transition-all">
+                            <h4 className="text-md font-black text-gray-900 mb-4 flex items-start gap-3 uppercase tracking-tight">
+                                <HelpCircle className="w-5 h-5 text-primary-500 shrink-0 mt-0.5" />
+                                {item.q}
+                            </h4>
+                            <p className="text-gray-500 text-sm font-medium leading-relaxed pl-8">
+                                {item.a}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Final Tip Card */}
             <div className="bg-primary-500 rounded-[40px] p-10 md:p-14 text-white shadow-2xl shadow-primary-500/20 relative overflow-hidden">
                 <div className="absolute -bottom-20 -right-20 opacity-10 rotate-12">
                    <Sparkles className="w-80 h-80" />
@@ -194,7 +223,7 @@ export default function HelpCenterPage() {
                     </p>
                     <div className="h-px w-24 bg-white/20 mx-auto" />
                     <p className="text-xs font-black uppercase tracking-[0.3em] opacity-80">
-                        Bom Onboarding!
+                        Bom Onboarding e boas postagens!
                     </p>
                 </div>
             </div>
