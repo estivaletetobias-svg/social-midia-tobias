@@ -154,34 +154,41 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                 {/* Brand Switcher UI - Hidden for Clients */}
                 {isAdmin && (
                     <div className="mt-8 space-y-4">
-                        <div className="bg-primary-50 rounded-2xl p-4 border border-primary-100 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white shrink-0 shadow-lg">
+                        <div className="bg-primary-50 rounded-2xl p-4 border border-primary-100 flex items-center gap-3 overflow-hidden shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
                                 <Users className="h-4 w-4" />
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">Visualizando Como:</p>
-                                <p className="text-sm font-black text-gray-900 truncate">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[9px] font-black text-primary-600 uppercase tracking-widest leading-none mb-1">Visualizando:</p>
+                                <p className="text-xs font-black text-gray-900 truncate tracking-tight">
                                     {brands.find(b => b.id === activeBrandId)?.name || 'Nenhum Cliente'}
                                 </p>
                             </div>
                         </div>
                         
-                        <div>
-                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2 px-1">Trocar de Assessoria</label>
-                            <select
-                                value={activeBrandId}
-                                onChange={(e) => {
-                                    setActiveBrandId(e.target.value);
-                                    localStorage.setItem('active_brand_id', e.target.value);
-                                    window.location.reload(); 
-                                }}
-                                className="w-full bg-white border border-gray-100 rounded-xl px-4 py-3 text-xs font-black text-gray-900 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer shadow-sm hover:border-gray-200"
-                            >
-                                <option value="" disabled>Selecione um cliente...</option>
-                                {brands.map(brand => (
-                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
-                                ))}
-                            </select>
+                        <div className="space-y-1.5 px-1">
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] block">Trocar de Assessoria</label>
+                            <div className="relative group">
+                                <select
+                                    value={activeBrandId}
+                                    onChange={(e) => {
+                                        setActiveBrandId(e.target.value);
+                                        localStorage.setItem('active_brand_id', e.target.value);
+                                        window.location.reload(); 
+                                    }}
+                                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2.5 text-[10px] font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer shadow-sm hover:border-gray-200 truncate pr-8"
+                                >
+                                    <option value="" disabled>Selecione um cliente...</option>
+                                    {brands.map(brand => (
+                                        <option key={brand.id} value={brand.id} className="text-sm font-medium py-2">
+                                            {brand.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                    <Plus className="h-3 w-3 rotate-45" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

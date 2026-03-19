@@ -12,13 +12,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     try {
         const { id } = await params;
 
-        // Cascade delete everything related to this brand
-        // Note: Prisma might handle some via 'onDelete: Cascade' if defined, but being safe here
+        // Cascade delete everything related to this brand systematically
+        await prisma.asset.deleteMany({ where: { brandProfileId: id } });
+        await prisma.contentVersion.deleteMany({ 
+            where: { contentPiece: { brandProfileId: id } } 
+        });
         await prisma.contentPiece.deleteMany({ where: { brandProfileId: id } });
+        await prisma.topicCandidate.deleteMany({ where: { brandProfileId: id } });
         await prisma.knowledgeItem.deleteMany({ where: { brandProfileId: id } });
         await prisma.editorialPillar.deleteMany({ where: { brandProfileId: id } });
         await prisma.audienceSegment.deleteMany({ where: { brandProfileId: id } });
         await prisma.socialProfile.deleteMany({ where: { brandProfileId: id } });
+        await prisma.voiceGuide.deleteMany({ where: { brandProfileId: id } });
+        await prisma.offer.deleteMany({ where: { brandProfileId: id } });
         
         // Delete users associated with this brand
         await prisma.user.deleteMany({ where: { brandId: id } });
