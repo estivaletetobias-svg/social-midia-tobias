@@ -219,7 +219,7 @@ export default function IdeasLibrary() {
             <div className="bg-[#0A0D14] rounded-[60px] p-10 lg:p-16 text-white relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/10">
                 {/* Visual Glows */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[130px] -mr-40 -mt-40 rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-600/5 blur-[120px] -ml-20 -mb-20 rounded-full" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-600/10 blur-[130px] -ml-20 -mb-20 rounded-full" />
                 
                 <div className="relative z-10 space-y-12">
                     {/* TOP LINE: TITLE & RADAR */}
@@ -238,9 +238,9 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleDailyNews}
                             disabled={isSyncing}
-                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/40 rounded-[35px] transition-all hover:-translate-y-1 hover:bg-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40 backdrop-blur-sm"
+                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/40 rounded-[35px] transition-all hover:-translate-y-1 hover:bg-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-50 backdrop-blur-sm"
                         >
-                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.4)] group-hover:scale-110 transition-transform">
+                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-[0_0_25px_rgba(79,70,229,0.5)] group-hover:scale-110 transition-transform">
                                 <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
                             </div>
                             <div className="text-left">
@@ -261,7 +261,7 @@ export default function IdeasLibrary() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Digite um tema, ideia ou cole uma URL aqui..."
-                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-500 shadow-inner"
+                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-400 shadow-inner"
                             />
                             {/* Connection Visuals */}
                             <div className="absolute -bottom-12 left-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-orange-500/30" />
@@ -275,9 +275,9 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-orange-500/20 hover:shadow-2xl hover:shadow-orange-500/20 disabled:opacity-20 backdrop-blur-sm"
+                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-orange-500/20 hover:shadow-2xl hover:shadow-orange-500/20 disabled:opacity-50 backdrop-blur-sm"
                         >
-                            <div className="p-4 bg-orange-600 rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)] group-hover:rotate-12 transition-transform">
+                            <div className="p-4 bg-orange-600 rounded-2xl shadow-[0_0_25px_rgba(249,115,22,0.5)] group-hover:rotate-12 transition-transform">
                                 <Zap className="h-6 w-6 text-white fill-white" />
                             </div>
                             <div className="text-left">
@@ -293,9 +293,9 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/20 disabled:opacity-20 backdrop-blur-sm"
+                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/20 disabled:opacity-50 backdrop-blur-sm"
                         >
-                            <div className="p-4 bg-emerald-600 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.4)] group-hover:scale-110 transition-transform">
+                            <div className="p-4 bg-emerald-600 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
                                 <Globe className="h-6 w-6 text-white" />
                             </div>
                             <div className="text-left">
