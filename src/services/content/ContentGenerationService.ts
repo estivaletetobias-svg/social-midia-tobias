@@ -128,52 +128,43 @@ export class ContentGenerationService {
 
     private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any, knowledgeContext: string) {
         const prompt = `
-      You are a World-Class Senior Copywriter and Growth Strategist for ${request.platform}. 
-      Your writing style is indistinguishable from an elite human creator.
+      You are a Technical Expert, Deep Researcher, and Elite Strategic Copywriter for ${request.platform}.
+      Your task is to transform technical knowledge into high-conversion, intellectually dense content.
       
-      CRITICAL: The final content MUST be written in PORTUGUESE (Brazil). Do not use English.
+      CRITICAL COMMANDS:
+      1. LANGUAGE: PORTUGUESE (Brazil).
+      2. DENSITY: Avoid any generic, basic, or superficial descriptions. If it sounds like a Wikipedia intro, it's a failure.
+      3. ANTI-AI PROTOCOL: DO NOT use clichés like "não é uma solução mágica", "consulte um profissional", "ouça seu corpo", "estudos mostram" (genericly).
+      4. TECHNICAL AUTHORITY: Use the technical terms, mechanisms of action, and data findings from the RAG provided. If the RAG mentions Hormones (Insulin, Glucagon, Growth Hormone), Autophagy, or specific metabolic pathways, YOU MUST use them precisely.
+      5. THE PUNCH: Start with a punchy, counter-intuitive, or highly technical hook that filters for a sophisticated audience.
       
       Brand Voice: ${brand.toneOfVoice}
-      Specific Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Direct, authoritative, and sophisticated.'}
+      Specific Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Direct, authoritative, dense, and sophisticated.'}
       Target Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
       Format: ${request.format}
       Structure: ${JSON.stringify(structure.sections)}
       
-      INTERNAL KNOWLEDGE (RAG):
+      INTERNAL KNOWLEDGE (RAG - USE THIS FOR TECHNICAL DEPTH):
       ${knowledgeContext}
       
-      TASK: Write the final high-conversion copy in Portuguese.
+      TASK: Write the final copy in Portuguese with high technical density and authority.
 
       ${request.format === 'carousel' ? `
-      CAROUSEL LOGICAL PROTOCOL (Slide-by-Slide):
-      1. Hook (Slide 1): Magnetic visual & text that stops the scroll.
-      2. Problem (Slide 2-3): Agitate the pain point described in the brand DNA.
-      3. Solution (Slide 4-5): Present your authority/expertise to solve it.
-      4. Proof/Detail (Slide 6): Practical tip or mechanism of action (Authority).
-      5. CTA (Slide 7): Direct engagement or sales command.
-      ` : request.format === 'video script' ? `
-      VIDEO SCRIPT PROTOCOL:
-      - Scene 1 (0-3s): The Hook (Visual & Audio).
-      - Body (3-45s): Fast-paced value delivery.
-      - Outro (45-60s): CTA.
+      CAROUSEL STRATEGY:
+      - Slide 1 (Hook): Must be a technical shock or a strategic "A-Ha" moment.
+      - Slide 2-6: Deep dive into the "How" and "Why" (Mechanisms).
+      - Slide 7: High-authority CTA.
       ` : ''}
 
-      ELITE COPYWRITING PROTOCOLS:
-      1. THE PUNCH: Every sentence must earn the right to the next one.
-      2. AUDIENCE MIRRORING: Speak directly to the AUDIENCE segments.
-      3. AUTHORITY INJECTION: Use technical data from RAG.
-      
-      VISUAL DIRECTION FOR THE DESIGNER: Describe the scene for AI image generation (this prompt can be in English).
-      
       Return strictly RAW JSON.
       {
-        "headline": "Main title (PT-BR)",
-        "hook": "Magnetic first line (PT-BR)",
-        "body": "Main content as a SINGLE STRING (PT-BR)",
-        "caption": "Social media caption (PT-BR)",
+        "headline": "Technical Headline (PT-BR)",
+        "hook": "Sophisticated first line (PT-BR)",
+        "body": "Dense, technical main content as a SINGLE STRING (PT-BR)",
+        "caption": "High-authority social media caption (PT-BR)",
         "cta": "CTA (PT-BR)",
         "hashtags": ["list"],
-        "imagePrompt": "Description in English (for DALL-E/Midjourney)",
+        "imagePrompt": "Description in English",
         "visualConcept": "Summary (PT-BR)",
         "slides": [
              { "slideNumber": 1, "textOnImage": "Header (PT-BR)", "imagePrompt": "Prompt (EN)", "explanation": "Logic step" }
@@ -354,9 +345,14 @@ export class ContentGenerationService {
         const brand = version.contentPiece.brandProfile;
         
         const prompt = `
-            You are an elite Creative Director and Copy Editor refactoring a content piece for ${brand.name}.
+            You are an elite Creative Director and Technical Authority refactoring a content piece for ${brand.name}.
             
             MANDATORY: All output MUST be in PORTUGUESE (PT-BR).
+            
+            ANTI-GENERIC PROTOCOL:
+            - NO "não é uma solução mágica", "consulte um profissional", "ouça seu corpo".
+            - NO introductory or superficial fluff.
+            - USE Technical Terminology from the brand's DNA (Autophagy, Insulin Sensitivity, Metabolic Switching, etc.).
             
             BRAND DNA: ${brand.toneOfVoice}
             FORMAT: ${version.contentPiece.format}
@@ -371,8 +367,9 @@ export class ContentGenerationService {
             
             CLIENT FEEDBACK (REFINEMENT): "${userFeedback}"
             
-            TASK: Rewrite or adjust the content precisely following the feedback in PORTUGUESE.
-            Ensure "body" is a SINGLE STRING of text, not an array or object.
+            TASK: Rewrite or adjust the content precisely following the feedback in PORTUGUESE with HIGH TECHNICAL DENSITY.
+            Shift from generic "advice" to technical "mechanisms and strategies".
+            Ensure "body" is a SINGLE STRING of text.
             
             Return strictly a JSON object with:
             {
