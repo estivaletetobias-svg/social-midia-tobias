@@ -7,19 +7,24 @@ import {
     Search, 
     Building2, 
     ArrowRight, 
-    MoreVertical,
+    AlertTriangle,
     CheckCircle2,
     Briefcase,
     Copy,
-    Check
+    Check,
+    Trash2,
+    PauseCircle,
+    PlayCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Brand {
     id: string;
     name: string;
     description: string | null;
     avatarUrl: string | null;
+    isActive: boolean;
 }
 
 export default function ClientsPage() {
@@ -33,8 +38,17 @@ export default function ClientsPage() {
     const [brandName, setBrandName] = useState("");
     const [inviteResult, setInviteResult] = useState<any>(null);
     const [isInviting, setIsInviting] = useState(false);
+    const { data: session, status: sessionStatus } = useSession();
 
     const router = useRouter();
+
+    // Redireciona se não for admin
+    useEffect(() => {
+        if (sessionStatus === 'loading') return;
+        if (!session || (session.user as any).role !== 'admin') {
+            router.push('/dashboard');
+        }
+    }, [session, sessionStatus, router]);
 
     useEffect(() => {
         fetchBrands();
@@ -91,7 +105,34 @@ export default function ClientsPage() {
     const handleSelectClient = (brandId: string) => {
         // Store selected client in localStorage for session-wide access
         localStorage.setItem('active_brand_id', brandId);
-        router.push('/dashboard');
+        window.dispatchEvent(new Event('storage')); // Notify other components
+        router.push('/dashboard/content');
+    };
+
+    const handleDeleteClient = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (!confirm("Tem certeza? Isso apagará o DNA e todo o conteúdo desse cliente permanentemente.")) return;
+        
+        try {
+            const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+            if (res.ok) fetchBrands();
+        } catch (e) {
+            alert("Erro ao apagar");
+        }
+    };
+
+    const handleSuspendClient = async (e: React.MouseEvent, id: string, currentStatus: boolean) => {
+        e.stopPropagation();
+        try {
+            const res = await fetch(`/api/clients/${id}`, { 
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isActive: !currentStatus })
+            });
+            if (res.ok) fetchBrands();
+        } catch (e) {
+            alert("Erro ao mudar status");
+        }
     };
 
     const filteredBrands = brands.filter(b => 
