@@ -192,6 +192,8 @@ export class ContentGenerationService {
     }
 
     private static async askAI(prompt: string, provider: 'OPENAI' | 'GOOGLE', isJson: boolean = false) {
+        console.log(`[AI REQUEST] Provider: ${provider}, JSON: ${isJson}`);
+        
         if (provider === 'GOOGLE') {
             return this.callGemini(prompt, isJson);
         }
@@ -203,12 +205,20 @@ export class ContentGenerationService {
             temperature: 0.7
         });
 
-        const content = response.choices[0].message.content || '{}';
+        const content = response.choices[0].message.content || '';
+        
+        if (!content || content.trim() === '') {
+            console.error(`[AI ERROR] ${provider} returned an empty response.`);
+            throw new Error(`${provider} retornou uma resposta vazia. Tente novamente.`);
+        }
+
+        console.log(`[AI RESPONSE] Length: ${content.length} chars`);
+
         if (isJson) {
             try {
                 return this.safeJsonParse(content);
             } catch (e) {
-                console.error("OpenAI JSON Parse Error. Content received:", content);
+                console.error(`[AI JSON ERROR] ${provider} JSON Parse Error. Content received:`, content);
                 throw new Error(`Falha ao converter resposta da IA em JSON: ${e instanceof Error ? e.message : 'Formato inválido'}`);
             }
         }
@@ -262,41 +272,42 @@ export class ContentGenerationService {
 
         const vertex_ai = new VertexAI(authOptions);
         
-        // Use gemini-1.5-flash for stable performance
-        const modelName = 'gemini-1.5-flash';
-        const generativeModel = vertex_ai.getGenerativeModel({
-            model: modelName,
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 8192,
-                responseMimeType: isJson ? 'application/json' : 'text/plain',
-            },
-        });
-
-        const request = {
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        };
-
-        const result = await generativeModel.generateContent(request);
-        const response = result.response;
+        // Restore your specific project model if 2.5-flash was intended, 
+        // fallback to standard 1.5-flash if needed.
+        let modelName = 'gemini-2.0-flash'; // Fallback starting point
         
-        const textContent = response.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!textContent) {
-            console.error("Gemini Full Response Structure:", JSON.stringify(response, null, 2));
-            throw new Error('Google Gemini failed: No text content found in response.');
-        }
-
-        if (isJson) {
+        // From user logs, it seems they had 2.5-flash originally
+        const tryModels = ['gemini-2.5-flash', 'gemini-1.5-flash-002', 'gemini-1.5-flash-001', 'gemini-1.5-flash'];
+        
+        let lastError = null;
+        for (const m of tryModels) {
             try {
-                return this.safeJsonParse(textContent);
-            } catch (e) {
-                console.error("Gemini JSON Parse Error. Content received:", textContent);
-                throw new Error(`Erro ao processar resposta da IA: ${e instanceof Error ? e.message : 'Formato inválido'}`);
+                const generativeModel = vertex_ai.getGenerativeModel({
+                    model: m,
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 8192,
+                        responseMimeType: isJson ? 'application/json' : 'text/plain',
+                    },
+                });
+
+                const request = {
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                };
+
+                const result = await generativeModel.generateContent(request);
+                const response = result.response;
+                const textContent = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (textContent) return isJson ? this.safeJsonParse(textContent) : textContent;
+            } catch (e: any) {
+                console.error(`Gemini attempt with ${m} failed:`, e.message);
+                lastError = e;
+                continue; // try next model
             }
         }
 
-        return textContent;
+        throw lastError || new Error('Google Gemini failed: No valid response from any available models.');
     }
 
     private static async validateBrandVoice(copy: any, brand: any) {
