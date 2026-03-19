@@ -86,6 +86,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         const canAccess = (session.user as any).role === 'admin' || piece.brandProfileId === (session.user as any).brandId;
         if (!canAccess) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+        if (body.versionId) {
+            const currentVersion = await prisma.contentVersion.findUnique({ where: { id: body.versionId } });
+            
+            await prisma.contentVersion.update({
+                where: { id: body.versionId },
+                data: {
+                    hook: body.hook,
+                    body: body.body,
+                    cta: body.cta,
+                    caption: body.caption,
+                    metadata: {
+                        ...(typeof currentVersion?.metadata === 'object' ? currentVersion.metadata as any : {}),
+                        selectedAssetId: body.assetId
+                    }
+                }
+            });
+        }
+
         if (body.status) {
             const updated = await prisma.contentPiece.update({
                 where: { id },
@@ -94,7 +112,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
             return NextResponse.json({ success: true, piece: updated });
         }
 
-        return NextResponse.json({ error: 'Status is required' }, { status: 400 });
+        return NextResponse.json({ success: true, message: 'Updated' });
     } catch (e: any) {
         console.error('Update Content Error:', e.message);
         return NextResponse.json({ error: e.message }, { status: 500 });

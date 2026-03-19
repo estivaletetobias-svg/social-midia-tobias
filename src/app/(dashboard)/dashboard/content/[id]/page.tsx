@@ -62,6 +62,22 @@ export default function ContentEditor() {
         fetchContent();
     }, [id]);
 
+    // Managed text states for manual editing
+    const [hook, setHook] = useState("");
+    const [body, setBody] = useState("");
+    const [cta, setCta] = useState("");
+    const [caption, setCaption] = useState("");
+
+    // Update states when version changes
+    useEffect(() => {
+        if (version) {
+            setHook(version.hook || "");
+            setBody(version.body || "");
+            setCta(version.cta || "");
+            setCaption(version.caption || "");
+        }
+    }, [version]);
+
     const copyToClipboard = (text: string) => {
         if (!text) return;
         navigator.clipboard.writeText(text);
@@ -87,7 +103,6 @@ export default function ContentEditor() {
             const data = await res.json();
             if (data.success) {
                 if (slideIndex !== undefined) {
-                    // Update the local version state to reflect the new slide image
                     const updatedMetadata = { ...version.metadata };
                     if (updatedMetadata.slides && updatedMetadata.slides[slideIndex]) {
                         updatedMetadata.slides[slideIndex] = {
@@ -243,7 +258,39 @@ export default function ContentEditor() {
         }
     };
 
+    const handleSaveManual = async () => {
+        try {
+            const res = await fetch(`/api/content/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    versionId: version.id,
+                    hook,
+                    body,
+                    cta,
+                    caption,
+                    assetId: asset?.id
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                return true;
+            } else {
+                alert(`Erro ao salvar: ${data.error}`);
+                return false;
+            }
+        } catch (error) {
+            console.error("Failed to save", error);
+            alert("Falha na conexão ao salvar.");
+            return false;
+        }
+    };
+
     const handleApprove = async () => {
+        // First save the current edits
+        const saved = await handleSaveManual();
+        if (!saved) return;
+
         try {
             const res = await fetch(`/api/content/${id}`, {
                 method: "PATCH",
@@ -255,7 +302,7 @@ export default function ContentEditor() {
                 alert("Conteúdo Aprovado! Ele acaba de entrar no funil de publicação.");
                 router.push("/dashboard/content");
             } else {
-                alert(`Erro: ${data.error}`);
+                alert(`Erro ao aprovar: ${data.error}`);
             }
         } catch (error) {
             console.error("Failed to approve", error);
@@ -532,6 +579,21 @@ export default function ContentEditor() {
                                 </button>
                             </div>
                         </div>
+                        <div className="flex items-center space-x-3 mb-8">
+                            <button
+                                onClick={handleSaveManual}
+                                className="h-14 px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
+                                <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                                Salvar Rascunho
+                            </button>
+                            <button
+                                onClick={handleApprove}
+                                className="h-14 px-8 min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <CheckCircle2 className="mr-3 h-5 w-5 text-primary-400" />
+                                <span className="relative z-10 whitespace-nowrap">APROVAR E AVANÇAR</span>
+                            </button>
+                        </div>
 
                         <div className="space-y-6">
                             <div>
@@ -540,7 +602,8 @@ export default function ContentEditor() {
                                     Gancho (Primeira Linha)
                                 </label>
                                 <TextareaAutosize
-                                    defaultValue={version.hook}
+                                    value={hook}
+                                    onChange={(e) => setHook(e.target.value)}
                                     minRows={2}
                                     className="w-full text-lg font-black text-gray-900 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                 />
@@ -566,14 +629,14 @@ export default function ContentEditor() {
                                             onClick={handleRegenerateText}
                                             disabled={isGeneratingText}
                                             className="h-8 px-3 bg-primary-500/10 text-primary-600 text-[10px] font-black rounded-lg hover:bg-primary-500 hover:text-white transition-all flex items-center disabled:opacity-50">
-                                            <Wand2 className={`mr-2 h-3.5 w-3.5 ${isGeneratingText ? 'animate-spin' : ''}`} />
+                                            <Wand2 className={`mr-2 h-3.5 w-3.5 ${isGeneratingText ? 'animate-pulse' : ''}`} />
                                             {isGeneratingText ? 'REESCREVENDO...' : 'REFAZER'}
                                         </button>
                                     </div>
                                 </div>
                                 {isPreviewMode ? (
                                     <div className="w-full min-h-[400px] text-base font-medium leading-relaxed text-gray-700 bg-white p-10 rounded-3xl border border-gray-100 shadow-sm overflow-y-auto prose-custom max-w-none">
-                                        {version.body.split('\n').map((line: string, i: number) => {
+                                        {body.split('\n').map((line: string, i: number) => {
                                             if (line.trim().startsWith('###')) {
                                                 return <h3 key={i} className="text-xl font-black text-gray-900 mt-8 mb-4 tracking-tight border-l-4 border-primary-500 pl-4">{line.replace('###', '').trim()}</h3>;
                                             }
@@ -597,7 +660,8 @@ export default function ContentEditor() {
                                     </div>
                                 ) : (
                                     <TextareaAutosize
-                                        defaultValue={version.body}
+                                        value={body}
+                                        onChange={(e) => setBody(e.target.value)}
                                         minRows={8}
                                         className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                     />
@@ -636,7 +700,8 @@ export default function ContentEditor() {
                                     Chamada para Ação (CTA)
                                 </label>
                                 <TextareaAutosize
-                                    defaultValue={version.cta}
+                                    value={cta}
+                                    onChange={(e) => setCta(e.target.value)}
                                     minRows={1}
                                     className="w-full text-sm font-bold text-gray-900 bg-white p-4 rounded-xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                 />
@@ -647,10 +712,10 @@ export default function ContentEditor() {
                                     Legenda Completa (Agregada)
                                 </label>
                                 <TextareaAutosize
-                                    defaultValue={version.caption}
+                                    value={caption}
+                                    onChange={(e) => setCaption(e.target.value)}
                                     minRows={4}
                                     className="w-full text-sm font-medium text-gray-600 bg-gray-50 p-5 rounded-2xl border border-gray-100 focus:outline-none resize-none"
-                                    readOnly // Usually the user edits the components above and this generates, or they edit this. We'll leave editable for freedom
                                 />
                             </div>
 
