@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus, Youtube } from "lucide-react";
+import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus, Youtube, BrainCircuit } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function KnowledgeBase() {
@@ -9,6 +9,8 @@ export default function KnowledgeBase() {
     const [items, setItems] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [isIntegrating, setIsIntegrating] = useState(false);
 
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +26,34 @@ export default function KnowledgeBase() {
     const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([]);
     const [currentMsg, setCurrentMsg] = useState("");
     const [isChatLoading, setIsChatLoading] = useState(false);
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === items.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(items.map(i => i.id));
+        }
+    };
+
+    const handleIntegrateToDNA = async () => {
+        if (selectedIds.length === 0) return;
+        setIsIntegrating(true);
+        
+        try {
+            // Store selected IDs to be processed on the Brand page
+            localStorage.setItem('dna_sync_source_ids', JSON.stringify(selectedIds));
+            router.push('/dashboard/brand?refine=true');
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao preparar integração.");
+        } finally {
+            setIsIntegrating(false);
+        }
+    };
 
     const loadItems = async () => {
         const activeBrandId = localStorage.getItem('active_brand_id');
@@ -205,7 +235,7 @@ export default function KnowledgeBase() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+        <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-32">
             {/* Dark Banner */}
             <div className="bg-gray-900 rounded-[40px] p-10 md:p-14 text-white relative overflow-hidden shadow-2xl flex flex-col justify-center min-h-[300px]">
                 <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none flex items-center justify-end pr-10">
@@ -245,15 +275,6 @@ export default function KnowledgeBase() {
                         <button className="px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60">
                             Todas as Fontes
                         </button>
-                        <button className="px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent">
-                            Estratégia
-                        </button>
-                        <button className="px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent">
-                            Tendências de Mercado
-                        </button>
-                        <button className="px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent">
-                            Notas Pessoais
-                        </button>
                     </div>
                     <div className="relative w-full xl:w-96 group">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
@@ -266,11 +287,19 @@ export default function KnowledgeBase() {
 
                 {/* Data Table */}
                 <div className="glass-panel rounded-[40px] overflow-hidden border border-white/60 shadow-xl shadow-black/5 pb-10">
-                    <div className="hidden lg:grid grid-cols-12 gap-4 p-6 border-b border-gray-100 bg-white/50 text-xs font-black tracking-widest uppercase text-gray-400">
-                        <div className="col-span-5">Documento de Conhecimento</div>
+                    <div className="hidden lg:grid grid-cols-12 gap-4 p-6 border-b border-gray-100 bg-white/50 text-xs font-black tracking-widest uppercase text-gray-400 items-center">
+                        <div className="col-span-1 flex items-center justify-center">
+                            <input 
+                                type="checkbox" 
+                                checked={selectedIds.length === items.length && items.length > 0} 
+                                onChange={toggleSelectAll}
+                                className="w-5 h-5 rounded-lg border-gray-300 text-primary-500 focus:ring-primary-500 cursor-pointer" 
+                            />
+                        </div>
+                        <div className="col-span-4">Documento de Conhecimento</div>
                         <div className="col-span-2">Tipo</div>
                         <div className="col-span-3">Tags & Eixo</div>
-                        <div className="col-span-2 text-right">Adicionado em</div>
+                        <div className="col-span-2 text-right">Ações Rápidas</div>
                     </div>
 
                     <div className="divide-y divide-gray-50">
@@ -287,8 +316,16 @@ export default function KnowledgeBase() {
                         )}
 
                         {!isLoading && items.map((item, index) => (
-                            <div key={item.id || index} className="flex flex-col lg:grid lg:grid-cols-12 gap-4 p-6 items-center hover:bg-white/60 transition-colors group">
-                                <div className="col-span-5 flex items-center space-x-4 w-full">
+                            <div key={item.id || index} className={`flex flex-col lg:grid lg:grid-cols-12 gap-4 p-6 items-center hover:bg-white/60 transition-colors group ${selectedIds.includes(item.id) ? 'bg-primary-50/30' : ''}`}>
+                                <div className="col-span-1 flex items-center justify-center">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={selectedIds.includes(item.id)} 
+                                        onChange={() => toggleSelect(item.id)}
+                                        className="w-5 h-5 rounded-lg border-gray-300 text-primary-500 focus:ring-primary-500 cursor-pointer" 
+                                    />
+                                </div>
+                                <div className="col-span-4 flex items-center space-x-4 w-full">
                                     <div className="w-12 h-12 rounded-2xl bg-primary-50 flex-shrink-0 flex items-center justify-center text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors">
                                         <FileText className="w-5 h-5" />
                                     </div>
@@ -307,28 +344,12 @@ export default function KnowledgeBase() {
                                     ))}
                                 </div>
                                 <div className="col-span-2 flex flex-col items-start lg:items-end justify-center px-16 lg:px-0 mt-4 lg:mt-0 space-y-2">
-                                    <span className="text-sm font-bold text-gray-400">
-                                        {new Date(item.createdAt).toLocaleDateString('pt-BR')}
-                                    </span>
                                     <button
                                         onClick={() => handleMultiplex(item.id)}
                                         disabled={isMultiplexing === item.id}
-                                        className="text-[11px] font-black uppercase tracking-wider text-primary-600 bg-primary-50 px-3 py-1.5 rounded-xl hover:bg-primary-500 hover:text-white transition-all flex items-center shadow-sm disabled:opacity-50"
+                                        className="text-[10px] font-black uppercase tracking-wider text-primary-600 bg-primary-50 px-3 py-1.5 rounded-xl hover:bg-primary-500 hover:text-white transition-all flex items-center shadow-sm disabled:opacity-50"
                                     >
-                                        {isMultiplexing === item.id ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Clonando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CopyPlus className="w-3 h-3 mr-1.5" />
-                                                Multiplicar Material
-                                            </>
-                                        )}
+                                        {isMultiplexing === item.id ? "Gerando..." : "Multiplicar"}
                                     </button>
                                 </div>
                             </div>
@@ -336,6 +357,35 @@ export default function KnowledgeBase() {
                     </div>
                 </div>
             </div>
+
+            {/* Selection Action Bar (Floating) */}
+            {selectedIds.length > 0 && (
+                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-10 duration-500">
+                    <div className="bg-gray-900 text-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 pl-8 flex items-center space-x-8 border border-white/10 backdrop-blur-xl">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-primary-500 uppercase tracking-widest">Base de Conhecimento</span>
+                            <span className="text-sm font-black">{selectedIds.length} Itens Selecionados</span>
+                        </div>
+                        <div className="h-8 w-px bg-white/10" />
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={handleIntegrateToDNA}
+                                disabled={isIntegrating}
+                                className="h-12 px-6 bg-primary-500 hover:bg-primary-600 text-white text-[11px] font-black rounded-2xl flex items-center space-x-2 transition-all shadow-lg active:scale-95"
+                            >
+                                <BrainCircuit className="w-4 h-4" />
+                                <span>{isIntegrating ? "Processando..." : "SINTONIZAR NO DNA / ESTRATÉGIA"}</span>
+                            </button>
+                            <button
+                                onClick={() => setSelectedIds([])}
+                                className="h-12 px-4 bg-white/5 hover:bg-white/10 text-gray-400 text-[11px] font-black rounded-2xl transition-all"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal de Criação */}
             {isModalOpen && (

@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   Target,
   MessageSquare,
-  Info
+  Info,
+  Loader2,
+  X
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { signIn, useSession } from "next-auth/react";
@@ -49,6 +51,9 @@ interface SocialProfile {
 export default function BrandDnaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
+  const [hasPendingRefine, setHasPendingRefine] = useState(false);
+  const [refineApplied, setRefineApplied] = useState(false);
   
   // Perfil Base
   const [brandId, setBrandId] = useState("");
@@ -72,6 +77,9 @@ export default function BrandDnaPage() {
 
   useEffect(() => {
     const activeId = localStorage.getItem('active_brand_id');
+    const pendingIds = localStorage.getItem('dna_sync_source_ids');
+    if (pendingIds) setHasPendingRefine(true);
+
     if (!activeId) {
       setLoading(false);
       return;
@@ -93,6 +101,44 @@ export default function BrandDnaPage() {
         setLoading(false);
       });
   }, []);
+
+  const handleAiRefine = async () => {
+    const pendingIds = JSON.parse(localStorage.getItem('dna_sync_source_ids') || '[]');
+    if (pendingIds.length === 0) return;
+
+    setIsRefining(true);
+    try {
+      const res = await fetch('/api/brand/dna/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+           brandId,
+           knowledgeItemIds: pendingIds
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.suggestions) {
+        const s = data.suggestions;
+        setDescription(s.description);
+        setToneOfVoice(s.toneOfVoice);
+        setPillars(s.editorialPillars);
+        setAudience(s.audienceSegments);
+        setRefineApplied(true);
+        // localStorage.removeItem('dna_sync_source_ids'); // Clear only after review if desired, but for now let's keep it until clean
+        setHasPendingRefine(false);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao sintonizar com a IA.");
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  const handleClearRefine = () => {
+    localStorage.removeItem('dna_sync_source_ids');
+    setHasPendingRefine(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -116,7 +162,9 @@ export default function BrandDnaPage() {
             setBrandId(data.brandId);
             localStorage.setItem('active_brand_id', data.brandId);
         }
-        alert("DNA da Marca salvo com sucesso!");
+        setRefineApplied(false);
+        localStorage.removeItem('dna_sync_source_ids');
+        alert("DNA da Marca atualizado com sucesso!");
       }
     } catch (e) {
       console.error(e);
@@ -145,6 +193,37 @@ export default function BrandDnaPage() {
 
   return (
     <div className="w-full py-8 md:px-6 pb-24">
+      {/* DNA Refinement Banner */}
+      {hasPendingRefine && (
+        <div className="mb-8 p-6 bg-primary-600 rounded-[30px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_20px_50px_rgba(37,99,235,0.2)] animate-in slide-in-from-top-10 duration-700">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+              <BrainCircuit className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black tracking-tight">Novos materiais para sintonizar!</h3>
+              <p className="text-primary-100 font-medium">Você selecionou itens da base de conhecimento. Deseja que a IA ajude a refinar sua estratégia com base neles?</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <button 
+              onClick={handleAiRefine}
+              disabled={isRefining}
+              className="flex-1 md:flex-none h-14 px-8 bg-white text-primary-600 font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+            >
+              {isRefining ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+              {isRefining ? "Processando..." : "Sintonizar DNA com IA"}
+            </button>
+            <button 
+              onClick={handleClearRefine}
+              className="h-14 w-14 bg-primary-700/50 text-white rounded-2xl hover:bg-primary-700 flex items-center justify-center transition-all"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between mb-12">
         <div>
@@ -159,9 +238,9 @@ export default function BrandDnaPage() {
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl shadow-[0_8px_30px_rgb(29,78,216,0.15)] transition-all active:scale-95 disabled:opacity-50"
+          className={`flex items-center gap-2 px-8 py-4 ${refineApplied ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-600 hover:bg-primary-700'} text-white font-black rounded-2xl shadow-[0_8px_30px_rgb(29,78,216,0.15)] transition-all active:scale-95 disabled:opacity-50`}
         >
-          {saving ? "Salvando..." : <><Save className="h-5 w-5" /> Salvar Configurações</>}
+          {saving ? "Salvando..." : <><Save className="h-5 w-5" /> {refineApplied ? "Aprovar & Salvar DNA Refinado" : "Salvar Configurações"}</>}
         </button>
       </header>
 
@@ -194,13 +273,20 @@ export default function BrandDnaPage() {
                 
                 <div>
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio / Contexto Profissional (Para a IA)</label>
-                  <textarea 
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    placeholder="Quem é você? Qual sua autoridade? O que o seu negócio resolve? (Sinta-se livre para colar textos longos aqui)."
-                    rows={8}
-                    className="w-full bg-white/40 border border-white/60 rounded-3xl px-8 py-6 text-base font-medium text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none leading-relaxed"
-                  />
+                  <div className="relative group/field">
+                    <textarea 
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      placeholder="Quem é você? Qual sua autoridade? O que o seu negócio resolve? (Sinta-se livre para colar textos longos aqui)."
+                      rows={8}
+                      className={`w-full bg-white/40 border ${refineApplied ? 'border-primary-400 ring-2 ring-primary-100' : 'border-white/60'} rounded-3xl px-8 py-6 text-base font-medium text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none leading-relaxed animate-in fade-in duration-1000`}
+                    />
+                    {refineApplied && (
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-primary-100 text-primary-600 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                        <Sparkles className="h-3 w-3" /> Sugestão IA
+                      </div>
+                    )}
+                  </div>
                   <p className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">DICA: Cole aqui a bio do seu site ou portfólio para que o STELAR absorva sua história.</p>
                 </div>
              </div>
@@ -361,13 +447,20 @@ export default function BrandDnaPage() {
                <MessageSquare className="h-6 w-6 text-primary-500" />
                Tom de Voz
              </h2>
-             <textarea 
-                value={toneOfVoice}
-                onChange={e => setToneOfVoice(e.target.value)}
-                placeholder="Ex: Profissional, acolhedor e focado em resultados. Sempre chama o cliente pelo nome."
-                rows={4}
-                className="w-full bg-white/40 border border-white/60 rounded-2xl px-6 py-4 text-md font-medium text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
-             />
+             <div className="relative group/field">
+               <textarea 
+                  value={toneOfVoice}
+                  onChange={e => setToneOfVoice(e.target.value)}
+                  placeholder="Ex: Profissional, acolhedor e focado em resultados. Sempre chama o cliente pelo nome."
+                  rows={4}
+                  className={`w-full bg-white/40 border ${refineApplied ? 'border-primary-400 ring-2 ring-primary-100' : 'border-white/60'} rounded-2xl px-6 py-4 text-md font-medium text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none`}
+               />
+               {refineApplied && (
+                 <div className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 bg-primary-100 text-primary-600 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                   <Sparkles className="h-3 w-3" /> Estilo Sugerido
+                 </div>
+               )}
+             </div>
           </section>
 
           {/* Card: Público Alvo */}
