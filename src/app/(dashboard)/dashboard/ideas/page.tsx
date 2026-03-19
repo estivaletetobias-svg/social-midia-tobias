@@ -238,30 +238,30 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleDailyNews}
                             disabled={isSyncing}
-                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/30 hover:border-indigo-500/60 rounded-[35px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40"
+                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 hover:border-indigo-500/60 rounded-[35px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40"
                         >
                             <div className="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
                                 <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
                             </div>
                             <div className="text-left">
                                 <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Radar do DNA</h3>
-                                <p className="text-xs text-gray-300 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
+                                <p className="text-xs text-indigo-100/70 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
                             </div>
                         </button>
                     </div>
 
                     {/* MIDDLE LINE: INPUT COMMAND */}
                     <div className="relative space-y-6">
-                        <div className="flex items-center gap-3 ml-8 text-gray-500">
-                            <Sparkles className="h-4 w-4" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">No que você está pensando agora?</span>
+                        <div className="flex items-center gap-3 ml-8 text-gray-400">
+                            <Sparkles className="h-4 w-4 text-orange-400" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] brightness-125">No que você está pensando agora?</span>
                         </div>
                         <div className="relative group/input">
                             <input 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Digite um tema, ideia ou cole uma URL aqui..."
-                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-800 shadow-inner"
+                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-500 shadow-inner"
                             />
                             {/* Connection Visuals */}
                             <div className="absolute -bottom-12 left-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-orange-500/30" />
@@ -275,17 +275,17 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-white/5 border border-white/10 hover:border-orange-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-orange-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
                         >
                             <div className="p-5 bg-orange-500 rounded-3xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-transform">
                                 <Zap className="h-8 w-8 text-white fill-white" />
                             </div>
-                            <div className="text-left space-y-1">
+                            <div className="text-left space-y-2">
                                 <div className="flex items-center gap-3">
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-white italic">Lapidar Ideia</h3>
+                                    <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">Lapidar Ideia</h3>
                                     <Plus className="h-5 w-5 text-orange-500 animate-pulse" />
                                 </div>
-                                <p className="text-sm text-gray-300 font-bold leading-relaxed max-w-[280px]">Transforma seu comando em uma pauta estratégica de autoridade.</p>
+                                <p className="text-sm text-gray-100 font-bold leading-relaxed max-w-[280px]">Transforma seu comando em uma pauta estratégica de autoridade.</p>
                             </div>
                         </button>
 
@@ -293,14 +293,14 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-white/5 border border-white/10 hover:border-emerald-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-emerald-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
                         >
                             <div className="p-5 bg-emerald-500 rounded-3xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
                                 <Globe className="h-8 w-8 text-white" />
                             </div>
-                            <div className="text-left space-y-1">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-white italic">Explorar na Web</h3>
-                                <p className="text-sm text-gray-300 font-bold leading-relaxed max-w-[280px]">Busca referências atuais e cria 5+ ganchos magnéticos.</p>
+                            <div className="text-left space-y-2">
+                                <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">Explorar na Web</h3>
+                                <p className="text-sm text-gray-100 font-bold leading-relaxed max-w-[280px]">Busca referências atuais e cria 5+ ganchos magnéticos.</p>
                             </div>
                         </button>
                     </div>
