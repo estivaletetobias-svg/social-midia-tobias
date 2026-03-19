@@ -28,6 +28,8 @@ export default function ContentEditor() {
     const [textProvider, setTextProvider] = useState<'OPENAI' | 'GOOGLE'>('OPENAI');
     const [isGeneratingText, setIsGeneratingText] = useState(false);
     const [generatingSlideIndex, setGeneratingSlideIndex] = useState<number | null>(null);
+    const [refinementText, setRefinementText] = useState("");
+    const [isRefining, setIsRefining] = useState(false);
 
     // Pre-populate search when opening modal
     useEffect(() => {
@@ -189,6 +191,30 @@ export default function ContentEditor() {
             }
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleRefineText = async () => {
+        if (!refinementText.trim()) return;
+        setIsRefining(true);
+        try {
+            const res = await fetch(`/api/content/${id}/refine`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ versionId: version.id, userFeedback: refinementText })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setVersion(data.version);
+                setRefinementText("");
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to refine text", error);
+            alert("Falha ao ajustar o texto.");
+        } finally {
+            setIsRefining(false);
+        }
     };
 
     const handleRegenerateText = async () => {
@@ -435,20 +461,14 @@ export default function ContentEditor() {
                                                             </button>
                                                         </div>
                                                     )}
-                                                    
-                                                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full">
-                                                        <span className="text-[9px] font-black uppercase text-white tracking-widest leading-none">
-                                                            Slide {slide.slideNumber || idx + 1}
+                                                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                                                        <span className="text-[9px] font-black uppercase text-white tracking-widest leading-none flex items-center gap-1.5">
+                                                            <span className="text-primary-400">#{slide.slideNumber || idx + 1}</span>
+                                                            {slide.explanation && (
+                                                                <span className="border-l border-white/20 pl-1.5 opacity-80">{slide.explanation}</span>
+                                                            )}
                                                         </span>
                                                     </div>
-
-                                                    {slide.assetUrl && (
-                                                        <button 
-                                                            onClick={() => handleGenerateImage(idx)}
-                                                            className="absolute bottom-3 right-3 p-2 bg-white/90 backdrop-blur-sm shadow-lg rounded-xl opacity-0 group-hover/slide:opacity-100 transition-all hover:bg-primary-500 hover:text-white group/btn">
-                                                            <Zap className="h-4 w-4 group-hover/btn:animate-pulse" />
-                                                        </button>
-                                                    )}
                                                 </div>
 
                                                 <div className="p-5 flex-1 flex flex-col justify-between">
@@ -578,6 +598,33 @@ export default function ContentEditor() {
                                         className="w-full text-base font-medium leading-relaxed text-gray-700 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                     />
                                 )}
+                            </div>
+
+                            {/* Interaction/Refinement Box */}
+                            <div className="mt-6 p-6 bg-primary-50/30 rounded-3xl border border-primary-100/50 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-primary-600 flex items-center">
+                                        <Wand2 className="mr-2 h-4 w-4" />
+                                        Interagir com a IA (Refinar)
+                                    </h4>
+                                    <span className="text-[10px] font-bold text-gray-400">Use comandos abertos como "faça mais curto" ou "mude o tom"</span>
+                                </div>
+                                <div className="flex gap-3">
+                                    <TextareaAutosize
+                                        value={refinementText}
+                                        onChange={(e) => setRefinementText(e.target.value)}
+                                        placeholder="Ex: Deixe mais autoritário e foque no problema da biomecânica..."
+                                        className="flex-1 bg-white border border-gray-100 rounded-2xl px-5 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all resize-none shadow-inner"
+                                        minRows={1}
+                                    />
+                                    <button 
+                                        onClick={handleRefineText}
+                                        disabled={isRefining || !refinementText.trim()}
+                                        className="h-auto px-6 bg-gray-900 text-white text-[10px] font-black rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl flex items-center uppercase tracking-widest whitespace-nowrap"
+                                    >
+                                        {isRefining ? 'Ajustando...' : 'Pedir Ajuste'}
+                                    </button>
+                                </div>
                             </div>
 
                             <div>

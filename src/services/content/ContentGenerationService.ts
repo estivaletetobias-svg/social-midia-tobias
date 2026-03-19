@@ -11,7 +11,7 @@ export interface GenerationRequest {
     topicId?: string;
     goal?: string;
     platform: 'Instagram' | 'LinkedIn';
-    format: 'carousel' | 'short video script' | 'single image post' | 'article' | 'short post';
+    format: 'carousel' | 'video script' | 'single post' | 'article';
     provider?: 'OPENAI' | 'GOOGLE';
 }
 
@@ -128,43 +128,41 @@ export class ContentGenerationService {
       INTERNAL KNOWLEDGE (RAG):
       ${knowledgeContext}
       
-      TASK: Write the final high-conversion copy. 
-      
+      TASK: Write the final high-conversion copy.
+
+      ${request.format === 'carousel' ? `
+      CAROUSEL LOGICAL PROTOCOL (Slide-by-Slide):
+      1. Hook (Slide 1): Magnetic visual & text that stops the scroll.
+      2. Problem (Slide 2-3): Agitate the pain point described in the brand DNA.
+      3. Solution (Slide 4-5): Present your authority/expertise to solve it.
+      4. Proof/Detail (Slide 6): Practical tip or mechanism of action (Authority).
+      5. CTA (Slide 7): Direct engagement or sales command.
+      ` : request.format === 'video script' ? `
+      VIDEO SCRIPT PROTOCOL:
+      - Scene 1 (0-3s): The Hook (Visual & Audio).
+      - Body (3-45s): Fast-paced value delivery.
+      - Outro (45-60s): CTA.
+      ` : ''}
+
       ELITE COPYWRITING PROTOCOLS:
-      1. FRAMEWORK: Use ${request.format === 'carousel' ? 'AIDA (Attention, Interest, Desire, Action)' : 'PAS (Problem, Agitation, Solution)'}. 
-      2. THE PUNCH: Every sentence must earn the right to the next one. Use 'Bucket Brigades' (e.g., "Aqui está o porquê:", "Mas há um problema.", "A realidade?") to keep reading momentum.
-      3. AUDIENCE MIRRORING: Speak directly to the AUDIENCE segments. Use their specific fears and desires found in the DNA.
-      4. AUTHORITY INJECTION: If the knowledge base contains data, metrics, or technical mechanisms, use them. Don't say "é importante", say "é o mecanismo fisiológico responsável por...".
+      1. THE PUNCH: Every sentence must earn the right to the next one.
+      2. AUDIENCE MIRRORING: Speak directly to the AUDIENCE segments.
+      3. AUTHORITY INJECTION: Use technical data from RAG.
       
-      ANTI-GENERIC CONSTRAINTS:
-      - MANDATORY: Brazilian Portuguese (PT-BR).
-      - NO INTROS: Ban "Você já se perguntou?", "No cenário atual...", "Descubra como...".
-      - NO WEASEL WORDS: Ban "revolucionário", "incrível", "mágico", "transformador", "único".
-      - NO AI ADVERBS: Ban "notavelmente", "essencialmente", "profundamente".
-      - WHITE SPACE: Use short paragraphs (max 3 lines). Use line breaks strategically for mobile reading.
+      VISUAL DIRECTION FOR THE DESIGNER: Describe the scene for AI image generation.
       
-      VISUAL DIRECTION FOR THE DESIGNER:
-      - The 'imagePrompt' must be in ENGLISH and focused on RAW PHOTOGRAPHY (GCP Imagen 3 style). 
-      Return strictly RAW JSON. NO CONVERSATIONAL TEXT.
-      STRICT JSON RULES:
-      1. Escape all double quotes inside strings using \".
-      2. Escape ALL newlines inside strings using \n. ABSOLUTELY NO raw line breaks inside values.
-      3. No trailing commas in objects or arrays.
-      4. Format according to this exact structure:
+      Return strictly RAW JSON.
       {
-        "headline": "Main title (PT-BR)",
-        "hook": "Magnetic first line (PT-BR)",
-        "body": "Main content with Markdown (PT-BR)",
-        "caption": "Social media caption/legend (PT-BR)",
-        "cta": "Direct Call to Action (PT-BR)",
-        "hashtags": ["Specific", "Niche"],
-        "imagePrompt": "DETAILED PHOTOGRAPHIC PROMPT IN ENGLISH",
-        "visualConcept": "Art direction summary (PT-BR)",
+        "headline": "Main title",
+        "hook": "Magnetic first line",
+        "body": "Main content (Script if video)",
+        "caption": "Social media caption",
+        "cta": "CTA",
+        "hashtags": ["list"],
+        "imagePrompt": "Description in English",
+        "visualConcept": "Summary",
         "slides": [
-             { "slideNumber": 1, "textOnImage": "Punchy header", "imagePrompt": "Specific scene prompt", "explanation": "Context" }
-        ],
-        "videoScenes": [
-             { "time": "00:00", "action": "Visual action", "audio": "Voiceover/Audio" }
+             { "slideNumber": 1, "textOnImage": "Header", "imagePrompt": "Prompt", "explanation": "Logic step (Hook/Pain/...)" }
         ]
       }
     `;
@@ -283,5 +281,52 @@ export class ContentGenerationService {
         });
 
         return JSON.parse(response.choices[0].message.content || '{"isValid": false, "feedback": "Validation failed to run."}');
+    }
+    /**
+     * Open interaction refinement.
+     * Takes current version and user feedback to recreate the copy.
+     */
+    static async refineContent(contentPieceId: string, versionId: string, userFeedback: string) {
+        const version = await prisma.contentVersion.findUnique({
+            where: { id: versionId },
+            include: { contentPiece: { include: { brandProfile: { include: { audienceSegments: true } } } } }
+        });
+
+        if (!version) throw new Error('Version not found');
+
+        const brand = version.contentPiece.brandProfile;
+        
+        const prompt = `
+            You are an elite Editor refactoring a content piece based on specific client feedback.
+            
+            BRAND DNA: ${brand.name} - ${brand.toneOfVoice}
+            CURRENT CONTENT:
+            Headline: ${version.headline}
+            Hook: ${version.hook}
+            Body: ${version.body}
+            Caption: ${version.caption}
+            
+            CLIENT FEEDBACK: "${userFeedback}"
+            
+            TASK: Rewrite the content strictly following the feedback while maintaining the Brand DNA.
+            Return the same JSON structure as the original.
+        `;
+
+        const newContent = await this.askAI(prompt, 'OPENAI', true);
+
+        return prisma.contentVersion.create({
+            data: {
+                contentPieceId: version.contentPieceId,
+                headline: newContent.headline,
+                hook: newContent.hook,
+                body: newContent.body,
+                caption: newContent.caption,
+                cta: newContent.cta,
+                hashtags: newContent.hashtags,
+                imagePrompt: newContent.imagePrompt,
+                visualConcept: newContent.visualConcept,
+                metadata: newContent.metadata || {},
+            }
+        });
     }
 }

@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     try {
         const { searchParams } = new URL(req.url);
-        const brandId = searchParams.get('brandId');
+        // Prioritize brandId from session if it exists, otherwise from query
+        const activeBrandId = (session.user as any).brandId || searchParams.get('brandId');
 
-        let targetBrandId = brandId;
-
-        if (!targetBrandId) {
-            const firstBrand = await prisma.brandProfile.findFirst();
-            if (!firstBrand) {
-                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
-            }
-            targetBrandId = firstBrand.id;
+        if (!activeBrandId) {
+            return NextResponse.json({ error: 'Nenhum perfil de marca selecionado.' }, { status: 400 });
         }
 
         const items = await prisma.knowledgeItem.findMany({
-            where: { brandProfileId: targetBrandId },
+            where: { brandProfileId: activeBrandId },
             orderBy: { createdAt: 'desc' }
         });
 
@@ -29,18 +29,17 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     try {
         const body = await req.json().catch(() => ({}));
         let { title, content, sourceUrl, type, tags, brandId } = body;
 
-        let targetBrandId = brandId;
+        const targetBrandId = brandId || (session.user as any).brandId;
 
         if (!targetBrandId) {
-            const firstBrand = await prisma.brandProfile.findFirst();
-            if (!firstBrand) {
-                return NextResponse.json({ error: 'Nenhum perfil de marca encontrado.' }, { status: 400 });
-            }
-            targetBrandId = firstBrand.id;
+            return NextResponse.json({ error: 'Nenhum perfil de marca selecionado.' }, { status: 400 });
         }
 
         if (!title || !content) {
