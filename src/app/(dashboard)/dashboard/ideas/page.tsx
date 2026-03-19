@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw, Instagram, Linkedin, Youtube, Twitter, Globe, Info } from "lucide-react";
+import { Search, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw, Instagram, Linkedin, Youtube, Twitter, Globe, Info, Plus } from "lucide-react";
 
 export default function IdeasLibrary() {
     const [isSyncing, setIsSyncing] = useState(false);
