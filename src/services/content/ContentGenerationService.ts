@@ -181,7 +181,48 @@ export class ContentGenerationService {
             response_format: isJson ? { type: 'json_object' } : undefined,
             temperature: 0.7
         });
-        return isJson ? JSON.parse(response.choices[0].message.content || '{}') : response.choices[0].message.content;
+
+        const content = response.choices[0].message.content || '{}';
+        if (isJson) {
+            try {
+                return this.safeJsonParse(content);
+            } catch (e) {
+                console.error("OpenAI JSON Parse Error. Content received:", content);
+                throw new Error(`Falha ao converter resposta da IA em JSON: ${e instanceof Error ? e.message : 'Formato inválido'}`);
+            }
+        }
+        return content;
+    }
+
+    private static safeJsonParse(jsonString: string) {
+        // Step 1: Find the first '{' and the last '}'
+        const firstBrace = jsonString.indexOf('{');
+        const lastBrace = jsonString.lastIndexOf('}');
+        
+        if (firstBrace === -1 || lastBrace === -1) {
+            throw new Error("Não foi encontrado um objeto JSON válido na resposta.");
+        }
+
+        let cleaned = jsonString.substring(firstBrace, lastBrace + 1);
+
+        // Step 2: Handle common AI issues like literal newlines or weird backslashes
+        // 2a. Replace unescaped literal newlines in strings with \n
+        // This is complex, but a simple heuristic helps: replace newlines that are NOT after a comma or brace and ARE between quotes
+        // For simplicity, let's just use a more aggressive cleaner:
+        cleaned = cleaned
+            .replace(/\r/g, '') // remove carriage returns
+            .replace(/\n(?!(?:[^"]*"[^"]*")*[^"]*$)/g, '\\n') // experimental: double-escape newlines inside quotes
+            .replace(/\\x/g, 'x') // remove invalid \x escapes
+            .replace(/\\(?![bfnrtu"/\\\\])/g, ''); // Remove lone backslashes that don't escape a valid JSON char
+
+        try {
+            return JSON.parse(cleaned);
+        } catch (initialError) {
+            // Fallback: If still fails, try a manual sanitize of just the body/caption fields if possible 
+            // or just try to strip all control characters
+            const hardClean = cleaned.replace(/[\x00-\x1F\x7F-\x9F]/g, " "); 
+            return JSON.parse(hardClean);
+        }
     }
 
     private static async callGemini(prompt: string, isJson: boolean) {
@@ -234,19 +275,9 @@ export class ContentGenerationService {
 
         if (isJson) {
             try {
-                // Better cleaner: Find the first '{' and the last '}' 
-                // This handles markdown markers and any conversational noise
-                const firstBrace = textContent.indexOf('{');
-                const lastBrace = textContent.lastIndexOf('}');
-                
-                if (firstBrace === -1 || lastBrace === -1) {
-                    throw new Error("No JSON object found in response");
-                }
-
-                const cleanedJson = textContent.substring(firstBrace, lastBrace + 1);
-                return JSON.parse(cleanedJson);
+                return this.safeJsonParse(textContent);
             } catch (e) {
-                console.error("JSON Parse Error. Content received:", textContent);
+                console.error("Gemini JSON Parse Error. Content received:", textContent);
                 throw new Error(`Erro ao processar resposta da IA: ${e instanceof Error ? e.message : 'Formato inválido'}`);
             }
         }
@@ -286,7 +317,7 @@ export class ContentGenerationService {
      * Open interaction refinement.
      * Takes current version and user feedback to recreate the copy.
      */
-    static async refineContent(contentPieceId: string, versionId: string, userFeedback: string) {
+    static async refineContent(contentPieceId: string, versionId: string, userFeedback: string, provider: 'OPENAI' | 'GOOGLE' = 'OPENAI') {
         const version = await prisma.contentVersion.findUnique({
             where: { id: versionId },
             include: { contentPiece: { include: { brandProfile: { include: { audienceSegments: true } } } } }
@@ -297,35 +328,59 @@ export class ContentGenerationService {
         const brand = version.contentPiece.brandProfile;
         
         const prompt = `
-            You are an elite Editor refactoring a content piece based on specific client feedback.
+            You are an elite Creative Director and Copy Editor refactoring a content piece for ${brand.name}.
             
-            BRAND DNA: ${brand.name} - ${brand.toneOfVoice}
+            BRAND DNA: ${brand.toneOfVoice}
+            FORMAT: ${version.contentPiece.format}
+            PLATFORM: ${version.contentPiece.platform}
+            
             CURRENT CONTENT:
-            Headline: ${version.headline}
-            Hook: ${version.hook}
-            Body: ${version.body}
-            Caption: ${version.caption}
+            - Headline: ${version.headline}
+            - Hook: ${version.hook}
+            - Body: ${version.body}
+            - Caption: ${version.caption}
+            ${(version.metadata as any)?.slides || (version.metadata as any)?.videoScenes ? `- Metadata Details: ${JSON.stringify(version.metadata)}` : ''}
             
-            CLIENT FEEDBACK: "${userFeedback}"
+            CLIENT FEEDBACK (REFINEMENT): "${userFeedback}"
             
-            TASK: Rewrite the content strictly following the feedback while maintaining the Brand DNA.
-            Return the same JSON structure as the original.
+            TASK: Rewrite or adjust the content precisely following the feedback.
+            If the format is a CAROUSEL, you MUST adjust the "slides" in the metadata if the feedback implies visual changes.
+            If the format is a VIDEO SCRIPT, you MUST adjust the "videoScenes" in the metadata if necessary.
+            
+            Return strictly a JSON object with:
+            {
+              "headline": "...",
+              "hook": "...",
+              "body": "...",
+              "caption": "...",
+              "cta": "...",
+              "hashtags": ["..."],
+              "imagePrompt": "...",
+              "visualConcept": "...",
+              "metadata": {
+                 "slides": [... if carousel],
+                 "videoScenes": [... if video]
+              }
+            }
         `;
 
-        const newContent = await this.askAI(prompt, 'OPENAI', true);
+        const newContent = await this.askAI(prompt, provider, true);
 
         return prisma.contentVersion.create({
             data: {
                 contentPieceId: version.contentPieceId,
-                headline: newContent.headline,
-                hook: newContent.hook,
-                body: newContent.body,
-                caption: newContent.caption,
-                cta: newContent.cta,
-                hashtags: newContent.hashtags,
-                imagePrompt: newContent.imagePrompt,
-                visualConcept: newContent.visualConcept,
-                metadata: newContent.metadata || {},
+                headline: newContent.headline || version.headline,
+                hook: newContent.hook || version.hook,
+                body: newContent.body || version.body,
+                caption: newContent.caption || version.caption,
+                cta: newContent.cta || version.cta,
+                hashtags: newContent.hashtags || version.hashtags,
+                imagePrompt: newContent.imagePrompt || version.imagePrompt,
+                visualConcept: newContent.visualConcept || version.visualConcept,
+                metadata: {
+                    ...(typeof version.metadata === 'object' ? version.metadata as any : {}),
+                    ...(newContent.metadata || {})
+                },
             }
         });
     }

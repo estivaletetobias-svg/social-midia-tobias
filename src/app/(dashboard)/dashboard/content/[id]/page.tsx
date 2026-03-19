@@ -200,7 +200,11 @@ export default function ContentEditor() {
             const res = await fetch(`/api/content/${id}/refine`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ versionId: version.id, userFeedback: refinementText })
+                body: JSON.stringify({ 
+                    versionId: version.id, 
+                    userFeedback: refinementText,
+                    provider: textProvider
+                })
             });
             const data = await res.json();
             if (data.success) {

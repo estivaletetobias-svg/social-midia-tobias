@@ -13,13 +13,13 @@ export async function POST(
     try {
         const { id } = await params;
         const body = await req.json();
-        const { versionId, userFeedback } = body;
+        const { versionId, userFeedback, provider = 'OPENAI' } = body;
 
         if (!versionId || !userFeedback) {
             return NextResponse.json({ error: "versionId and userFeedback are required" }, { status: 400 });
         }
 
-        const newVersion = await ContentGenerationService.refineContent(id, versionId, userFeedback);
+        const newVersion = await ContentGenerationService.refineContent(id, versionId, userFeedback, provider);
 
         return NextResponse.json({ success: true, version: newVersion });
     } catch (error: any) {
