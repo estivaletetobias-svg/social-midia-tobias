@@ -268,28 +268,28 @@ export default function IdeasLibrary() {
                     </div>
 
                     {/* Quick Radar Actions */}
-                    <div className="flex flex-wrap items-center gap-8 pt-6 border-t border-white/5">
+                    <div className="flex flex-wrap items-center gap-8 pt-8 border-t border-white/15">
                         <div className="flex items-center space-x-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-500/60">Radar em tempo real:</span>
+                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                             <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Radar Ativo:</span>
                         </div>
                         
                         <button 
                             onClick={handleDailyNews}
                             disabled={isSyncing}
-                            className="group flex items-center text-[11px] font-black text-white/50 hover:text-orange-500 transition-all uppercase tracking-wider disabled:opacity-50"
+                            className="group flex items-center text-[10px] font-black text-white/60 hover:text-orange-500 transition-all uppercase tracking-widest disabled:opacity-50"
                         >
-                            <RefreshCcw className={`mr-2.5 h-4 w-4 ${isSyncing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-                            Varredura Diária (DNA)
+                            <RefreshCcw className={`mr-3 h-4 w-4 ${isSyncing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                            Varredura Automática (DNA)
                         </button>
                         
                         <button 
                             onClick={handleSyncRSS}
                             disabled={isSyncing}
-                            className="group flex items-center text-[11px] font-black text-white/50 hover:text-orange-500 transition-all uppercase tracking-wider disabled:opacity-50"
+                            className="group flex items-center text-[10px] font-black text-white/60 hover:text-orange-500 transition-all uppercase tracking-widest disabled:opacity-50"
                         >
-                            <Globe className="mr-2.5 h-4 w-4 group-hover:scale-110 transition-transform" />
-                            Escaneamento RSS / Link
+                            <Globe className="mr-3 h-4 w-4 group-hover:scale-110 transition-transform" />
+                            Explorar Link / Tópico
                         </button>
                     </div>
                 </div>

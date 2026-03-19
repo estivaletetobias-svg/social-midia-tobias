@@ -28,6 +28,12 @@ export async function POST(req: Request) {
             ? brand.editorialPillars.map((p: any) => p.title).filter((t: string) => t && t.trim() !== "")
             : [brand.name];
 
+        // Limpamos o status "Novo" de pautas anteriores do dia
+        await prisma.topicCandidate.updateMany({
+            where: { brandProfileId: brand.id, isNew: true },
+            data: { isNew: false }
+        });
+
         let totalScraped = 0;
         let totalSaved = 0;
 
