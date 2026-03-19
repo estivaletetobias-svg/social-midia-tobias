@@ -114,10 +114,24 @@ export class ContentGenerationService {
         return this.askAI(prompt, request.provider || 'OPENAI', true);
     }
 
+    private static extractText(content: any): string {
+        if (!content) return '';
+        if (typeof content === 'string') return content;
+        if (Array.isArray(content)) {
+            return content.map(item => this.extractText(item.content || item.text || item)).join('\n\n');
+        }
+        if (typeof content === 'object') {
+            return this.extractText(content.content || content.text || content.body || JSON.stringify(content));
+        }
+        return String(content);
+    }
+
     private static async generateFinalCopy(request: GenerationRequest, brand: any, structure: any, knowledgeContext: string) {
         const prompt = `
       You are a World-Class Senior Copywriter and Growth Strategist for ${request.platform}. 
       Your writing style is indistinguishable from an elite human creator.
+      
+      CRITICAL: The final content MUST be written in PORTUGUESE (Brazil). Do not use English.
       
       Brand Voice: ${brand.toneOfVoice}
       Specific Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Direct, authoritative, and sophisticated.'}
@@ -128,7 +142,7 @@ export class ContentGenerationService {
       INTERNAL KNOWLEDGE (RAG):
       ${knowledgeContext}
       
-      TASK: Write the final high-conversion copy.
+      TASK: Write the final high-conversion copy in Portuguese.
 
       ${request.format === 'carousel' ? `
       CAROUSEL LOGICAL PROTOCOL (Slide-by-Slide):
@@ -149,25 +163,32 @@ export class ContentGenerationService {
       2. AUDIENCE MIRRORING: Speak directly to the AUDIENCE segments.
       3. AUTHORITY INJECTION: Use technical data from RAG.
       
-      VISUAL DIRECTION FOR THE DESIGNER: Describe the scene for AI image generation.
+      VISUAL DIRECTION FOR THE DESIGNER: Describe the scene for AI image generation (this prompt can be in English).
       
       Return strictly RAW JSON.
       {
-        "headline": "Main title",
-        "hook": "Magnetic first line",
-        "body": "Main content (Script if video)",
-        "caption": "Social media caption",
-        "cta": "CTA",
+        "headline": "Main title (PT-BR)",
+        "hook": "Magnetic first line (PT-BR)",
+        "body": "Main content as a SINGLE STRING (PT-BR)",
+        "caption": "Social media caption (PT-BR)",
+        "cta": "CTA (PT-BR)",
         "hashtags": ["list"],
-        "imagePrompt": "Description in English",
-        "visualConcept": "Summary",
+        "imagePrompt": "Description in English (for DALL-E/Midjourney)",
+        "visualConcept": "Summary (PT-BR)",
         "slides": [
-             { "slideNumber": 1, "textOnImage": "Header", "imagePrompt": "Prompt", "explanation": "Logic step (Hook/Pain/...)" }
+             { "slideNumber": 1, "textOnImage": "Header (PT-BR)", "imagePrompt": "Prompt (EN)", "explanation": "Logic step" }
         ]
       }
     `;
 
-        return this.askAI(prompt, request.provider || 'OPENAI', true);
+        const newContent = await this.askAI(prompt, request.provider || 'OPENAI', true);
+        
+        // Defensive: extract and join if structured, ensuring string values for Prisma
+        return {
+            ...newContent,
+            body: this.extractText(newContent.body),
+            caption: this.extractText(newContent.caption),
+        };
     }
 
     private static async askAI(prompt: string, provider: 'OPENAI' | 'GOOGLE', isJson: boolean = false) {
@@ -195,7 +216,6 @@ export class ContentGenerationService {
     }
 
     private static safeJsonParse(jsonString: string) {
-        // Step 1: Find the first '{' and the last '}'
         const firstBrace = jsonString.indexOf('{');
         const lastBrace = jsonString.lastIndexOf('}');
         
@@ -205,10 +225,6 @@ export class ContentGenerationService {
 
         let cleaned = jsonString.substring(firstBrace, lastBrace + 1);
 
-        // Step 2: Handle common AI issues like literal newlines or weird backslashes
-        // 2a. Replace unescaped literal newlines in strings with \n
-        // This is complex, but a simple heuristic helps: replace newlines that are NOT after a comma or brace and ARE between quotes
-        // For simplicity, let's just use a more aggressive cleaner:
         cleaned = cleaned
             .replace(/\r/g, '') // remove carriage returns
             .replace(/\n(?!(?:[^"]*"[^"]*")*[^"]*$)/g, '\\n') // experimental: double-escape newlines inside quotes
@@ -218,8 +234,6 @@ export class ContentGenerationService {
         try {
             return JSON.parse(cleaned);
         } catch (initialError) {
-            // Fallback: If still fails, try a manual sanitize of just the body/caption fields if possible 
-            // or just try to strip all control characters
             const hardClean = cleaned.replace(/[\x00-\x1F\x7F-\x9F]/g, " "); 
             return JSON.parse(hardClean);
         }
@@ -248,13 +262,13 @@ export class ContentGenerationService {
 
         const vertex_ai = new VertexAI(authOptions);
         
-        // Use gemini-2.5-flash which is confirmed active in your Model Garden
-        const modelName = 'gemini-2.5-flash';
+        // Use gemini-1.5-flash for stable performance
+        const modelName = 'gemini-1.5-flash';
         const generativeModel = vertex_ai.getGenerativeModel({
             model: modelName,
             generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 8192, // Increased to prevent truncation on long posts
+                maxOutputTokens: 8192,
                 responseMimeType: isJson ? 'application/json' : 'text/plain',
             },
         });
@@ -296,11 +310,12 @@ export class ContentGenerationService {
       Body: ${copy.body}
       
       TASK: Does this content sound like a generic AI wrote it, or does it sound natively tailored to the brand tone? Is it overusing emojis or cliche phrases?
+      Return strictly Portuguese feedback.
       
       Return JSON:
       {
         "isValid": boolean,
-        "feedback": "Short critique on tone, formatting, and AI-like clichés."
+        "feedback": "Short critique in Portuguese (PT-BR) on tone, formatting, and AI-like clichés."
       }
     `;
 
@@ -330,6 +345,8 @@ export class ContentGenerationService {
         const prompt = `
             You are an elite Creative Director and Copy Editor refactoring a content piece for ${brand.name}.
             
+            MANDATORY: All output MUST be in PORTUGUESE (PT-BR).
+            
             BRAND DNA: ${brand.toneOfVoice}
             FORMAT: ${version.contentPiece.format}
             PLATFORM: ${version.contentPiece.platform}
@@ -343,15 +360,14 @@ export class ContentGenerationService {
             
             CLIENT FEEDBACK (REFINEMENT): "${userFeedback}"
             
-            TASK: Rewrite or adjust the content precisely following the feedback.
-            If the format is a CAROUSEL, you MUST adjust the "slides" in the metadata if the feedback implies visual changes.
-            If the format is a VIDEO SCRIPT, you MUST adjust the "videoScenes" in the metadata if necessary.
+            TASK: Rewrite or adjust the content precisely following the feedback in PORTUGUESE.
+            Ensure "body" is a SINGLE STRING of text, not an array or object.
             
             Return strictly a JSON object with:
             {
               "headline": "...",
               "hook": "...",
-              "body": "...",
+              "body": "... (SINGLE STRING IN PT-BR)",
               "caption": "...",
               "cta": "...",
               "hashtags": ["..."],
@@ -366,17 +382,21 @@ export class ContentGenerationService {
 
         const newContent = await this.askAI(prompt, provider, true);
 
+        // Defensive: use extractText to ensure the result is a clean string
+        const safeBody = this.extractText(newContent.body);
+        const safeCaption = this.extractText(newContent.caption);
+
         return prisma.contentVersion.create({
             data: {
                 contentPieceId: version.contentPieceId,
-                headline: newContent.headline || version.headline,
-                hook: newContent.hook || version.hook,
-                body: newContent.body || version.body,
-                caption: newContent.caption || version.caption,
-                cta: newContent.cta || version.cta,
-                hashtags: newContent.hashtags || version.hashtags,
-                imagePrompt: newContent.imagePrompt || version.imagePrompt,
-                visualConcept: newContent.visualConcept || version.visualConcept,
+                headline: String(newContent.headline || version.headline || ''),
+                hook: String(newContent.hook || version.hook || ''),
+                body: safeBody,
+                caption: safeCaption,
+                cta: String(newContent.cta || version.cta || ''),
+                hashtags: Array.isArray(newContent.hashtags) ? newContent.hashtags : (version.hashtags || []),
+                imagePrompt: String(newContent.imagePrompt || version.imagePrompt || ''),
+                visualConcept: String(newContent.visualConcept || version.visualConcept || ''),
                 metadata: {
                     ...(typeof version.metadata === 'object' ? version.metadata as any : {}),
                     ...(newContent.metadata || {})
@@ -384,4 +404,5 @@ export class ContentGenerationService {
             }
         });
     }
+
 }
