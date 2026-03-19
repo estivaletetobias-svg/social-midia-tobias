@@ -105,10 +105,6 @@ model SocialProfile {
   platform       String       // instagram, linkedin, tiktok, youtube, twitter, facebook
   handle         String?
   url            String?
-  accessToken    String?
-  refreshToken   String?
-  expiresAt      DateTime?
-  externalId     String?      // ID da conta no Instagram/Facebook
   metadata       Json?        // Armazenar Page ID, etc.
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
@@ -199,7 +195,8 @@ model ContentPiece {
   versions         ContentVersion[]
   assets           Asset[]
   approvalLogs     ApprovalLog[]
-  publishingJob    PublishingJob?
+  scheduledAt      DateTime?
+  publishedAt      DateTime?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 }
@@ -246,13 +243,4 @@ model ApprovalLog {
   createdAt      DateTime     @default(now())
 }
 
-model PublishingJob {
-  id             String       @id @default(cuid())
-  contentPieceId String       @unique
-  contentPiece   ContentPiece @relation(fields: [contentPieceId], references: [id])
-  scheduledAt    DateTime
-  publishedAt    DateTime?
-  status         String // pending, success, failed
-  error          String?
-  platformUrl    String?
-}
+

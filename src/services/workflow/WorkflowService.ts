@@ -64,21 +64,5 @@ export class WorkflowService {
         });
     }
 
-    static async registerPublish(contentPieceId: string, platformUrl: string) {
-        return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-            await tx.contentPiece.update({
-                where: { id: contentPieceId },
-                data: { status: ContentStatus.PUBLISHED },
-            });
 
-            return tx.publishingJob.update({
-                where: { contentPieceId },
-                data: {
-                    status: 'success',
-                    publishedAt: new Date(),
-                    platformUrl,
-                },
-            });
-        });
-    }
 }

@@ -11,33 +11,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             return NextResponse.json({ error: 'Data não informada' }, { status: 400 });
         }
 
-        // Verifica o post
-        const content = await prisma.contentPiece.findUnique({
+        // Atualiza a data de agendamento diretamente na peça de conteúdo
+        await prisma.contentPiece.update({
             where: { id },
-            include: { publishingJob: true }
+            data: { 
+                scheduledAt: new Date(newDate),
+                status: 'scheduled' // Opcional: já marca como agendado ao mover no calendário
+            }
         });
-
-        if (!content) {
-            return NextResponse.json({ error: 'Post não encontrado' }, { status: 404 });
-        }
-
-        const scheduledAt = new Date(newDate);
-
-        // Atualiza ou cria o publishing job
-        if (content.publishingJob) {
-            await prisma.publishingJob.update({
-                where: { id: content.publishingJob.id },
-                data: { scheduledAt }
-            });
-        } else {
-            await prisma.publishingJob.create({
-                data: {
-                    contentPieceId: id,
-                    scheduledAt,
-                    status: 'pending'
-                }
-            });
-        }
 
         return NextResponse.json({ success: true, message: "Data atualizada" });
     } catch (e: any) {

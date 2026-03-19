@@ -42,7 +42,6 @@ interface SocialProfile {
   url: string;
   isActive: boolean;
   metadata?: any;
-  accessToken?: string;
 }
 
 
@@ -249,27 +248,7 @@ export default function BrandDnaPage() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                           {isActive && isInstagram && (
-                             savedProfile?.accessToken ? (
-                               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 text-[10px] font-black rounded-lg border border-green-200 uppercase tracking-wider">
-                                 <CheckCircle2 className="h-3 w-3" />
-                                 Conectado
-                               </div>
-                             ) : (
-                               <button 
-                                 onClick={() => {
-                                     // Pega o ID de onde estiver disponível
-                                     const currentBrandId = brandId || localStorage.getItem('active_brand_id') || '';
-                                     window.location.href = `/api/instagram/auth?brandId=${currentBrandId}`;
-                                 }}
-                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-black rounded-lg shadow-lg hover:scale-105 transition-all uppercase tracking-wider"
-                                 title="Conectar Conta Profissional"
-                               >
-                                 <Instagram className="h-3 w-3" />
-                                 Conectar
-                               </button>
-                             )
-                            )}
+
                           <button 
                             onClick={() => {
                               const newProfiles = [...socialProfiles];

@@ -16,15 +16,11 @@ export async function GET(req: Request) {
             targetBrandId = firstBrand.id;
         }
 
-        // Buscamos todas as peças de conteúdo
-        // Se ela tiver publishingJob, pegamos a data de lá.
-        // Se não tiver, para fins de demonstração visual (MVP), vamos espalhar as que já foram rascunhadas na semana.
-        const pieces = await (prisma as any).contentPiece.findMany({
+        const pieces = await prisma.contentPiece.findMany({
             where: {
                 brandProfileId: targetBrandId,
             },
             include: {
-                publishingJob: true,
                 assets: true
             },
             orderBy: {
@@ -35,8 +31,8 @@ export async function GET(req: Request) {
         // Adaptação dos dados de POST para o calendário
         const formattedPosts = pieces.map((piece: any) => {
             // Data real agendada, ou fallback para data de criação (estável)
-            const date = piece.publishingJob?.scheduledAt
-                ? new Date(piece.publishingJob.scheduledAt)
+            const date = piece.scheduledAt
+                ? new Date(piece.scheduledAt)
                 : new Date(piece.createdAt);
 
             return {
