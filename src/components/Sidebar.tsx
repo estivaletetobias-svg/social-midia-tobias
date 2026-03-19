@@ -27,14 +27,15 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navigation = [
-    { name: "Gestão de Clientes", href: "/dashboard/clients", icon: Users },
-    { name: "Visão Geral", href: "/dashboard", icon: Home },
-    { name: "Calendário Editorial", href: "/dashboard/calendar", icon: Calendar },
+    { name: "DNA da Marca", href: "/dashboard/brand", icon: BrainCircuit },
+    { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
     { name: "Biblioteca de Ideias", href: "/dashboard/ideas", icon: Zap },
     { name: "Esteira de Produção", href: "/dashboard/content", icon: PenTool },
-    { name: "Base de Conhecimento", href: "/dashboard/knowledge", icon: BookOpen },
-    { name: "DNA da Marca", href: "/dashboard/brand", icon: BrainCircuit },
+    { name: "Calendário Editorial", href: "/dashboard/calendar", icon: Calendar },
+    { name: "Visão Geral", href: "/dashboard", icon: Home },
     { name: "Métricas", href: "/dashboard/analytics", icon: BarChart2 },
+    { name: "Central de Ajuda", href: "/dashboard/help", icon: Settings },
+    { name: "Gestão de Clientes", href: "/dashboard/clients", icon: Users },
 ];
 
 interface SidebarProps {
