@@ -230,11 +230,26 @@ export default function ClientsPage() {
 
                                 <div className="mt-8 pt-8 border-t border-black/5 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">DNA Verificado</span>
+                                        <div className={`h-2 w-2 rounded-full ${brand.isActive === false ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${brand.isActive === false ? 'text-red-500' : 'text-gray-500'}`}>
+                                            {brand.isActive === false ? 'Conta Suspensa' : 'DNA Verificado'}
+                                        </span>
                                     </div>
-                                    <div className="px-3 py-1 bg-gray-900/5 rounded-lg text-gray-500 font-black text-[9px] uppercase tracking-widest">
-                                        Active Profile
+                                    <div className="flex items-center space-x-2">
+                                        <button 
+                                            onClick={(e) => handleSuspendClient(e, brand.id, brand.isActive !== false)}
+                                            className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
+                                            title={brand.isActive === false ? "Reativar" : "Suspender"}
+                                        >
+                                            {brand.isActive === false ? <PlayCircle className="h-5 w-5" /> : <PauseCircle className="h-5 w-5" />}
+                                        </button>
+                                        <button 
+                                            onClick={(e) => handleDeleteClient(e, brand.id)}
+                                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            title="Apagar Permanentemente"
+                                        >
+                                            <Trash2 className="h-5 w-5" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
