@@ -125,23 +125,40 @@ export default function KnowledgeBase() {
 
         setIsUploading(true);
         try {
-            const formData = new FormData();
-            formData.append('file', file);
+            const arrayBuffer = await file.arrayBuffer();
+            
+            // Carregar PDF.js dinamicamente se não existir
+            if (!(window as any).pdfjsLib) {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                document.head.appendChild(script);
+                await new Promise((resolve) => { script.onload = resolve; });
+            }
 
-            const res = await fetch('/api/knowledge/upload', {
-                method: 'POST',
-                body: formData
-            });
+            const pdfjsLib = (window as any).pdfjsLib;
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-            const data = await res.json();
-            if (data.success) {
-                setNewContent(data.text);
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            
+            let fullText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map((item: any) => item.str).join(" ");
+                fullText += pageText + "\n\n";
+            }
+
+            if (fullText.trim()) {
+                setNewContent(fullText);
+                setNewTitle(file.name.replace('.pdf', ''));
+                setNewType("Artigo/Blog");
             } else {
-                alert(`Erro no Servidor: ${data.error || 'Erro desconhecido'}`);
+                alert("Não foi possível extrair texto deste PDF. Ele pode ser uma imagem protegida.");
             }
         } catch (error: any) {
             console.error(error);
-            alert(`Falha no upload do arquivo: ${error.message || 'Erro de conexão'}`);
+            alert(`Falha ao ler PDF localmente: ${error.message || 'Erro deconhecido'}`);
         } finally {
             setIsUploading(false);
         }
