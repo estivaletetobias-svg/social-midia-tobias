@@ -23,10 +23,11 @@ export async function POST(req: Request) {
             };
         }
 
-        const pdfModule = await import('pdf-parse');
-        // @ts-ignore
-        const parser = pdfModule.default || pdfModule;
-        const data = await parser(buffer);
+        const { createRequire } = await import('module');
+        const nodeRequire = createRequire(import.meta.url);
+        const pdfParser = nodeRequire('pdf-parse');
+        
+        const data = await pdfParser(buffer);
 
         return NextResponse.json({ success: true, text: data.text });
     } catch (error: any) {
