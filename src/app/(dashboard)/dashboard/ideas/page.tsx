@@ -216,52 +216,76 @@ export default function IdeasLibrary() {
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* 3-PATH INTELLIGENCE HUB HEADER */}
-            <div className="bg-[#0A0D14] rounded-[48px] p-10 lg:p-16 text-white relative overflow-hidden shadow-2xl border border-white/5 ring-1 ring-white/10">
+            <div className="bg-[#0A0D14] rounded-[60px] p-10 lg:p-16 text-white relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/10">
                 {/* Visual Glows */}
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 blur-[120px] -mr-40 -mt-40 rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-500/5 blur-[100px] -ml-20 -mb-20 rounded-full" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[130px] -mr-40 -mt-40 rounded-full" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-500/5 blur-[120px] -ml-20 -mb-20 rounded-full" />
                 
-                <div className="relative z-10 space-y-10">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-2">
+                <div className="relative z-10 space-y-12">
+                    {/* TOP LINE: TITLE & RADAR */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                        <div className="space-y-3">
                             <div className="flex items-center space-x-3">
-                                <div className="h-1 w-8 bg-orange-500 rounded-full" />
-                                <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.5em]">Creative Engine</span>
+                                <div className="h-1.5 w-10 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" />
+                                <span className="text-[11px] font-black text-orange-500 uppercase tracking-[0.5em]">Creative Engine</span>
                             </div>
-                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase">
+                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase font-[family-name:var(--font-space)]">
                                 Biblioteca de <span className="text-white/20">Pautas</span>
                             </h1>
                         </div>
+
+                        {/* PATH: AUTOMATIC RADAR (GLOBAL) */}
+                        <button 
+                            onClick={handleDailyNews}
+                            disabled={isSyncing}
+                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/30 hover:border-indigo-500/60 rounded-[35px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-40"
+                        >
+                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
+                                <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Radar do DNA</h3>
+                                <p className="text-xs text-gray-300 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
+                            </div>
+                        </button>
                     </div>
 
-                    {/* Omni-Command Bar */}
-                    <div className="relative group/input">
-                        <div className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/input:text-orange-500 transition-colors">
-                            <Sparkles className="h-6 w-6" />
+                    {/* MIDDLE LINE: INPUT COMMAND */}
+                    <div className="relative space-y-6">
+                        <div className="flex items-center gap-3 ml-8 text-gray-500">
+                            <Sparkles className="h-4 w-4" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">No que você está pensando agora?</span>
                         </div>
-                        <input 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Escreva sua ideia, palavra-chave ou cole um Link aqui..."
-                            className="w-full h-20 pl-18 pr-6 bg-white/5 border border-white/10 rounded-[32px] focus:outline-none focus:ring-4 focus:ring-white/5 focus:border-white/20 transition-all text-white text-lg font-bold placeholder:text-gray-600 shadow-inner"
-                        />
+                        <div className="relative group/input">
+                            <input 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Digite um tema, ideia ou cole uma URL aqui..."
+                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-800 shadow-inner"
+                            />
+                            {/* Connection Visuals */}
+                            <div className="absolute -bottom-12 left-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-orange-500/30" />
+                            <div className="absolute -bottom-12 right-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-emerald-500/30" />
+                        </div>
                     </div>
 
-                    {/* THE 3 PATHS - ACTION GRID */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 border-t border-white/20">
+                    {/* BOTTOM LINE: DEPENDENT ACTIONS */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
                         {/* PATH 1: MANUAL/AI CREATION */}
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex flex-col items-start p-8 bg-orange-500/5 border border-orange-500/20 hover:border-orange-500/50 rounded-[32px] transition-all hover:-translate-y-1 disabled:opacity-40"
+                            className="group relative flex items-center gap-8 p-10 bg-white/5 border border-white/10 hover:border-orange-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
                         >
-                            <div className="p-3 bg-orange-500 rounded-2xl mb-4 shadow-lg shadow-orange-500/20">
-                                <Zap className="h-6 w-6 text-white fill-white" />
+                            <div className="p-5 bg-orange-500 rounded-3xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-transform">
+                                <Zap className="h-8 w-8 text-white fill-white" />
                             </div>
-                            <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Gerar 1 Pauta IA</h3>
-                            <p className="text-xs text-orange-500/60 font-medium text-left">Transforma seu pensamento em uma pauta estratégica fixa.</p>
-                            <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Plus className="h-5 w-5 text-orange-500" />
+                            <div className="text-left space-y-1">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-xl font-black uppercase tracking-tight text-white italic">Lapidar Ideia</h3>
+                                    <Plus className="h-5 w-5 text-orange-500 animate-pulse" />
+                                </div>
+                                <p className="text-sm text-gray-300 font-bold leading-relaxed max-w-[280px]">Transforma seu comando em uma pauta estratégica de autoridade.</p>
                             </div>
                         </button>
 
@@ -269,26 +293,15 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex flex-col items-start p-8 bg-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/50 rounded-[32px] transition-all hover:-translate-y-1 disabled:opacity-40"
+                            className="group relative flex items-center gap-8 p-10 bg-white/5 border border-white/10 hover:border-emerald-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
                         >
-                            <div className="p-3 bg-emerald-500 rounded-2xl mb-4 shadow-lg shadow-emerald-500/20">
-                                <Globe className="h-6 w-6 text-white" />
+                            <div className="p-5 bg-emerald-500 rounded-3xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                                <Globe className="h-8 w-8 text-white" />
                             </div>
-                            <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Explorar na Web</h3>
-                            <p className="text-xs text-emerald-500/60 font-medium text-left">Lê notícias e traz 5+ pautas quentes sobre o tema.</p>
-                        </button>
-
-                        {/* PATH 3: AUTOMATIC RADAR */}
-                        <button 
-                            onClick={handleDailyNews}
-                            disabled={isSyncing}
-                            className="group relative flex flex-col items-start p-8 bg-indigo-500/5 border border-indigo-500/20 hover:border-indigo-500/50 rounded-[32px] transition-all hover:-translate-y-1 disabled:opacity-40"
-                        >
-                            <div className="p-3 bg-indigo-500 rounded-2xl mb-4 shadow-lg shadow-indigo-500/20">
-                                <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
+                            <div className="text-left space-y-1">
+                                <h3 className="text-xl font-black uppercase tracking-tight text-white italic">Explorar na Web</h3>
+                                <p className="text-sm text-gray-300 font-bold leading-relaxed max-w-[280px]">Busca referências atuais e cria 5+ ganchos magnéticos.</p>
                             </div>
-                            <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Radar do DNA</h3>
-                            <p className="text-xs text-indigo-500/60 font-medium text-left">Varredura automática baseada nos seus pilares fixos.</p>
                         </button>
                     </div>
                 </div>
