@@ -275,7 +275,7 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-orange-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 hover:border-orange-500/60 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10 disabled:opacity-20"
                         >
                             <div className="p-5 bg-orange-500 rounded-3xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-transform">
                                 <Zap className="h-8 w-8 text-white fill-white" />
@@ -293,7 +293,7 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-emerald-500/50 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
+                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/60 rounded-[40px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 disabled:opacity-20"
                         >
                             <div className="p-5 bg-emerald-500 rounded-3xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
                                 <Globe className="h-8 w-8 text-white" />
