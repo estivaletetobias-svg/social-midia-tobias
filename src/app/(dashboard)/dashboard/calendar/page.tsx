@@ -24,12 +24,24 @@ export default function EditorialCalendar() {
             .catch(console.error);
     }, []);
 
-    const handlePrevMonth = () => {
-        setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+    const handlePrev = () => {
+        if (viewMode === 'month') {
+            setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+        } else if (viewMode === 'week') {
+            const d = new Date(viewDate);
+            d.setDate(d.getDate() - 7);
+            setViewDate(d);
+        }
     };
 
-    const handleNextMonth = () => {
-        setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+    const handleNext = () => {
+        if (viewMode === 'month') {
+            setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+        } else if (viewMode === 'week') {
+            const d = new Date(viewDate);
+            d.setDate(d.getDate() + 7);
+            setViewDate(d);
+        }
     };
 
     const handleDeletePost = async (e: React.MouseEvent, postId: string) => {
@@ -168,10 +180,10 @@ export default function EditorialCalendar() {
                         <h2 className="text-xl font-bold text-gray-900">{months[viewDate.getMonth()]} {viewDate.getFullYear()}</h2>
                         <div className="flex border border-gray-100 rounded-lg overflow-hidden shadow-sm">
                             <button 
-                                onClick={handlePrevMonth}
+                                onClick={handlePrev}
                                 className="px-3 py-1 bg-white border-r border-gray-100 text-gray-400 hover:text-gray-900 transition-colors">{"<"}</button>
                             <button 
-                                onClick={handleNextMonth}
+                                onClick={handleNext}
                                 className="px-3 py-1 bg-white text-gray-400 hover:text-gray-900 transition-colors">{">"}</button>
                         </div>
                     </div>
@@ -283,12 +295,123 @@ export default function EditorialCalendar() {
                     </>
                 )}
 
-                {(viewMode === 'week' || viewMode === 'list') && (
-                    <div className="p-20 text-center space-y-4 bg-gray-50/30">
-                        <CalendarIcon className="h-12 w-12 mx-auto text-gray-200" />
-                        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tighter">Modo {viewMode.toUpperCase()} será ativado no Beta 2</h3>
-                        <p className="text-sm text-gray-400 font-bold">Por enquanto, use a Visão Mensal para orquestrar sua esteira de conteúdo.</p>
-                        <button onClick={() => setViewMode('month')} className="text-primary-500 font-black text-xs underline underline-offset-4">VOLTAR PARA MENSAL</button>
+                {/* Weekly View */}
+                {viewMode === 'week' && (
+                    <div className="grid grid-cols-7 gap-px bg-gray-100">
+                        {(() => {
+                            const days = renderMonthDays();
+                            // Find the week containing viewDate
+                            const viewDateTime = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate()).getTime();
+                            let weekDays: any[] = [];
+                            
+                            // Find which week index our viewDate falls into
+                            for(let i=0; i < days.length; i += 7) {
+                                const week = days.slice(i, i+7);
+                                const isInWeek = week.some(d => {
+                                    const dTime = new Date(d.year, d.month, d.day).getTime();
+                                    return dTime === viewDateTime;
+                                });
+                                if (isInWeek) {
+                                    weekDays = week;
+                                    break;
+                                }
+                            }
+
+                            if (weekDays.length === 0) weekDays = days.slice(0, 7);
+
+                            return (
+                                <>
+                                    {/* Week Column Headers */}
+                                    <div className="col-span-7 grid grid-cols-7 border-b border-gray-50 bg-gray-50/30">
+                                        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(day => (
+                                            <div key={day} className="px-4 py-3 text-[10px] font-black text-gray-400 text-center uppercase tracking-widest">{day}</div>
+                                        ))}
+                                    </div>
+                                    
+                                    {weekDays.map((dateObj, i) => {
+                                        const { day, month, year } = dateObj;
+                                        const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                                        
+                                        return (
+                                            <div key={i} className="min-h-[400px] bg-white p-4 hover:bg-gray-50 transition-colors">
+                                                <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-50">
+                                                    <span className={`text-lg font-black ${isToday ? 'text-primary-600' : 'text-gray-900'}`}>{day}</span>
+                                                    {isToday && <span className="text-[8px] font-black text-white bg-primary-600 px-1.5 py-0.5 rounded-full uppercase">Hoje</span>}
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {posts.filter(p => p.day === day && p.month === month && p.year === year).map(post => (
+                                                        <Link key={post.id} href={`/dashboard/content/${post.id}`}>
+                                                            <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary-200 hover:bg-white transition-all hover:shadow-lg hover:shadow-black/5 group">
+                                                                <p className="text-[8px] font-black text-primary-500 uppercase mb-1">{post.platform}</p>
+                                                                <p className="text-xs font-bold text-gray-900 line-clamp-3 leading-tight mb-2">{post.title}</p>
+                                                                <div className="flex items-center gap-1.5 mt-2">
+                                                                    <div className={`h-1.5 w-1.5 rounded-full ${post.status === 'approved' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">{post.status}</span>
+                                                                </div>
+                                                            </div>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </>
+                            );
+                        })()}
+                    </div>
+                )}
+
+                {/* List View */}
+                {viewMode === 'list' && (
+                    <div className="bg-white">
+                        <div className="grid grid-cols-12 gap-4 px-8 py-4 border-b border-gray-50 bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            <div className="col-span-2">Data</div>
+                            <div className="col-span-2">Plataforma</div>
+                            <div className="col-span-6">Título do Conteúdo</div>
+                            <div className="col-span-2 text-right">Status</div>
+                        </div>
+                        <div className="divide-y divide-gray-50">
+                            {[...posts].sort((a,b) => {
+                                const da = new Date(a.year, a.month, a.day);
+                                const db = new Date(b.year, b.month, b.day);
+                                return da.getTime() - db.getTime();
+                            }).map(post => {
+                                const date = new Date(post.year, post.month, post.day);
+                                return (
+                                    <Link 
+                                        key={post.id} 
+                                        href={`/dashboard/content/${post.id}`}
+                                        className="grid grid-cols-12 gap-4 px-8 py-5 items-center hover:bg-gray-50 transition-colors group"
+                                    >
+                                        <div className="col-span-2 text-xs font-bold text-gray-500">
+                                            {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider ${
+                                                post.platform.toLowerCase() === 'instagram' ? 'bg-primary-50 text-primary-600' : 'bg-blue-50 text-blue-600'
+                                            }`}>
+                                                {post.platform}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-6 font-black text-gray-900 truncate pr-10 group-hover:text-primary-600 transition-colors">
+                                            {post.title}
+                                        </div>
+                                        <div className="col-span-2 text-right">
+                                            <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border ${
+                                                post.status === 'approved' ? 'bg-green-500 border-transparent text-white' : 'bg-white border-gray-200 text-gray-500'
+                                            }`}>
+                                                {post.status.toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                        {posts.length === 0 && (
+                            <div className="p-20 text-center text-gray-400 font-bold uppercase tracking-widest">
+                                Nenhuma peça agendada para este perfil.
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
