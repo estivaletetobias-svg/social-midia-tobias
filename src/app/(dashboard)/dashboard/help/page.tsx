@@ -18,7 +18,7 @@ export default function HelpCenterPage() {
         {
             id: 'dna',
             title: "1. DNA da Marca (A Fundação)",
-            icon: <BrainCircuit className="w-8 h-8 text-primary-500" />,
+            icon: <BrainCircuit className="w-8 h-8 text-indigo-400" />,
             summary: "O alicerce da sua inteligência artificial. Se o DNA estiver vago, os posts serão genéricos. Se o DNA estiver profundo e detalhado, o sistema escreverá exatamente como você falaria.",
             details: [
                 {
@@ -42,7 +42,7 @@ export default function HelpCenterPage() {
         {
             id: 'brain',
             title: "2. Cérebro Semântico (Hub de Conhecimento)",
-            icon: <BookOpen className="w-8 h-8 text-primary-500" />,
+            icon: <BookOpen className="w-8 h-8 text-indigo-400" />,
             summary: "Sua biblioteca particular digital. Aqui você ensina à IA o que você sabe, suas opiniões técnicas e o seu 'jeito' de explicar as coisas.",
             details: [
                 {
@@ -62,7 +62,7 @@ export default function HelpCenterPage() {
         {
             id: 'execution',
             title: "3. Esteira de Produção (Workflow Diário)",
-            icon: <PenTool className="w-8 h-8 text-primary-500" />,
+            icon: <PenTool className="w-8 h-8 text-indigo-400" />,
             summary: "O campo de batalha onde as estratégias se tornam posts. Da sugestão inicial à aprovação final, tudo é gerenciado aqui.",
             details: [
                 {
@@ -82,7 +82,7 @@ export default function HelpCenterPage() {
         {
             id: 'strategy',
             title: "4. Calendário Editorial (Sua Visão Áerea)",
-            icon: <Calendar className="w-8 h-8 text-primary-500" />,
+            icon: <Calendar className="w-8 h-8 text-indigo-400" />,
             summary: "Sua visão estratégica do tempo. Aqui você garante que a sua autoridade está sendo construída dia após dia, sem furos na programação.",
             details: [
                 {
@@ -131,11 +131,11 @@ export default function HelpCenterPage() {
 
                 <div className="relative z-10 max-w-3xl space-y-6">
                     <div className="flex items-center space-x-3 mb-4 animate-fade-in opacity-80">
-                        <div className="h-1 w-6 bg-primary-500 rounded-full" />
+                        <div className="h-1 w-6 bg-indigo-400 rounded-full" />
                         <span className="text-xs font-black uppercase tracking-[0.3em] scroll-px-10">Guia de Onboarding Oficial</span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase">
-                        Central de <span className="text-primary-500 italic">Comandos</span>
+                        Central de <span className="text-indigo-400 italic">Comandos</span>
                     </h1>
                     <p className="text-lg md:text-xl text-gray-400 font-medium tracking-wide leading-relaxed max-w-xl">
                         Tudo o que você precisa saber para operar seu sistema de arquitetura social com autonomia total.
@@ -156,7 +156,7 @@ export default function HelpCenterPage() {
                             <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-none uppercase italic">
                                 {topic.title}
                             </h2>
-                            <p className="text-lg font-medium text-gray-500 leading-relaxed border-l-4 border-gray-100 pl-6 group-hover:border-primary-500 transition-colors">
+                            <p className="text-lg font-medium text-gray-500 leading-relaxed border-l-4 border-gray-100 pl-6 group-hover:border-indigo-400 transition-colors">
                                 {topic.summary}
                             </p>
                         </div>
@@ -171,7 +171,7 @@ export default function HelpCenterPage() {
                                 {topic.details.map((detail, dIndex) => (
                                     <div key={dIndex} className="space-y-2 group/item">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-2 h-2 rounded-full bg-primary-500 ring-4 ring-primary-500/10 group-hover/item:scale-125 transition-transform" />
+                                            <div className="w-2 h-2 rounded-full bg-indigo-400 ring-4 ring-indigo-400/10 group-hover/item:scale-125 transition-transform" />
                                             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-900">{detail.subtitle}</h4>
                                         </div>
                                         <p className="text-sm font-medium text-gray-500 leading-relaxed pl-5 tracking-tight">
@@ -196,7 +196,7 @@ export default function HelpCenterPage() {
                     {faqItems.map((item, i) => (
                         <div key={i} className="bg-white p-8 rounded-[32px] shadow-lg shadow-black/[0.03] border border-gray-50 hover:-translate-y-1 transition-all">
                             <h4 className="text-md font-black text-gray-900 mb-4 flex items-start gap-3 uppercase tracking-tight">
-                                <HelpCircle className="w-5 h-5 text-primary-500 shrink-0 mt-0.5" />
+                                <HelpCircle className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
                                 {item.q}
                             </h4>
                             <p className="text-gray-500 text-sm font-medium leading-relaxed pl-8">
@@ -208,7 +208,7 @@ export default function HelpCenterPage() {
             </div>
 
             {/* Final Tip Card */}
-            <div className="bg-primary-500 rounded-[40px] p-10 md:p-14 text-white shadow-2xl shadow-primary-500/20 relative overflow-hidden">
+            <div className="bg-indigo-400 rounded-[40px] p-10 md:p-14 text-white shadow-2xl shadow-indigo-400/20 relative overflow-hidden">
                 <div className="absolute -bottom-20 -right-20 opacity-10 rotate-12">
                    <Sparkles className="w-80 h-80" />
                 </div>
