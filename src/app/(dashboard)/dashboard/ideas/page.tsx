@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Sparkles, Zap, CheckCircle2, XCircle, RefreshCcw, Instagram, Linkedin, Youtube, Twitter, Globe, Info, Plus } from "lucide-react";
 
 export default function IdeasLibrary() {
+    const router = useRouter();
     const [isSyncing, setIsSyncing] = useState(false);
     const [topics, setTopics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function IdeasLibrary() {
             if (data.success) {
                 setTopics(topics.filter(t => t.id !== topicId));
                 setTopicToApprove(null);
-                alert(`Sucesso! Criamos ${selectedPlatforms.length} peças na sua esteira de produção.`);
+                router.push('/dashboard/content');
             } else {
                 alert(`Erro ao aprovar: ${data.error}`);
             }
@@ -325,6 +327,13 @@ export default function IdeasLibrary() {
                     filteredTopics.map((topic, i) => {
                         return (
                             <div key={topic.id || i} className="stelar-card stelar-card-hover p-10 group relative flex flex-col justify-between overflow-hidden">
+                                    {topic.isNew && (
+                                        <div className="absolute top-0 left-0">
+                                            <div className="bg-[#2B3440] text-white text-[8px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-br-2xl shadow-xl z-20 relative">
+                                                Novo Protocolo
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="absolute -right-6 -top-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
                                     
                                     <div>
@@ -337,7 +346,9 @@ export default function IdeasLibrary() {
                                             </div>
                                             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 group-hover:bg-[#2B3440] group-hover:text-white transition-all duration-300">
                                                 <Zap className="h-3 w-3 fill-amber-500" />
-                                                <span className="text-[10px] font-black tracking-tighter">{topic.relevance}%</span>
+                                                <span className="text-[10px] font-black tracking-tighter">
+                                                    {Math.round((topic.relevanceScore || topic.alignmentScore || 0) * 100)}%
+                                                </span>
                                             </div>
                                         </div>
 
