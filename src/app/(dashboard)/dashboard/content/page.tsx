@@ -76,8 +76,8 @@ export default function ContentPipeline() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0 pb-10 border-b border-black/5">
                 <div>
                     <div className="flex items-center space-x-3 mb-3 animate-fade-in">
-                        <Activity className="h-5 w-5 text-primary-500" />
-                        <span className="text-sm font-black text-primary-600/80 uppercase tracking-widest shadow-sm">AI Copilot</span>
+                        <Activity className="h-5 w-5 text-[#2B3440]" />
+                        <span className="text-[10px] font-black text-[#2B3440]/80 uppercase tracking-[0.2em]">Sistema Estratégico</span>
                     </div>
                     <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-gradient animate-slide-up">
                         Esteira de Produção
@@ -91,14 +91,14 @@ export default function ContentPipeline() {
                         onClick={() => alert("Em breve! Por enquanto deixe a Inteligência Artificial trabalhar por você aprovando ideias!")}
                         className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
                         <PenTool className="mr-3 h-5 w-5" />
-                        Escrever Post do Zero
+                        Arquitetar Conteúdo
                     </button>
                 </div>
             </div>
 
             {/* Tabs & Search */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-4">
-                <div className="flex items-center space-x-2 glass-panel p-2 rounded-[24px] w-full lg:w-auto overflow-x-auto no-scrollbar">
+                <div className="flex items-center space-x-2 bg-white border border-gray-200 p-2 rounded-[24px] w-full lg:w-auto overflow-x-auto no-scrollbar shadow-sm">
                     {tabs.map((tab) => (
                         <button
                             key={tab}
@@ -115,7 +115,7 @@ export default function ContentPipeline() {
                 <div className="relative w-full lg:w-96 group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                     <input
-                        className="w-full h-16 pl-14 pr-6 glass-panel rounded-[24px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all font-bold text-gray-700 placeholder:text-gray-400/70"
+                        className="w-full h-16 pl-14 pr-6 bg-white border border-gray-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-[#2B3440]/5 transition-all font-bold text-gray-700 placeholder:text-gray-400/70 shadow-sm"
                         placeholder="Buscar rascunhos, tópicos..."
                     />
                 </div>
@@ -133,7 +133,7 @@ export default function ContentPipeline() {
                     </div>
                 ) : (
                     pieces.map((piece) => (
-                        <div key={piece.id} className="group relative glass-panel p-8 rounded-[40px] hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-500 border-white/60 flex flex-col md:flex-row gap-8">
+                        <div key={piece.id} className="group relative bg-white border border-gray-200 p-8 rounded-[40px] hover:shadow-xl hover:border-gray-300 transition-all duration-500 flex flex-col md:flex-row gap-8 shadow-sm">
 
                             <div className="flex-1 flex flex-col">
                                 <div className="flex items-center space-x-3 mb-6">
@@ -170,8 +170,8 @@ export default function ContentPipeline() {
                                         )}
 
                                         {isGenerating[piece.id]
-                                            ? 'Gerando...'
-                                            : piece.status === 'idea' ? 'Gerar IA' : 'Editar'}
+                                            ? 'Estruturando...'
+                                            : piece.status === 'idea' ? 'Estruturar Narrativa' : 'Editar'}
                                     </button>
                                 </div>
                             </div>

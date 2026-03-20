@@ -139,36 +139,37 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
     const sidebarContent = (
         <div className={cn(
             "flex flex-col flex-1 overflow-hidden",
-            !isMobile ? "glass-panel rounded-3xl h-[calc(100vh-48px)] sticky top-6 border-white/20 shadow-none" : "h-full"
+            !isMobile ? "bg-white border border-gray-200 rounded-3xl h-[calc(100vh-48px)] sticky top-6 shadow-sm" : "h-full"
         )}>
-            <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-black/5">
-                <span className="text-3xl font-black text-gray-900 tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
+            <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-gray-100 bg-gray-50/50">
+                <span className="text-3xl font-black text-[#2B3440] tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
                     STELAR
                 </span>
-                <span className="text-[10px] font-medium text-gray-400 font-serif italic tracking-widest uppercase">
-                    The Social Architect System
+                <span className="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase">
+                    System Architecture
                 </span>
-                <span className="text-[10px] font-black text-gray-800/80 mt-3 uppercase tracking-[0.25em] border-t border-black/5 pt-3 w-fit">
-                    by Tobias Estivalete
-                </span>
+                
+                <p className="mt-4 text-[9px] font-black text-[#2B3440]/60 uppercase tracking-widest leading-relaxed italic">
+                    "Consistência sem estrutura não gera autoridade."
+                </p>
 
                 {/* Brand Switcher UI - Hidden for Clients */}
                 {isAdmin && (
                     <div className="mt-8 space-y-4">
-                        <div className="bg-primary-50 rounded-2xl p-4 border border-primary-100 flex items-center gap-3 overflow-hidden shadow-sm">
-                            <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                        <div className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-3 overflow-hidden shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-[#2B3440] flex items-center justify-center text-white shrink-0 shadow-sm">
                                 <Users className="h-4 w-4" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-[9px] font-black text-primary-600 uppercase tracking-widest leading-none mb-1">Visualizando:</p>
-                                <p className="text-xs font-black text-gray-900 truncate tracking-tight">
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Ecossistema Ativo:</p>
+                                <p className="text-xs font-black text-[#2B3440] truncate tracking-tight">
                                     {brands.find(b => b.id === activeBrandId)?.name || 'Nenhum Cliente'}
                                 </p>
                             </div>
                         </div>
                         
                         <div className="space-y-1.5 px-1">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] block">Trocar de Assessoria</label>
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] block">Trocar de Ecossistema</label>
                             <div className="relative group">
                                 <select
                                     value={activeBrandId}
@@ -177,7 +178,7 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                                         localStorage.setItem('active_brand_id', e.target.value);
                                         window.location.reload(); 
                                     }}
-                                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2.5 text-[10px] font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer shadow-sm hover:border-gray-200 truncate pr-8"
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[10px] font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-[#2B3440]/5 transition-all appearance-none cursor-pointer shadow-sm hover:border-gray-300 truncate pr-8"
                                 >
                                     <option value="" disabled>Selecione um cliente...</option>
                                     {brands.map(brand => (
@@ -194,8 +195,9 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                     </div>
                 )}
             </div>
+            
             <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
-                <nav className="flex-1 px-4 py-8 space-y-2">
+                <nav className="flex-1 px-4 py-8 space-y-1.5">
                     {filteredNavigation.map((item) => {
                         const active = pathname === item.href;
                         return (
@@ -205,15 +207,15 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                                 onClick={onClose}
                                 className={cn(
                                     active
-                                        ? "bg-white/60 text-primary-700 shadow-sm border border-white/50"
-                                        : "text-gray-500 hover:bg-white/40 hover:text-gray-900 border border-transparent",
-                                    "group flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
+                                        ? "bg-[#2B3440] text-white shadow-md shadow-[#2B3440]/10"
+                                        : "text-gray-500 hover:bg-gray-50 hover:text-[#2B3440] border border-transparent",
+                                    "group flex items-center px-5 py-3.5 text-xs font-black uppercase tracking-widest rounded-2xl transition-all duration-300"
                                 )}
                             >
                                 <item.icon
                                     className={cn(
-                                        active ? "text-primary-700" : "text-gray-400 group-hover:text-gray-500",
-                                        "mr-3 flex-shrink-0 h-5 w-5"
+                                        active ? "text-white" : "text-gray-400 group-hover:text-[#2B3440]",
+                                        "mr-4 flex-shrink-0 h-4 w-4"
                                     )}
                                     aria-hidden="true"
                                 />
@@ -223,36 +225,43 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                     })}
                 </nav>
             </div>
-            <div className="flex-shrink-0 flex border-t border-white/40 p-5 bg-white/20">
-                <div className="flex-shrink-0 w-full group block">
-                    <label className="flex items-center group cursor-pointer hover:bg-white/40 p-2 rounded-2xl transition-all">
+
+            <div className="flex-shrink-0 flex flex-col border-t border-gray-100 p-5 bg-gray-50/30">
+                <div className="flex items-center w-full group mb-6">
+                    <label className="flex items-center group cursor-pointer p-1 rounded-2xl transition-all">
                         <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
                         <div className="relative">
                             <img
-                                className="inline-block h-14 w-14 rounded-full border-2 border-white shadow-sm object-cover"
+                                className="inline-block h-12 w-12 rounded-full border border-gray-200 shadow-sm object-cover"
                                 src={profileImg}
-                                alt="Tobias Estivalete"
+                                alt="Perfil"
                             />
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Plus className="h-6 w-6 text-white" />
+                                <Plus className="h-4 w-4 text-white" />
                             </div>
                         </div>
                         <div className="ml-3">
-                            <p className="text-sm font-black text-gray-900">
+                            <p className="text-sm font-black text-[#2B3440]">
                                 {session?.user?.name || "Usuário STELAR"}
                             </p>
-                            <p className="text-xs font-bold text-primary-600/70 tracking-wide uppercase">
+                            <p className="text-[10px] font-black text-gray-400 tracking-widest uppercase">
                                 {isAdmin ? "Arquiteto Chefe" : "Assessorado"}
                             </p>
                         </div>
                     </label>
                     <button
                         onClick={() => signOut({ callbackUrl: '/login' })}
-                        className="ml-auto p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="ml-auto p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                         title="Sair do Sistema"
                     >
-                        <LogOut className="h-5 w-5" />
+                        <LogOut className="h-4 w-4" />
                     </button>
+                </div>
+
+                <div className="border-t border-gray-100 pt-5 pb-2 text-center">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">
+                        Desenvolvido por <Link href="https://www.tobiasestivalete.com.br" target="_blank" className="text-[#2B3440] hover:underline">Tobias Estivalete</Link>
+                    </p>
                 </div>
             </div>
         </div>
@@ -261,8 +270,9 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
     if (isMobile) return sidebarContent;
 
     return (
-        <div className="hidden lg:flex lg:w-72 lg:flex-col lg:relative p-6">
+        <div className="hidden lg:flex lg:w-80 lg:flex-col lg:relative p-6">
             {sidebarContent}
         </div>
     );
+}
 }

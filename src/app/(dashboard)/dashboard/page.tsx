@@ -61,105 +61,144 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                <div>
-                    <h1 className="text-5xl font-black text-gray-900 tracking-tighter font-[family-name:var(--font-space)] uppercase mb-2">STELAR Architecture</h1>
-                    <p className="text-lg text-gray-400 max-w-2xl font-medium tracking-tight">
-                        Bem-vindo, {session?.user?.name || 'Arquiteto'}. Seu motor editorial identificou <span className="text-gray-900 font-bold">{statsData.topicsCount} novos insights</span> para sua audiência hoje.
+        <div className="max-w-6xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* Structural Header */}
+            <div className="space-y-10 text-center md:text-left border-b border-gray-200 pb-16">
+                <div className="inline-flex items-center space-x-3 px-4 py-2 bg-[#2B3440]/5 rounded-full border border-[#2B3440]/10 mb-6">
+                    <div className="h-2 w-2 bg-[#2B3440] rounded-full animate-pulse" />
+                    <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.2em]">O Sistema está Ativo</span>
+                </div>
+                
+                <div className="max-w-4xl">
+                    <h1 className="text-5xl lg:text-7xl font-black text-[#2B3440] tracking-tighter leading-[0.95] uppercase mb-8">
+                        Estruture sua <span className="text-gray-400">inteligência.</span>
+                    </h1>
+                    <p className="text-xl lg:text-3xl text-gray-500 font-medium tracking-tight leading-snug">
+                        O STELAR organiza sua presença digital com base no seu <span className="text-[#2B3440] font-bold">próprio repertório</span> e não em conteúdo genérico.
                     </p>
                 </div>
-                <div className="flex items-center space-x-4">
+
+                <div className="flex flex-col sm:flex-row items-center gap-6 pt-6">
                     <button
-                        onClick={() => router.push('/dashboard/ideas')}
-                        className="inline-flex items-center px-8 py-4 border-none text-xs font-black uppercase tracking-widest rounded-2xl shadow-2xl text-white bg-gray-900 hover:bg-black transition-all duration-300 transform hover:-translate-y-1">
-                        <Plus className="-ml-1 mr-3 h-4 w-4" />
-                        Ver Novas Pautas
+                        onClick={() => router.push('/dashboard/brand')}
+                        className="w-full sm:w-auto h-20 px-12 bg-[#2B3440] text-white text-xs font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-[#3a4655] transition-all shadow-xl shadow-[#2B3440]/20 flex items-center justify-center group transform active:scale-95"
+                    >
+                        Começar pelo DNA da Marca
+                        <Plus className="ml-4 h-5 w-5 group-hover:rotate-90 transition-transform duration-500" />
                     </button>
+                    <Link href="/dashboard/knowledge" className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-[#2B3440] transition-colors border-b-2 border-transparent hover:border-[#2B3440] pb-1">
+                        Carregar Repertório
+                    </Link>
                 </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {/* System Status Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                 {stats.map((item) => (
-                    <div key={item.name} className="relative group bg-white p-8 rounded-3xl shadow-sm border border-gray-100/50 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                            <item.icon className="h-12 w-12 text-primary-600" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
-                                <item.icon className="h-6 w-6" aria-hidden="true" />
+                    <div key={item.name} className="stelar-card p-8 rounded-3xl relative overflow-hidden group">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-[#2B3440]">
+                                <item.icon className="h-5 w-5" />
                             </div>
-                            <span className="flex items-center text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-green-600/10">
-                                <ArrowUpRight className="h-4 w-4 mr-1" />
-                                {item.change}
+                            <span className="text-[10px] font-black text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">
+                                +{item.change}
                             </span>
                         </div>
-                        <div className="mt-6">
-                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{item.name}</p>
-                            <h3 className="text-4xl font-black text-gray-900 mt-2">{item.value}</h3>
-                        </div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-1">{item.name}</p>
+                        <h3 className="text-3xl font-black text-[#2B3440] tracking-tighter">{item.value}</h3>
                     </div>
                 ))}
             </div>
 
-            {/* Grid for main sections */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Pipeline */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                            <h3 className="text-xl font-bold text-gray-900 flex items-center"><Activity className="mr-3 h-5 w-5 text-primary-500" />Esteira de Produção Ativa</h3>
-                            <Link href="/dashboard/content" className="text-primary-600 text-sm font-bold hover:text-primary-700 transition-colors">Ver Todas</Link>
-                        </div>
-                        <div className="divide-y divide-gray-50">
-                            {isLoading ? (
-                                <div className="p-8 text-center text-gray-400 font-bold animate-pulse">Carregando Esteira...</div>
-                            ) : recentPieces.length === 0 ? (
-                                <div className="p-8 text-center text-gray-400 font-bold">Nenhum post na esteira de produção.</div>
-                            ) : (
-                                recentPieces.map((piece) => (
-                                    <div key={piece.id} className="px-8 py-6 flex flex-col md:flex-row md:items-center group hover:bg-gray-50/50 transition-colors gap-4 md:gap-0">
-                                        <div className="flex-shrink-0 h-12 w-12 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-all hidden md:flex">
+            {/* Core Operation Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="lg:col-span-8 space-y-8">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-6">
+                        <h2 className="text-2xl font-black text-[#2B3440] tracking-tighter uppercase flex items-center gap-3">
+                            <Activity className="h-6 w-6" />
+                            Arquitetura de Conteúdo
+                        </h2>
+                        <Link href="/dashboard/content" className="text-[10px] font-black text-gray-400 hover:text-[#2B3440] uppercase tracking-widest transition-colors">
+                            Ver Esteira Completa
+                        </Link>
+                    </div>
+
+                    <div className="space-y-4">
+                        {isLoading ? (
+                            <div className="p-20 text-center text-gray-400 uppercase font-black text-xs tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 animate-pulse">
+                                Sincronizando Arquitetura...
+                            </div>
+                        ) : recentPieces.length === 0 ? (
+                            <div className="p-20 text-center text-gray-400 uppercase font-black text-xs tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 font-serif italic text-base">
+                                Nenhuma narrativa estruturada na esteira no momento.
+                            </div>
+                        ) : (
+                            recentPieces.map((piece) => (
+                                <button 
+                                    key={piece.id}
+                                    onClick={() => piece.status === 'idea' ? router.push('/dashboard/content') : router.push(`/dashboard/content/${piece.id}`)}
+                                    className="w-full text-left p-6 stelar-card stelar-card-hover rounded-[2.5rem] flex items-center justify-between group transition-all"
+                                >
+                                    <div className="flex items-center gap-6">
+                                        <div className="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all shadow-sm">
                                             <PenTool className="h-6 w-6" />
                                         </div>
-                                        <div className="md:ml-6 flex-1">
-                                            <h4 className="text-base font-bold text-gray-900 line-clamp-1">{piece.title}</h4>
-                                            <div className="mt-1 flex items-center space-x-4">
-                                                <span className="text-xs font-black tracking-widest uppercase text-gray-400">{piece.platform} {piece.format}</span>
-                                                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wide">{statusLabels[piece.status] || piece.status}</span>
+                                        <div>
+                                            <h4 className="text-lg font-black text-[#2B3440] tracking-tight mb-1">{piece.title}</h4>
+                                            <div className="flex items-center gap-4">
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{piece.platform} {piece.format}</span>
+                                                <div className="h-1 w-1 bg-gray-300 rounded-full" />
+                                                <span className="text-[10px] font-bold text-[#2B3440] px-2 py-0.5 bg-gray-100 rounded-md uppercase tracking-wider">{statusLabels[piece.status] || piece.status}</span>
                                             </div>
                                         </div>
-                                        <div className="md:ml-4 flex items-center space-x-3 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity mt-4 md:mt-0">
-                                            <button
-                                                onClick={() => piece.status === 'idea' ? router.push('/dashboard/content') : router.push(`/dashboard/content/${piece.id}`)}
-                                                className="w-full md:w-auto px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex justify-center items-center">
-                                                {piece.status === 'idea' ? 'Gerar pela Esteira' : 'Editar Cópia'}
-                                            </button>
-                                        </div>
                                     </div>
-                                ))
-                            )}
-                        </div>
+                                    <ArrowUpRight className="h-6 w-6 text-gray-300 group-hover:text-[#2B3440] transition-colors" />
+                                </button>
+                            ))
+                        )}
                     </div>
                 </div>
 
-                {/* Sidebar widgets */}
-                <div className="space-y-8">
-                    <div className="bg-[#1C1C1C] rounded-[40px] shadow-2xl p-10 text-white relative overflow-hidden group border border-white/5">
-                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-125 transition-transform duration-700">
+                {/* Side Intelligence Widget */}
+                <div className="lg:col-span-4">
+                    <div className="bg-[#2B3440] rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+                        <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-110 transition-transform duration-700">
                             <Sparkles className="h-40 w-40" />
                         </div>
-                        <h3 className="text-3xl font-black relative font-[family-name:var(--font-space)] uppercase tracking-tighter">Insights do Vault</h3>
-                        <p className="mt-6 text-gray-400 font-medium leading-relaxed relative text-lg">
-                            Nosso motor semântico cruzou feed de notícias e encontrou <strong>{statsData.topicsCount} ganchos magnéticos</strong> para as suas redes sociais.
+                        <h3 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-[0.9]">Insights de Decisão</h3>
+                        <p className="text-gray-300 font-medium leading-relaxed mb-10 text-lg italic">
+                            O motor do sistema cruzou sua base de conhecimento com as tendências e identificou <span className="text-white font-bold">{statsData.topicsCount} novas oportunidades</span> estratégicas.
                         </p>
                         <button
                             onClick={() => router.push('/dashboard/ideas')}
-                            className="mt-10 w-full flex items-center justify-center py-5 px-8 bg-white text-gray-900 font-black uppercase tracking-widest text-xs rounded-2xl shadow-lg hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-100 relative">
-                            Explorar Ideias
+                            className="w-full h-18 bg-white text-[#2B3440] font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-gray-100 transition-all shadow-xl active:scale-95"
+                        >
+                            Estruturar Narrativas
                         </button>
+                    </div>
+                    
+                    <div className="mt-8 p-10 bg-gray-900 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-white/5">
+                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-125 transition-transform duration-700">
+                            <Sparkles className="h-40 w-40" />
+                        </div>
+                        <h3 className="text-2xl font-black relative text-white uppercase tracking-tighter">Ativação do Sistema</h3>
+                        <div className="mt-8 space-y-6 relative">
+                            {[
+                                { step: "1", title: "Configure seu DNA", desc: "A base de toda a arquitetura." },
+                                { step: "2", title: "Estruture sua base", desc: "Alimente com seu repertório." },
+                                { step: "3", title: "Ative o sistema", desc: "Gere narrativas de autoridade." }
+                            ].map((s) => (
+                                <div key={s.step} className="flex items-start gap-4">
+                                    <div className="h-6 w-6 rounded-full bg-white text-gray-900 flex items-center justify-center text-[10px] font-black shrink-0">
+                                        {s.step}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-white uppercase tracking-widest">{s.title}</p>
+                                        <p className="text-[10px] text-gray-400 font-medium">{s.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
