@@ -65,154 +65,147 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="max-w-6xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* Structural Header */}
-            <div className="space-y-10 text-center md:text-left border-b border-gray-200 pb-16">
-                <div className="inline-flex items-center space-x-3 px-4 py-2 bg-[#2B3440]/5 rounded-full border border-[#2B3440]/10 mb-6">
-                    <div className="h-2 w-2 bg-[#2B3440] rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.2em]">O Sistema está Ativo</span>
-                </div>
-                
-                <div>
-                    <h1 className="text-6xl lg:text-7xl font-black tracking-tighter text-gray-900 leading-[0.9] animate-slide-up mb-6">
-                        ESTRUTURE SUA <br/><span className="text-gray-300 italic">INTELIGÊNCIA.</span>
+        <div className="max-w-7xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
+            {/* Header - Dominant Level */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 border-b border-gray-100 pb-16">
+                <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-3">
+                        <div className="pulse-indicator" />
+                        <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">STELAR Engine Active</span>
+                    </div>
+                    <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
+                        Sua Marca <br />
+                        <span className="text-gradient">Codificada.</span>
                     </h1>
-                    <p className="text-xl text-gray-500 max-w-2xl font-medium leading-relaxed">
-                        O STELAR organiza sua presença digital com base no seu <span className="text-gray-900 font-bold underline decoration-2 decoration-gray-900/10">próprio repertório</span> e não em conteúdo genérico.
+                    <p className="text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
+                        Arquitetura de autoridade construída com inteligência proprietária. O sistema opera 100% sobre o seu repertório estratégico.
                     </p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="shrink-0">
                     <button 
                         onClick={() => router.push('/dashboard/brand')}
-                        className="h-20 px-12 bg-[#2B3440] text-white text-xs font-black rounded-[2.5rem] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 active:scale-95 duration-300 uppercase tracking-[0.2em]"
+                        className="button-primary h-22 px-14 rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden"
                     >
-                        <Zap className="mr-3 h-5 w-5 fill-white" />
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Zap className="mr-5 h-6 w-6 fill-white" />
                         Começar pelo DNA da Marca
+                        <ArrowUpRight className="ml-5 h-6 w-6 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     </button>
-                    <Link href="/dashboard/knowledge" className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-[#2B3440] transition-colors border-b-2 border-transparent hover:border-[#2B3440] pb-1">
-                        Carregar Repertório
-                    </Link>
                 </div>
             </div>
 
-            {/* System Status Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                {stats.map((item) => {
-                    const Icon = item.icon;
-                    const label = item.name;
-                    const value = item.value;
-                    return (
-                        <div key={label} className="stelar-card p-10 rounded-[3rem] group hover:border-[#2B3440] transition-all">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-gray-100 transition-colors">
-                                    <Icon className="h-6 w-6 text-[#2B3440]" />
+            {/* System Status Stats - Support Level */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {stats.map((item, i) => (
+                    <div key={i} className="stelar-card stelar-card-hover p-10 group overflow-hidden relative">
+                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 -z-0" />
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-10">
+                                <div className="h-16 w-16 rounded-[2rem] bg-gray-50 flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all duration-500 shadow-sm">
+                                    <item.icon className="h-7 w-7" />
                                 </div>
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none bg-gray-50 px-3 py-1.5 rounded-full">Histórico</span>
+                                <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.change}</span>
+                                </div>
                             </div>
-                            <p className="text-5xl font-black text-gray-900 tracking-tighter mb-2">{value}</p>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{label}</p>
+                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{item.name}</p>
+                            <h3 className="text-5xl font-black text-gray-900 tracking-tighter">{item.value}</h3>
                         </div>
-                    );
-                })}
+                    </div>
+                ))}
             </div>
 
-            {/* Core Operation Row */}
+            {/* Core Operation Row - Action Oriented */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <div className="lg:col-span-8 space-y-8">
-                    <div className="bg-white border-2 border-gray-200 p-12 rounded-[4rem] shadow-sm relative overflow-hidden">
-                        <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-10 flex items-center gap-3">
-                            <Activity className="h-6 w-6" />
-                            Esteira de Produção Ativa
-                        </h3>
-                        <Link href="/dashboard/content" className="text-[10px] font-black text-gray-400 hover:text-[#2B3440] uppercase tracking-widest transition-colors">
-                            Ver Esteira Completa
+                <div className="lg:col-span-7 space-y-10">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Esteira de Produção Ativa</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acompanhamento de fluxo industrial</p>
+                        </div>
+                        <Link href="/dashboard/content" className="button-primary h-12 px-6 rounded-2xl text-[9px] flex items-center">
+                            Ver Máquina Completa
                         </Link>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {isLoading ? (
-                            <div className="p-20 text-center text-gray-400 uppercase font-black text-xs tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 animate-pulse">
-                                Sincronizando Arquitetura...
+                            <div className="p-24 text-center text-gray-400 uppercase font-black text-[10px] tracking-[0.3em] bg-white border-2 border-dashed border-gray-100 rounded-[3rem] animate-pulse">
+                                Sincronizando Arquitetura Estelar...
                             </div>
                         ) : recentPieces.length === 0 ? (
-                            <div className="p-20 text-center text-gray-400 uppercase font-black text-xs tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 font-serif italic text-base">
-                                Nenhuma narrativa estruturada na esteira no momento.
+                            <div className="p-24 text-center text-gray-400 uppercase font-black text-[10px] tracking-[0.3em] bg-white border-2 border-gray-200 rounded-[3rem]">
+                                Nenhuma narrativa estruturada. <br/><span className="mt-4 inline-block text-[9px] opacity-60">Comece aprovando ideias na biblioteca.</span>
                             </div>
                         ) : (
                             recentPieces.map((piece) => (
                                 <button 
                                     key={piece.id}
                                     onClick={() => piece.status === 'idea' ? router.push('/dashboard/content') : router.push(`/dashboard/content/${piece.id}`)}
-                                    className="w-full text-left p-6 stelar-card stelar-card-hover rounded-[2.5rem] flex items-center justify-between group transition-all"
+                                    className="w-full text-left p-8 stelar-card stelar-card-hover rounded-[3rem] flex items-center justify-between group"
                                 >
-                                    <div className="flex items-center gap-6">
-                                        <div className="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all shadow-sm">
-                                            <PenTool className="h-6 w-6" />
+                                    <div className="flex items-center gap-8">
+                                        <div className="h-16 w-16 bg-gray-50 rounded-[1.5rem] flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all shadow-sm">
+                                            <PenTool className="h-7 w-7" />
                                         </div>
                                         <div>
-                                            <h4 className="text-lg font-black text-[#2B3440] tracking-tight mb-1">{piece.title}</h4>
-                                            <div className="flex items-center gap-4">
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{piece.platform} {piece.format}</span>
-                                                <div className="h-1 w-1 bg-gray-300 rounded-full" />
-                                                <span className="text-[10px] font-bold text-[#2B3440] px-2 py-0.5 bg-gray-100 rounded-md uppercase tracking-wider">{statusLabels[piece.status] || piece.status}</span>
+                                            <h4 className="text-xl font-black text-gray-900 tracking-tight mb-2 group-hover:text-[#2B3440] transition-colors">{piece.title}</h4>
+                                            <div className="flex items-center gap-5">
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{piece.platform} · {piece.format}</span>
+                                                <div className="h-2 w-2 rounded-full bg-blue-500/20 group-hover:bg-blue-500 transition-colors" />
+                                                <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-widest">{statusLabels[piece.status] || piece.status}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <ArrowUpRight className="h-6 w-6 text-gray-300 group-hover:text-[#2B3440] transition-colors" />
+                                    <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#2B3440] group-hover:text-white transition-all transform group-hover:rotate-45">
+                                        <ArrowUpRight className="h-5 w-5" />
+                                    </div>
                                 </button>
                             ))
                         )}
                     </div>
                 </div>
 
-                {/* Side Intelligence Widget */}
-                <div className="lg:col-span-4">
-                    {/* Insights Card - Support */}
-                    <div className="bg-gray-50 border border-gray-200 p-10 rounded-[3rem] group transition-all hover:bg-white hover:border-[#2B3440] shadow-sm">
-                        <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center mb-8 border border-gray-100 shadow-sm group-hover:scale-110 transition-transform">
-                            <Sparkles className="h-7 w-7 text-[#2B3440]" />
+                <div className="lg:col-span-5 space-y-8">
+                    {/* Activation Card - PREMIUM DESIGN */}
+                    <div className="p-14 bg-gray-900 rounded-[4rem] shadow-3xl relative overflow-hidden group border border-white/5">
+                        <div className="absolute top-0 right-0 p-12 opacity-10 transform translate-x-8 translate-y-8 group-hover:rotate-12 transition-transform duration-1000">
+                            <Sparkles className="h-56 w-56 text-white" />
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter mb-4">Insights de Decisão</h3>
-                        <p className="text-sm text-gray-500 font-medium leading-relaxed mb-10">
-                            Pautas detectadas com base no seu repertório estratégico atual.
-                        </p>
-                        <button 
-                            onClick={() => router.push('/dashboard/ideas')}
-                            className="w-full h-14 bg-white border-2 border-gray-200 text-[#2B3440] text-[10px] font-black rounded-2xl hover:border-[#2B3440] transition-all uppercase tracking-widest"
-                        >
-                            Estruturar Narrativas
-                        </button>
-                    </div>
-                    
-                    {/* Activation Card - PREMIUM */}
-                    <div className="mt-8 p-12 bg-[#2B3440] rounded-[3.5rem] shadow-2xl relative overflow-hidden group border border-white/5">
-                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:rotate-12 transition-transform duration-1000">
-                            <Sparkles className="h-48 w-48 text-white" />
-                        </div>
-                        <div className="relative">
-                            <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none mb-2">ATIVAÇÃO DO <br/> SISTEMA</h3>
-                            <div className="h-1 w-12 bg-white/20 rounded-full mb-10" />
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                                <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em]">Ambiente Propriatário de IA</span>
+                            </div>
+                            <h3 className="text-4xl lg:text-5xl font-black text-white uppercase tracking-tighter leading-[0.9] mb-4">ATIVAÇÃO DO <br/> SISTEMA</h3>
+                            <p className="text-gray-400 font-medium text-lg max-w-xs leading-relaxed mb-12">Escalabilidade industrial com fidelidade máxima ao repertório da marca.</p>
                             
-                            <div className="space-y-8">
+                            <div className="space-y-10">
                                 {[
-                                    { step: "01", title: "Configure seu DNA", desc: "A base de toda a arquitetura." },
-                                    { step: "02", title: "Estruture sua base", desc: "Alimente com seu repertório." },
-                                    { step: "03", title: "Ativar Narrativas", desc: "Gere autoridade de verdade." }
+                                    { step: "01", title: "Mapeamento Estático", desc: "Decodificamos sua essência técnica." },
+                                    { step: "02", title: "Expansão de Cérebro", desc: "Alimentação de repertório estratégica." },
+                                    { step: "03", title: "Produção Ativa", desc: "Execução com dominância de mercado." }
                                 ].map((s) => (
-                                    <div key={s.step} className="flex items-start gap-5">
-                                        <div className="h-8 w-8 rounded-xl bg-white/10 text-white flex items-center justify-center text-[11px] font-black border border-white/10">
+                                    <div key={s.step} className="flex items-start gap-6">
+                                        <div className="h-10 w-10 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center text-[12px] font-black border border-white/10 shrink-0">
                                             {s.step}
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-white uppercase tracking-widest mb-1">{s.title}</p>
-                                            <p className="text-[10px] text-gray-300 font-medium leading-tight">{s.desc}</p>
+                                            <p className="text-sm font-black text-white uppercase tracking-widest mb-1">{s.title}</p>
+                                            <p className="text-xs text-gray-500 font-medium leading-tight">{s.desc}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
+
+                            <button className="w-full mt-14 h-18 bg-white text-gray-900 text-xs font-black rounded-3xl hover:bg-blue-50 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] shadow-2xl">
+                                <Zap className="h-5 w-5 fill-gray-900" />
+                                Energizar Ecossistema
+                            </button>
                         </div>
                     </div>
-               </div>
+                </div>
             </div>
         </div>
     );

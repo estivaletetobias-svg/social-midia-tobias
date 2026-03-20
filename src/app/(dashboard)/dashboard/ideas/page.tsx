@@ -216,86 +216,65 @@ export default function IdeasLibrary() {
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* 3-PATH INTELLIGENCE HUB HEADER */}
-            {/* 3-PATH INTELLIGENCE HUB HEADER */}
-            <div className="bg-white border border-gray-200 rounded-[3rem] p-10 lg:p-16 shadow-sm relative overflow-hidden">
-                <div className="relative z-10 space-y-16">
-                    {/* TOP LINE: TITLE & RADAR */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-gray-100 pb-12">
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="h-1.5 w-10 bg-[#2B3440] rounded-full" />
-                                <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Arquitetura Narrativa</span>
-                            </div>
-                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase text-[#2B3440]">
-                                Biblioteca de <span className="text-gray-300">Pautas</span>
-                            </h1>
-                        </div>
-
-                        {/* PATH: AUTOMATIC RADAR (GLOBAL) */}
-                        <button 
-                            onClick={handleDailyNews}
-                            disabled={isSyncing}
-                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-gray-50 border border-gray-200 rounded-[35px] transition-all hover:bg-white hover:border-[#2B3440] hover:shadow-xl hover:shadow-[#2B3440]/5 disabled:opacity-50"
-                        >
-                            <div className="p-4 bg-[#2B3440] rounded-2xl shadow-lg">
-                                <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440] mb-1">Radar Estratégico</h3>
-                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> vinculada ao seu DNA</p>
-                            </div>
-                        </button>
+            {/* Header - Authority & Context */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-8 md:space-y-0 pb-16 border-b border-gray-100">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="pulse-indicator" />
+                        <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Arquitetura Narrativa Ativa</span>
                     </div>
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-gray-900 leading-[0.9] uppercase">
+                        Biblioteca <br />
+                        <span className="text-gradient">Estratégica</span>
+                    </h1>
+                    <p className="mt-4 text-xl text-gray-400 font-medium max-w-2xl leading-relaxed">
+                        Detectamos as melhores oportunidades de narrativa cruzando o seu DNA com as tendências do mercado.
+                    </p>
+                </div>
+                <div className="shrink-0">
+                    <button
+                        onClick={handleDailyNews}
+                        disabled={isSyncing}
+                        className="button-primary h-22 px-12 rounded-[2.5rem] flex items-center justify-center gap-4 group relative overflow-hidden disabled:opacity-50"
+                    >
+                        {isSyncing ? (
+                            <RefreshCcw className="h-6 w-6 animate-spin" />
+                        ) : (
+                            <Sparkles className="h-6 w-6 fill-white" />
+                        )}
+                        <span className="text-[11px] font-black uppercase tracking-[0.2em]">{isSyncing ? "Sincronizando Cérebro..." : "Sincronizar Tendências"}</span>
+                    </button>
+                </div>
+            </div>
 
-                    {/* MIDDLE LINE: INPUT COMMAND */}
-                    <div className="relative space-y-6">
-                        <div className="flex items-center gap-3 ml-4 text-gray-400">
-                            <Sparkles className="h-4 w-4 text-[#2B3440]" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Qual o tema da próxima narrativa?</span>
-                        </div>
-                            <input 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Digite um tema, ideia ou URL estratégica aqui..."
-                                className="w-full h-24 pl-12 pr-12 bg-white border-2 border-gray-200 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-[#2B3440]/5 focus:border-[#2B3440] transition-all text-[#2B3440] text-3xl font-black placeholder:text-gray-300 shadow-xl"
-                            />
+            {/* Omni command center bar */}
+            <div className="bg-white border-2 border-gray-100 p-8 rounded-[3.5rem] shadow-2xl relative">
+                <div className="absolute top-0 right-10 -translate-y-1/2">
+                    <span className="premium-badge text-[9px]">Command Center</span>
+                </div>
+                <div className="flex flex-col lg:flex-row items-center gap-6">
+                    <div className="flex-1 relative w-full group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-300 group-focus-within:text-[#2B3440] group-focus-within:scale-110 transition-all" />
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleCommandSubmit()}
+                            className="w-full h-20 pl-18 pr-8 bg-gray-50/50 border-2 border-gray-100 rounded-[2rem] focus:outline-none focus:border-[#2B3440] focus:bg-white transition-all font-black text-lg text-[#2B3440] placeholder:text-gray-300 shadow-inner"
+                            placeholder="Comande uma nova ideia ou palavra-chave..."
+                        />
                     </div>
-
-                    {/* BOTTOM LINE: DEPENDENT ACTIONS */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-                        {/* PATH 1: MANUAL/AI CREATION */}
-                        <button 
-                            onClick={handleCommandSubmit}
-                            disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-white border border-gray-200 rounded-[40px] transition-all hover:border-[#2B3440] hover:shadow-2xl hover:shadow-[#2B3440]/10 disabled:opacity-50"
-                        >
-                            <div className="p-4 bg-gray-100 group-hover:bg-[#2B3440] text-gray-400 group-hover:text-white rounded-2xl transition-colors">
-                                <Zap className="h-6 w-6 fill-current" />
-                            </div>
-                            <div className="text-left">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440]">Lapidar Ideia</h3>
-                                    <Plus className="h-4 w-4 text-gray-300" />
-                                </div>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">Converte seu comando em <br/> pauta de alta autoridade</p>
-                            </div>
-                        </button>
-
-                        {/* PATH 2: WEB RESEARCH */}
-                        <button 
-                            onClick={handleSyncRSS}
-                            disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-white border border-gray-200 rounded-[40px] transition-all hover:border-[#2B3440] hover:shadow-2xl hover:shadow-[#2B3440]/10 disabled:opacity-50"
-                        >
-                            <div className="p-4 bg-gray-100 group-hover:bg-[#2B3440] text-gray-400 group-hover:text-white rounded-2xl transition-colors">
-                                <Globe className="h-6 w-6" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440] mb-1">Explorar Repertório Web</h3>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e estrutura novas abordagens</p>
-                            </div>
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleCommandSubmit}
+                        disabled={isGeneratingManual}
+                        className="h-20 px-10 bg-[#2B3440] text-white font-black rounded-[2rem] hover:bg-black transition-all flex items-center gap-3 disabled:opacity-50 shadow-xl hover:shadow-[#2B3440]/20 uppercase tracking-widest text-xs"
+                    >
+                        {isGeneratingManual ? (
+                            <RefreshCcw className="h-5 w-5 animate-spin" />
+                        ) : (
+                            <Zap className="h-5 w-5 fill-white" />
+                        )}
+                        <span>Materializar Ideia</span>
+                    </button>
                 </div>
             </div>
 
@@ -329,49 +308,46 @@ export default function IdeasLibrary() {
                         O cofre está vazio. Use os caminhos acima para começar.
                     </div>
                 ) : (
-                    filteredTopics.map((item, i) => {
-                        const isNew = item.isNew;
+                    filteredTopics.map((topic, i) => {
                         return (
-                            <div key={item.id || i} className="group relative bg-white border-2 border-gray-200 p-10 rounded-[48px] hover:shadow-2xl hover:border-[#2B3440] transition-all duration-700 flex flex-col h-full overflow-hidden shadow-sm">
-                                {isNew && (
-                                    <div className="absolute -right-12 top-8 rotate-45 bg-[#2B3440] text-white text-[9px] font-black px-12 py-1.5 shadow-xl z-20 uppercase tracking-[0.2em] flex items-center justify-center">
-                                        <Sparkles className="w-3 h-3 mr-1.5 fill-white" /> Novo
-                                    </div>
-                                )}
+                            <div key={topic.id || i} className="stelar-card stelar-card-hover p-10 group relative flex flex-col justify-between overflow-hidden">
+                                    <div className="absolute -right-6 -top-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
+                                    
+                                    <div>
+                                        <div className="flex items-center justify-between mb-8 relative z-10">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all">
+                                                    <Sparkles className="h-5 w-5" />
+                                                </div>
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{topic.platform} {topic.format}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 group-hover:bg-[#2B3440] group-hover:text-white transition-all duration-300">
+                                                <Zap className="h-3 w-3 fill-amber-500" />
+                                                <span className="text-[10px] font-black tracking-tighter">{topic.relevance}%</span>
+                                            </div>
+                                        </div>
 
-                                <div className="relative z-10 flex items-center justify-between mb-8">
-                                    <div className="flex items-center space-x-2 bg-gray-900 text-white px-5 py-2.5 rounded-2xl shadow-lg">
-                                        <Zap className="h-4 w-4 fill-white" />
-                                        <span className="text-[11px] font-black tracking-widest uppercase">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Sincronia</span>
+                                        <h3 className="text-2xl font-black text-gray-900 leading-tight mb-4 group-hover:text-[#2B3440] transition-colors relative z-10">{topic.title}</h3>
+                                        <p className="text-gray-500 font-medium leading-relaxed text-sm mb-10 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            {topic.summary}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 pt-10 border-t border-gray-100 relative z-10">
+                                        <button
+                                            onClick={() => initiateApprove(topic)}
+                                            className="flex-1 h-14 bg-[#2B3440] text-white text-[10px] font-black rounded-2xl hover:bg-black transition-all uppercase tracking-widest shadow-lg"
+                                        >
+                                            Arquitetar
+                                        </button>
+                                        <button
+                                            onClick={() => handleReject(topic.id)}
+                                            className="h-14 w-14 border-2 border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 rounded-2xl transition-all flex items-center justify-center bg-white"
+                                        >
+                                            <XCircle className="h-6 w-6" />
+                                        </button>
                                     </div>
                                 </div>
-
-                                <h3 className="relative z-10 text-3xl font-black text-gray-900 leading-[1] mb-6 tracking-tight uppercase">{item.title}</h3>
-                                <p className="relative z-10 mt-2 text-gray-500 font-medium leading-relaxed flex-grow text-lg font-serif italic">{item.summary}</p>
-
-                                <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-gray-100 space-x-3">
-                                    <button
-                                        onClick={() => initiateApprove(item)}
-                                        disabled={isApproveLoading[item.id]}
-                                        className="flex-1 h-16 bg-[#2B3440] text-white text-[10px] font-black rounded-[20px] hover:bg-[#3a4655] transition-all duration-500 flex items-center justify-center uppercase tracking-widest disabled:opacity-50"
-                                    >
-                                        {isApproveLoading[item.id] ? (
-                                            <RefreshCcw className="h-5 w-5 animate-spin" />
-                                        ) : (
-                                            <>
-                                                <CheckCircle2 className="mr-2.5 h-5 w-5" />
-                                                Aprovar Pauta
-                                            </>
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={() => handleReject(item.id)}
-                                        className="h-16 w-16 bg-white border border-gray-100 text-gray-300 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-[20px] transition-all duration-500 flex items-center justify-center"
-                                    >
-                                        <XCircle className="h-6 w-6" />
-                                    </button>
-                                </div>
-                            </div>
                         );
                     })
                 )}

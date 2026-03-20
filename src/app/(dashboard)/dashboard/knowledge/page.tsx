@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus, Youtube, BrainCircuit } from "lucide-react";
+import { Plus, Search, FileText, Zap, HelpCircle, Trash2, Link as LinkIcon, UploadCloud, CopyPlus, Youtube, BrainCircuit, CheckCircle2, X, Save, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function KnowledgeBase() {
@@ -243,300 +243,309 @@ export default function KnowledgeBase() {
             } else {
                 alert(`Erro: ${data.error}`);
             }
-        } catch (err) {
-            console.error(err);
-            alert("Erro de conexão ao conversar com a IA.");
         } finally {
             setIsChatLoading(false);
         }
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-32">
-            {/* Dark Banner */}
-            <div className="bg-gray-900 rounded-[40px] p-10 md:p-14 text-white relative overflow-hidden shadow-2xl flex flex-col justify-center min-h-[300px]">
-                <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none flex items-center justify-end pr-10">
-                    <FileText className="w-80 h-80 text-white" />
-                </div>
-
-                <div className="relative z-10 max-w-2xl space-y-6">
-                    <h1 className="text-5xl font-black tracking-tighter">
-                        Brand Intelligence Hub
+        <div className="max-w-7xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-32">
+            
+            {/* Header - Proprietary Intelligence level */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 border-b border-gray-100 pb-16">
+                <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-3">
+                        <div className="pulse-indicator" />
+                        <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Cérebro Semântico Ativo</span>
+                    </div>
+                    <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
+                        Lab de <br />
+                        <span className="text-gradient">Inteligência</span>
                     </h1>
-                    <p className="text-xl text-gray-300 font-medium tracking-wide leading-relaxed">
-                        O núcleo semântico da sua Inteligência Artificial. Alimente o seu cérebro com visões, transcrições e documentos reais. O robô vai cruzar isso tudo antes de escrever cada post.
+                    <p className="text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
+                        Gerencie o repertório estratégico da sua marca. O STELAR processa estes documentos para garantir que toda comunicação tenha profundidade e fundamento real.
                     </p>
-
-                    <div className="flex items-center space-x-4 pt-4">
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="h-14 px-8 bg-primary-500 text-white text-sm font-black rounded-[20px] shadow-lg hover:bg-primary-600 transition-all flex items-center transform hover:-translate-y-1 duration-300">
-                            <Plus className="mr-3 h-5 w-5" />
-                            Importar Fonte Manual
-                        </button>
-                        <button
-                            onClick={() => setIsChatOpen(true)}
-                            className="h-14 px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-black rounded-[20px] hover:bg-white/20 transition-all flex items-center transform hover:-translate-y-1 duration-300">
-                            <Zap className="mr-3 h-5 w-5" />
-                            Pesquisa AI / Chat
-                        </button>
-                    </div>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="button-primary h-22 px-14 rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden shadow-2xl shadow-[#2B3440]/20"
+                    >
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <UploadCloud className="mr-5 h-6 w-6 fill-white" />
+                        <span className="uppercase tracking-[0.2em] text-xs font-black">Importar Fonte</span>
+                    </button>
+                    <button
+                        onClick={() => setIsChatOpen(true)}
+                        className="h-22 px-10 border-2 border-gray-100 hover:border-[#2B3440] text-[#2B3440] font-black rounded-[2.5rem] text-[11px] uppercase tracking-[0.2em] flex items-center gap-4 transition-all hover:bg-gray-50 bg-white shadow-sm"
+                    >
+                        <Zap className="h-6 w-6" />
+                        Discussão IA
+                    </button>
                 </div>
             </div>
 
-            {/* List & Filters Section */}
-            <div className="space-y-6">
-                {/* Tabs & Search */}
-                <div className="flex flex-col xl:flex-row items-center justify-between gap-6 pb-4">
-                    <div className="flex items-center space-x-2 glass-panel p-2 rounded-[24px] w-full xl:w-auto overflow-x-auto no-scrollbar">
-                        <button className="px-6 py-3 text-xs font-black rounded-[16px] transition-all uppercase tracking-wider bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60">
-                            Todas as Fontes
+            {/* Omni Search & Control Hub */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-4">
+                <div className="flex items-center p-2 bg-gray-50 border-2 border-gray-100 rounded-[2.5rem] w-full lg:w-auto overflow-x-auto no-scrollbar shadow-inner">
+                    <button className="px-10 py-5 text-[10px] font-black rounded-[2rem] bg-[#2B3440] text-white shadow-2xl uppercase tracking-[0.2em] whitespace-nowrap">
+                        Repositório Completo
+                    </button>
+                    <button className="px-10 py-5 text-[10px] font-black rounded-[2rem] text-gray-400 hover:text-gray-900 uppercase tracking-[0.2em] whitespace-nowrap">
+                        Análises Recentes
+                    </button>
+                </div>
+                <div className="relative w-full lg:w-[450px] group">
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 group-focus-within:text-[#2B3440] transition-colors" />
+                    <input
+                        className="w-full h-20 pl-20 pr-10 bg-white border-2 border-gray-100 rounded-[2.5rem] focus:outline-none focus:border-[#2B3440] transition-all font-black text-xl text-gray-900 placeholder:text-gray-300 shadow-sm"
+                        placeholder="Pesquisar no sistema..."
+                    />
+                </div>
+            </div>
+
+            {/* Semantic Data Grid */}
+            <div className="stelar-card overflow-hidden shadow-3xl">
+                <div className="hidden lg:grid grid-cols-12 gap-10 p-10 border-b-2 border-gray-50 bg-gray-50/30">
+                    <div className="col-span-1 flex items-center justify-center">
+                        <button 
+                            onClick={toggleSelectAll}
+                            className={`h-7 w-7 rounded-lg border-2 flex items-center justify-center transition-all ${selectedIds.length === items.length && items.length > 0 ? 'bg-[#2B3440] border-[#2B3440]' : 'border-gray-200 bg-white'}`}
+                        >
+                            {selectedIds.length === items.length && items.length > 0 && <CheckCircle2 className="h-4 w-4 text-white" />}
                         </button>
                     </div>
-                    <div className="relative w-full xl:w-96 group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
-                        <input
-                            className="w-full h-14 pl-14 pr-6 glass-panel rounded-[24px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all font-bold text-gray-700 placeholder:text-gray-400/70"
-                            placeholder="Buscar na base de conhecimento..."
-                        />
-                    </div>
+                    <div className="col-span-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Documentação de Base</div>
+                    <div className="col-span-2 text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Protocolo</div>
+                    <div className="col-span-4 text-right text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Eixo Estratégico</div>
                 </div>
 
-                {/* Data Table */}
-                <div className="glass-panel rounded-[40px] overflow-hidden border border-white/60 shadow-xl shadow-black/5 pb-10">
-                    <div className="hidden lg:grid grid-cols-12 gap-4 p-6 border-b border-gray-100 bg-white/50 text-xs font-black tracking-widest uppercase text-gray-400 items-center">
-                        <div className="col-span-1 flex items-center justify-center">
-                            <input 
-                                type="checkbox" 
-                                checked={selectedIds.length === items.length && items.length > 0} 
-                                onChange={toggleSelectAll}
-                                className="w-5 h-5 rounded-lg border-gray-300 text-primary-500 focus:ring-primary-500 cursor-pointer" 
-                            />
+                <div className="divide-y-2 divide-gray-50">
+                    {isLoading && (
+                        <div className="p-32 text-center space-y-6">
+                            <div className="h-16 w-16 border-4 border-[#2B3440]/10 border-t-[#2B3440] rounded-full animate-spin mx-auto" />
+                            <p className="text-sm font-black text-gray-400 uppercase tracking-[0.4em]">Decodificando Cérebro Semântico...</p>
                         </div>
-                        <div className="col-span-4">Documento de Conhecimento</div>
-                        <div className="col-span-2">Tipo</div>
-                        <div className="col-span-3">Tags & Eixo</div>
-                        <div className="col-span-2 text-right">Ações Rápidas</div>
-                    </div>
+                    )}
 
-                    <div className="divide-y divide-gray-50">
-                        {isLoading && (
-                            <div className="p-10 text-center animate-pulse text-gray-500 font-bold">
-                                Carregando cérebro semântico...
+                    {!isLoading && items.length === 0 && (
+                        <div className="p-32 text-center">
+                            <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Cérebro Disponível</h3>
+                            <p className="text-gray-400 font-medium text-lg max-w-md mx-auto leading-relaxed">
+                                Nenhuma fonte de inteligência foi importada ainda. Adicione textos ou PDFs para começar.
+                            </p>
+                        </div>
+                    )}
+
+                    {!isLoading && items.map((item) => (
+                        <div key={item.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-10 p-10 items-center transition-all group ${selectedIds.includes(item.id) ? 'bg-[#2B3440]/5' : 'hover:bg-gray-50/50'}`}>
+                            <div className="col-span-1 flex items-center justify-center">
+                                <button 
+                                    onClick={() => toggleSelect(item.id)}
+                                    className={`h-7 w-7 rounded-lg border-2 flex items-center justify-center transition-all ${selectedIds.includes(item.id) ? 'bg-[#2B3440] border-[#2B3440]' : 'border-gray-200 bg-white group-hover:border-gray-300'}`}
+                                >
+                                    {selectedIds.includes(item.id) && <CheckCircle2 className="h-4 w-4 text-white" />}
+                                </button>
                             </div>
-                        )}
-
-                        {!isLoading && items.length === 0 && (
-                            <div className="p-16 text-center text-gray-500 font-bold bg-white/30 rounded-3xl m-6">
-                                Nenhuma fonte importada ainda. Clique no botão verde para adicionar textos e começar a treinar seu Avatar.
-                            </div>
-                        )}
-
-                        {!isLoading && items.map((item, index) => (
-                            <div key={item.id || index} className={`flex flex-col lg:grid lg:grid-cols-12 gap-4 p-6 items-center hover:bg-white/60 transition-colors group ${selectedIds.includes(item.id) ? 'bg-primary-50/30' : ''}`}>
-                                <div className="col-span-1 flex items-center justify-center">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={selectedIds.includes(item.id)} 
-                                        onChange={() => toggleSelect(item.id)}
-                                        className="w-5 h-5 rounded-lg border-gray-300 text-primary-500 focus:ring-primary-500 cursor-pointer" 
-                                    />
+                            <div className="col-span-5 flex items-center gap-6">
+                                <div className="h-14 w-14 rounded-2xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center text-[#2B3440] group-hover:bg-white group-hover:border-[#2B3440] group-hover:shadow-lg transition-all duration-500">
+                                    <FileText className="h-6 w-6" />
                                 </div>
-                                <div className="col-span-4 flex items-center space-x-4 w-full">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary-50 flex-shrink-0 flex items-center justify-center text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors">
-                                        <FileText className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-bold text-gray-900 truncate text-base">
-                                        {item.title}
-                                    </span>
-                                </div>
-                                <div className="col-span-2 w-full lg:w-auto mt-2 lg:mt-0 px-16 lg:px-0">
-                                    <span className="text-sm font-bold text-gray-500">{item.type}</span>
-                                </div>
-                                <div className="col-span-3 flex gap-2 flex-wrap w-full lg:w-auto px-16 lg:px-0">
-                                    {(item.tags && item.tags.length > 0 ? item.tags : ['ESTRATÉGIA']).map((tag: string, i: number) => (
-                                        <span key={i} className="text-[10px] font-black tracking-widest uppercase bg-gray-100 text-gray-600 px-3 py-1 rounded-full border border-gray-200">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="col-span-2 flex flex-col items-start lg:items-end justify-center px-16 lg:px-0 mt-4 lg:mt-0 space-y-2">
-                                    <button
-                                        onClick={() => handleMultiplex(item.id)}
-                                        disabled={isMultiplexing === item.id}
-                                        className="text-[10px] font-black uppercase tracking-wider text-primary-600 bg-primary-50 px-3 py-1.5 rounded-xl hover:bg-primary-500 hover:text-white transition-all flex items-center shadow-sm disabled:opacity-50"
-                                    >
-                                        {isMultiplexing === item.id ? "Gerando..." : "Multiplicar"}
-                                    </button>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#2B3440] transition-colors line-clamp-1">{item.title}</h4>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Ref ID: {item.id?.substring(0,8)}</p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                            <div className="col-span-2">
+                                <span className="premium-badge text-[9px] bg-white border-2 border-gray-100">{item.type}</span>
+                            </div>
+                            <div className="col-span-4 flex items-center justify-end gap-3">
+                                {(item.tags && item.tags.length > 0 ? item.tags : ['ESTRATÉGIA']).map((tag: string, i: number) => (
+                                    <span key={i} className="px-4 py-2 bg-gray-50 border-2 border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:border-gray-200 transition-all">{tag}</span>
+                                ))}
+                                <button
+                                    onClick={() => handleMultiplex(item.id)}
+                                    disabled={isMultiplexing === item.id}
+                                    className="ml-4 h-12 px-6 bg-[#2B3440]/5 text-[#2B3440] text-[10px] font-black rounded-xl hover:bg-[#2B3440] hover:text-white transition-all flex items-center gap-3 uppercase tracking-widest disabled:opacity-50"
+                                >
+                                    {isMultiplexing === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-4 w-4" />}
+                                    Multiplicar
+                                </button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Selection Action Bar (Floating) */}
+            {/* Selection Engine Panel (Floating) */}
             {selectedIds.length > 0 && (
-                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-10 duration-500">
-                    <div className="bg-gray-900 text-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 pl-8 flex items-center space-x-8 border border-white/10 backdrop-blur-xl">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-primary-500 uppercase tracking-widest">Base de Conhecimento</span>
-                            <span className="text-sm font-black">{selectedIds.length} Itens Selecionados</span>
+                <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4 animate-in slide-in-from-bottom-12 duration-700">
+                    <div className="bg-[#2B3440] text-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.4)] p-6 pl-12 flex items-center justify-between border-t-2 border-white/10 backdrop-blur-2xl">
+                        <div className="flex items-center gap-10">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em] mb-1">Status de Operação</span>
+                                <span className="text-2xl font-black uppercase tracking-tighter">{selectedIds.length} Fontes Selecionadas</span>
+                            </div>
                         </div>
-                        <div className="h-8 w-px bg-white/10" />
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-4">
                             <button
                                 onClick={handleIntegrateToDNA}
                                 disabled={isIntegrating}
-                                className="h-12 px-6 bg-primary-500 hover:bg-primary-600 text-white text-[11px] font-black rounded-2xl flex items-center space-x-2 transition-all shadow-lg active:scale-95"
+                                className="h-18 px-12 bg-white text-[#2B3440] text-[11px] font-black rounded-[2rem] flex items-center gap-4 transition-all shadow-xl active:scale-95 group overflow-hidden relative"
                             >
-                                <BrainCircuit className="w-4 h-4" />
-                                <span>{isIntegrating ? "Processando..." : "SINTONIZAR NO DNA / ESTRATÉGIA"}</span>
+                                <BrainCircuit className="h-6 w-6" />
+                                <span className="uppercase tracking-[0.2em]">{isIntegrating ? "Sincronizando..." : "Sintonizar no DNA"}</span>
                             </button>
                             <button
                                 onClick={() => setSelectedIds([])}
-                                className="h-12 px-4 bg-white/5 hover:bg-white/10 text-gray-400 text-[11px] font-black rounded-2xl transition-all"
+                                className="h-18 w-18 flex items-center justify-center text-white/40 hover:text-white transition-colors"
                             >
-                                Cancelar
+                                <X className="h-8 w-8" />
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal de Criação */}
+            {/* Modal de Arquitetura (Creation) */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
-                    <div className="bg-white rounded-[40px] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-                        <div className="p-8 border-b border-gray-100 flex items-center justify-between">
-                            <h2 className="text-2xl font-black text-gray-900">Novo Insumo Semântico</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900">
-                                Fechar
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-xl animate-in fade-in duration-500">
+                    <div className="bg-white rounded-[3.5rem] w-full max-w-4xl shadow-[0_50px_200px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh] border-2 border-gray-100">
+                        <div className="p-12 border-b-2 border-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-2xl bg-[#2B3440] flex items-center justify-center text-white shadow-lg">
+                                    <Plus className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Nuvem de Insumos</h2>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configuração de fonte estratégica</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsModalOpen(false)} className="h-14 w-14 rounded-2xl border-2 border-gray-100 flex items-center justify-center text-gray-300 hover:text-red-500 hover:border-red-100 transition-all">
+                                <X className="h-8 w-8" />
                             </button>
                         </div>
 
-                        <div className="p-8 space-y-6 overflow-y-auto flex-1 bg-gray-50/50">
-                            <div>
-                                <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">Título da Fonte</label>
-                                <input
-                                    value={newTitle}
-                                    onChange={e => setNewTitle(e.target.value)}
-                                    placeholder="Ex: Roteiro da Palestra em SP 2025"
-                                    className="w-full h-14 px-4 bg-white border border-gray-200 rounded-[20px] focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 shadow-sm"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">Tipo de Fonte</label>
+                        <div className="p-12 space-y-10 overflow-y-auto flex-1 bg-gray-50/20">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div className="space-y-4">
+                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2">Nomenclatura da Fonte</label>
+                                    <input
+                                        value={newTitle}
+                                        onChange={e => setNewTitle(e.target.value)}
+                                        className="w-full h-18 px-8 bg-white border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-[#2B3440] transition-all font-black text-lg text-gray-900 shadow-sm"
+                                        placeholder="Ex: Roteiro da Mentoria X"
+                                    />
+                                </div>
+                                <div className="space-y-4">
+                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2">Protocolo de Categoria</label>
                                     <select
                                         value={newType}
                                         onChange={e => setNewType(e.target.value)}
-                                        className="w-full h-14 px-4 bg-white border border-gray-200 rounded-[20px] focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 shadow-sm"
+                                        className="w-full h-18 px-8 bg-white border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-[#2B3440] transition-all font-black text-lg text-gray-900 shadow-sm appearance-none"
                                     >
-                                        <option value="Nota Rápida">Nota Rápida (Estudo/Livro)</option>
-                                        <option value="Transcrição">Transcrição (Reunião/Podcast)</option>
-                                        <option value="Artigo/Blog">Artigo (Blog Técnico)</option>
+                                        <option value="Nota Rápida">Nota Rápida</option>
+                                        <option value="Transcrição">Transcrição</option>
+                                        <option value="Artigo/Blog">Artigo</option>
                                         <option value="Estratégia">Visão da Empresa</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 block">Tags <span className="text-gray-300 font-medium normal-case">(ex: AI, TREINO)</span></label>
-                                    <input
-                                        value={newTags}
-                                        onChange={e => setNewTags(e.target.value)}
-                                        placeholder="AI, HIPERTROFIA, TREINO"
-                                        className="w-full h-14 px-4 bg-white border border-gray-200 rounded-[20px] focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 uppercase shadow-sm"
-                                    />
-                                </div>
                             </div>
 
-                            <div>
-                                <label className="text-xs font-black tracking-widest uppercase text-gray-400 mb-2 flex justify-between items-center">
-                                    <span>Conteúdo Base</span>
-                                    <div className="flex items-center space-x-3 text-sm normal-case font-bold">
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between px-2">
+                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Manuscrito Semântico</label>
+                                    <div className="flex items-center gap-4">
                                         <button
                                             onClick={handleYouTubeSync}
                                             disabled={isUploading}
-                                            className="cursor-pointer flex items-center text-red-500 hover:text-red-600 border border-red-500 hover:bg-red-50 px-3 py-1 rounded-full transition-all">
-                                            <Youtube className="w-4 h-4 mr-2" />
-                                            Extrair do YouTube
+                                            className="px-6 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 border-red-100 hover:bg-red-600 hover:text-white transition-all flex items-center gap-3">
+                                            <Youtube className="w-5 h-5" />
+                                            Sync Youtube
                                         </button>
-                                        <label className="cursor-pointer flex items-center text-primary-500 hover:text-primary-600 border border-primary-500 hover:bg-primary-50 px-3 py-1 rounded-full transition-all">
-                                            <UploadCloud className="w-4 h-4 mr-2" />
-                                            Fazer upload de PDF
+                                        <label className="px-6 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 border-blue-100 hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 cursor-pointer">
+                                            <UploadCloud className="w-5 h-5" />
+                                            Upload PDF
                                             <input type="file" accept="application/pdf" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
                                         </label>
                                     </div>
-                                </label>
+                                </div>
                                 {isUploading && (
-                                    <div className="mb-3 text-primary-500 animate-pulse font-bold text-sm bg-primary-50 p-3 rounded-xl border border-primary-100 flex items-center">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Conectando... Baixando texto e processando na nuvem.
+                                    <div className="p-8 bg-blue-600 text-white rounded-3xl animate-pulse flex items-center gap-6 shadow-2xl shadow-blue-500/20">
+                                        <Loader2 className="h-8 w-8 animate-spin" />
+                                        <p className="font-black uppercase tracking-widest text-sm">Escaneando Arquivo e Processando Cérebro...</p>
                                     </div>
                                 )}
                                 <textarea
                                     value={newContent}
                                     onChange={e => setNewContent(e.target.value)}
-                                    placeholder="Comece digitando, cole um texto ou suba um PDF no botão acima..."
-                                    className="w-full h-64 p-5 bg-white border border-gray-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-gray-700 resize-none shadow-sm leading-relaxed"
+                                    rows={10}
+                                    className="w-full p-10 bg-white border-2 border-gray-100 rounded-[2.5rem] focus:outline-none focus:border-[#2B3440] transition-all font-medium text-lg text-gray-700 leading-relaxed shadow-inner resize-none"
+                                    placeholder="Comece o input de dados aqui..."
                                 />
                             </div>
                         </div>
 
-                        <div className="p-6 border-t border-gray-100 flex justify-end bg-white">
+                        <div className="p-10 border-t-2 border-gray-50 bg-white">
                             <button
                                 onClick={handleSaveItem}
                                 disabled={isSubmitting}
-                                className="h-14 px-10 bg-gray-900 text-white text-sm font-black rounded-2xl shadow-xl hover:bg-black transition-all flex items-center hover:-translate-y-1 duration-300 disabled:opacity-50">
-                                {isSubmitting ? "Memorizando Base..." : "Salvar no Cérebro da Marca"}
+                                className="button-primary w-full h-20 rounded-[2rem] shadow-2xl shadow-[#2B3440]/20 flex items-center justify-center gap-6 group disabled:opacity-50"
+                            >
+                                {isSubmitting ? <Loader2 className="h-7 w-7 animate-spin" /> : <Save className="h-7 w-7" />}
+                                <span className="text-sm font-black uppercase tracking-[0.3em]">{isSubmitting ? "Memorizando..." : "Integrar ao Sistema da Marca"}</span>
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* AI Chat Drawer */}
+            {/* AI Control Center (Drawer) */}
             {isChatOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="w-full max-w-xl h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-500 overflow-hidden">
+                <div className="fixed inset-0 z-50 flex justify-end bg-gray-900/60 backdrop-blur-xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-2xl h-full bg-white shadow-[0_0_150px_rgba(0,0,0,0.5)] flex flex-col animate-in slide-in-from-right duration-700 border-l-2 border-gray-100">
 
-                        {/* Header do Chat */}
-                        <div className="h-20 bg-gray-900 flex items-center justify-between px-8 shrink-0">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center">
-                                    <Zap className="h-5 w-5 text-primary-500" />
+                        {/* Control Header */}
+                        <div className="h-32 bg-[#2B3440] flex items-center justify-between px-12 shrink-0 border-b border-white/10">
+                            <div className="flex items-center gap-6">
+                                <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-2xl shadow-black/20">
+                                    <BrainCircuit className="h-8 w-8 text-white animate-pulse" />
                                 </div>
                                 <div>
-                                    <h2 className="text-white font-black">Avatar IA</h2>
-                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Baseado no seu cérebro</p>
+                                    <h2 className="text-white text-2xl font-black uppercase tracking-tighter">Motor Cognitivo</h2>
+                                    <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Cross-Data Intelligence</p>
                                 </div>
                             </div>
-                            <button onClick={() => setIsChatOpen(false)} className="text-gray-400 hover:text-white transition-colors">Fechar</button>
+                            <button onClick={() => setIsChatOpen(false)} className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all">
+                                <X className="h-8 w-8" />
+                            </button>
                         </div>
 
-                        {/* Mensagens */}
-                        <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-gray-50 flex flex-col no-scrollbar">
+                        {/* Neural Feed */}
+                        <div className="flex-1 p-12 space-y-10 overflow-y-auto bg-gray-50/50 flex flex-col no-scrollbar">
                             {chatMessages.length === 0 && (
-                                <div className="my-auto text-center space-y-4">
-                                    <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
-                                        <Zap className="h-8 w-8 text-gray-400" />
+                                <div className="my-auto text-center space-y-10 p-12">
+                                    <div className="h-24 w-24 bg-white rounded-full mx-auto flex items-center justify-center shadow-xl border-2 border-gray-50">
+                                        <Zap className="h-10 w-10 text-[#2B3440]" />
                                     </div>
-                                    <h3 className="text-xl font-black text-gray-900">Olá! Eu sou sua cópia.</h3>
-                                    <p className="text-sm font-medium text-gray-500 max-w-sm mx-auto">
-                                        Estou escaneando os {items.length} itens do seu cérebro de marca. Pergunte sobre uma ideia ou me force a cruzar informações das suas notas.
-                                    </p>
+                                    <div className="space-y-4">
+                                        <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Análise Semântica Ativa</h3>
+                                        <p className="text-lg font-medium text-gray-400 max-w-sm mx-auto leading-relaxed">
+                                            Estou processando as {items.length} fontes do seu cérebro. O que deseja cruzar ou criar agora?
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
+                                        <button className="p-4 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-[#2B3440] hover:border-[#2B3440] transition-all text-left">Resumir meu tom vocal</button>
+                                        <button className="p-4 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-[#2B3440] hover:border-[#2B3440] transition-all text-left">Pautas do documento X</button>
+                                    </div>
                                 </div>
                             )}
 
                             {chatMessages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === 'user'
-                                        ? 'bg-gray-900 text-white rounded-tr-sm'
-                                        : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
+                                    <div className={`max-w-[85%] p-8 rounded-[2rem] text-lg font-medium leading-relaxed shadow-3xl ${msg.role === 'user'
+                                        ? 'bg-[#2B3440] text-white rounded-tr-md'
+                                        : 'bg-white border-2 border-gray-100 text-gray-800 rounded-tl-md'
                                         }`}>
                                         {msg.content}
                                     </div>
@@ -545,30 +554,30 @@ export default function KnowledgeBase() {
 
                             {isChatLoading && (
                                 <div className="flex justify-start">
-                                    <div className="px-5 py-4 bg-white border border-gray-200 rounded-2xl rounded-tl-sm shadow-sm flex space-x-2">
-                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
-                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-100" />
-                                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-200" />
+                                    <div className="px-8 py-5 bg-white border-2 border-gray-100 rounded-3xl rounded-tl-md shadow-xl flex items-center gap-4">
+                                        <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                        <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                        <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" />
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* Input Area */}
-                        <div className="p-6 bg-white border-t border-gray-100 shrink-0">
-                            <form onSubmit={handleChatSubmit} className="relative">
+                        {/* Command Input Area */}
+                        <div className="p-10 bg-white border-t border-gray-100 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
+                            <form onSubmit={handleChatSubmit} className="relative group">
                                 <input
                                     value={currentMsg}
                                     onChange={e => setCurrentMsg(e.target.value)}
-                                    placeholder="Pergunte sobre seus arquivos..."
-                                    className="w-full h-14 pl-6 pr-14 bg-gray-50 border border-transparent rounded-full focus:outline-none focus:bg-white focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-gray-700 placeholder:text-gray-400"
+                                    placeholder="Enviar comando para o motor cognitivo..."
+                                    className="w-full h-20 pl-8 pr-20 bg-gray-50 border-2 border-transparent rounded-[1.5rem] focus:outline-none focus:bg-white focus:border-[#2B3440] transition-all font-black text-lg text-gray-900 placeholder:text-gray-300"
                                     disabled={isChatLoading}
                                 />
                                 <button
                                     type="submit"
                                     disabled={!currentMsg.trim() || isChatLoading}
-                                    className="absolute right-2 top-2 bottom-2 w-10 bg-gray-900 rounded-full flex items-center justify-center text-white hover:bg-black transition-colors disabled:opacity-50">
-                                    <Zap className="h-4 w-4" />
+                                    className="absolute right-4 top-4 h-12 w-12 bg-[#2B3440] rounded-xl flex items-center justify-center text-white hover:bg-black transition-all shadow-lg disabled:opacity-50 active:scale-95 group-focus-within:scale-105">
+                                    <Zap className="h-5 w-5" />
                                 </button>
                             </form>
                         </div>

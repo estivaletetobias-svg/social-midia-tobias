@@ -143,9 +143,12 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
             !isMobile ? "bg-white border border-gray-200 rounded-3xl h-[calc(100vh-48px)] sticky top-6 shadow-sm" : "h-full"
         )}>
             <div className="flex flex-col flex-shrink-0 px-8 py-10 border-b border-gray-100 bg-gray-50/50">
-                <span className="text-3xl font-black text-[#2B3440] tracking-tighter mb-1 font-[family-name:var(--font-space)] uppercase">
-                    STELAR
-                </span>
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="text-3xl font-black text-[#2B3440] tracking-tighter font-[family-name:var(--font-space)] uppercase">
+                        STELAR
+                    </span>
+                    <div className="pulse-indicator mt-1" />
+                </div>
                 <span className="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase">
                     System Architecture
                 </span>
@@ -202,21 +205,24 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
                     {filteredNavigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                onClick={onClose}
-                                className={cn(
-                                    "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group",
-                                    isActive
-                                        ? "bg-[#2B3440] text-white shadow-lg shadow-[#2B3440]/20 translate-x-1"
-                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100/80"
-                                )}
-                            >
-                                <item.icon className={cn(
-                                    "h-5 w-5 transition-transform duration-500 group-hover:scale-110",
-                                    isActive ? "text-white" : "text-gray-400 group-hover:text-[#2B3440]"
-                                )} />
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    onClick={onClose}
+                                    className={cn(
+                                        "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                                        isActive
+                                            ? "bg-[#2B3440] text-white shadow-2xl shadow-[#2B3440]/30 translate-x-1"
+                                            : "text-gray-400 hover:text-gray-900 hover:bg-gray-100/50"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
+                                    )}
+                                    <item.icon className={cn(
+                                        "h-5 w-5 transition-transform duration-500 group-hover:scale-110",
+                                        isActive ? "text-white" : "text-gray-400 group-hover:text-[#2B3440]"
+                                    )} />
                                 <span className={cn(
                                     "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
                                     isActive ? "text-white" : "text-gray-400 group-hover:text-gray-900"
