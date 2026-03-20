@@ -260,21 +260,35 @@ export default function IdeasLibrary() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCommandSubmit()}
                             className="w-full h-20 pl-18 pr-8 bg-gray-50/50 border-2 border-gray-100 rounded-[2rem] focus:outline-none focus:border-[#2B3440] focus:bg-white transition-all font-black text-lg text-[#2B3440] placeholder:text-gray-300 shadow-inner"
-                            placeholder="Comande uma nova ideia ou palavra-chave..."
+                            placeholder="Comande uma ideia ou insira um link para rastrear..."
                         />
                     </div>
-                    <button
-                        onClick={handleCommandSubmit}
-                        disabled={isGeneratingManual}
-                        className="h-20 px-10 bg-[#2B3440] text-white font-black rounded-[2rem] hover:bg-black transition-all flex items-center gap-3 disabled:opacity-50 shadow-xl hover:shadow-[#2B3440]/20 uppercase tracking-widest text-xs"
-                    >
-                        {isGeneratingManual ? (
-                            <RefreshCcw className="h-5 w-5 animate-spin" />
-                        ) : (
-                            <Zap className="h-5 w-5 fill-white" />
-                        )}
-                        <span>Materializar Ideia</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                        <button
+                            onClick={handleCommandSubmit}
+                            disabled={isGeneratingManual || isSyncing}
+                            className="h-20 px-8 bg-[#2B3440] text-white font-black rounded-[2rem] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl hover:shadow-[#2B3440]/20 uppercase tracking-widest text-[10px] flex-1 lg:flex-none"
+                        >
+                            {isGeneratingManual ? (
+                                <RefreshCcw className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <Zap className="h-5 w-5 fill-white" />
+                            )}
+                            <span>Materializar</span>
+                        </button>
+                        <button
+                            onClick={handleSyncRSS}
+                            disabled={isSyncing || isGeneratingManual}
+                            className="h-20 px-8 border-2 border-gray-100 text-[#2B3440] font-black rounded-[2rem] hover:border-[#2B3440] hover:bg-gray-50 transition-all flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-widest text-[10px] flex-1 lg:flex-none"
+                        >
+                            {isSyncing ? (
+                                <RefreshCcw className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <Globe className="h-5 w-5" />
+                            )}
+                            <span>Pesquisa Web</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
