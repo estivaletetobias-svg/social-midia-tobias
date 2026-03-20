@@ -275,4 +275,4 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
         </div>
     );
 }
-}
+
