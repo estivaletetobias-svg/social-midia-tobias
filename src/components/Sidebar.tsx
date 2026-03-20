@@ -17,7 +17,8 @@ import {
     Zap,
     BrainCircuit,
     LogOut,
-    Users
+    Users,
+    Search, LayoutTemplate, MessageSquare, FastForward, Play, Activity, Sparkles, TrendingUp, FileText
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -199,27 +200,32 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
             <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
                 <nav className="flex-1 px-4 py-8 space-y-1.5">
                     {filteredNavigation.map((item) => {
-                        const active = pathname === item.href;
+                        const isActive = pathname === item.href;
                         return (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 onClick={onClose}
                                 className={cn(
-                                    active
-                                        ? "bg-[#2B3440] text-white shadow-md shadow-[#2B3440]/10"
-                                        : "text-gray-500 hover:bg-gray-50 hover:text-[#2B3440] border border-transparent",
-                                    "group flex items-center px-5 py-3.5 text-xs font-black uppercase tracking-widest rounded-2xl transition-all duration-300"
+                                    "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group",
+                                    isActive
+                                        ? "bg-[#2B3440] text-white shadow-lg shadow-[#2B3440]/20 translate-x-1"
+                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100/80"
                                 )}
                             >
-                                <item.icon
-                                    className={cn(
-                                        active ? "text-white" : "text-gray-400 group-hover:text-[#2B3440]",
-                                        "mr-4 flex-shrink-0 h-4 w-4"
-                                    )}
-                                    aria-hidden="true"
-                                />
-                                {item.name}
+                                <item.icon className={cn(
+                                    "h-5 w-5 transition-transform duration-500 group-hover:scale-110",
+                                    isActive ? "text-white" : "text-gray-400 group-hover:text-[#2B3440]"
+                                )} />
+                                <span className={cn(
+                                    "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
+                                    isActive ? "text-white" : "text-gray-400 group-hover:text-gray-900"
+                                )}>
+                                    {item.name}
+                                </span>
+                                {isActive && (
+                                    <div className="ml-auto w-1 h-4 bg-white/40 rounded-full" />
+                                )}
                             </Link>
                         );
                     })}

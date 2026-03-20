@@ -89,7 +89,7 @@ export default function ContentPipeline() {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={() => alert("Em breve! Por enquanto deixe a Inteligência Artificial trabalhar por você aprovando ideias!")}
-                        className="h-14 px-8 bg-gray-900 text-white text-sm font-black rounded-[20px] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-primary-500/25 duration-300">
+                        className="h-16 px-10 bg-[#2B3440] text-white text-[11px] font-black rounded-3xl shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 hover:shadow-[#2B3440]/25 duration-300 uppercase tracking-widest">
                         <PenTool className="mr-3 h-5 w-5" />
                         Arquitetar Conteúdo
                     </button>
@@ -98,24 +98,24 @@ export default function ContentPipeline() {
 
             {/* Tabs & Search */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-4">
-                <div className="flex items-center space-x-2 bg-white border border-gray-200 p-2 rounded-[24px] w-full lg:w-auto overflow-x-auto no-scrollbar shadow-sm">
+                <div className="flex items-center space-x-2 bg-white border-2 border-gray-200 p-2 rounded-[28px] w-full lg:w-auto overflow-x-auto no-scrollbar shadow-sm">
                     {tabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-3 text-xs font-black rounded-2xl transition-all uppercase tracking-wider whitespace-nowrap ${activeTab === tab
-                                ? "bg-white text-gray-900 shadow-md shadow-black/5 border border-white/60 scale-105"
-                                : "text-gray-500 hover:text-gray-900 hover:bg-white/40 border border-transparent"
+                            className={`px-8 py-4 text-[10px] font-black rounded-2xl transition-all uppercase tracking-widest whitespace-nowrap ${activeTab === tab
+                                ? "bg-[#2B3440] text-white shadow-xl translate-y-[-2px]"
+                                : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
                                 }`}
                         >
                             {statusLabels[tab]}
                         </button>
                     ))}
                 </div>
-                <div className="relative w-full lg:w-96 group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+                <div className="relative w-full lg:w-[400px] group">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#2B3440] transition-colors" />
                     <input
-                        className="w-full h-16 pl-14 pr-6 bg-white border border-gray-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-[#2B3440]/5 transition-all font-bold text-gray-700 placeholder:text-gray-400/70 shadow-sm"
+                        className="w-full h-18 pl-16 pr-8 bg-white border-2 border-gray-200 rounded-[28px] focus:outline-none focus:border-[#2B3440] transition-all font-black text-gray-900 placeholder:text-gray-300 shadow-sm"
                         placeholder="Buscar rascunhos, tópicos..."
                     />
                 </div>
@@ -136,11 +136,11 @@ export default function ContentPipeline() {
                         <div key={piece.id} className="group relative bg-white border border-gray-200 p-8 rounded-[40px] hover:shadow-xl hover:border-gray-300 transition-all duration-500 flex flex-col md:flex-row gap-8 shadow-sm">
 
                             <div className="flex-1 flex flex-col">
-                                <div className="flex items-center space-x-3 mb-6">
-                                    <span className="bg-primary-500 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded-full shadow-sm">
+                                <div className="flex items-center space-x-4 mb-8">
+                                    <span className="bg-[#2B3440] text-white text-[9px] font-black tracking-widest uppercase px-4 py-2 rounded-xl shadow-lg">
                                         {piece.platform}
                                     </span>
-                                    <span className="text-gray-500 text-xs font-bold uppercase tracking-wider">
+                                    <span className="text-gray-400 text-[9px] font-black uppercase tracking-[0.2em]">
                                         {piece.format}
                                     </span>
                                 </div>

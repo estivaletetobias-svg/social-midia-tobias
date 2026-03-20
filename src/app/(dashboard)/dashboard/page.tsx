@@ -9,7 +9,11 @@ import {
     CheckCircle2,
     PenTool,
     Sparkles,
-    Activity
+    Activity,
+    Zap,
+    TrendingUp,
+    Users,
+    FileText
 } from "lucide-react";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -69,22 +73,21 @@ export default function DashboardPage() {
                     <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.2em]">O Sistema está Ativo</span>
                 </div>
                 
-                <div className="max-w-4xl">
-                    <h1 className="text-5xl lg:text-7xl font-black text-[#2B3440] tracking-tighter leading-[0.95] uppercase mb-8">
-                        Estruture sua <span className="text-gray-400">inteligência.</span>
+                <div>
+                    <h1 className="text-6xl lg:text-7xl font-black tracking-tighter text-gray-900 leading-[0.9] animate-slide-up mb-6">
+                        ESTRUTURE SUA <br/><span className="text-gray-300 italic">INTELIGÊNCIA.</span>
                     </h1>
-                    <p className="text-xl lg:text-3xl text-gray-500 font-medium tracking-tight leading-snug">
-                        O STELAR organiza sua presença digital com base no seu <span className="text-[#2B3440] font-bold">próprio repertório</span> e não em conteúdo genérico.
+                    <p className="text-xl text-gray-500 max-w-2xl font-medium leading-relaxed">
+                        O STELAR organiza sua presença digital com base no seu <span className="text-gray-900 font-bold underline decoration-2 decoration-gray-900/10">próprio repertório</span> e não em conteúdo genérico.
                     </p>
                 </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-6 pt-6">
-                    <button
+                <div className="flex items-center gap-4">
+                    <button 
                         onClick={() => router.push('/dashboard/brand')}
-                        className="w-full sm:w-auto h-20 px-12 bg-[#2B3440] text-white text-xs font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-[#3a4655] transition-all shadow-xl shadow-[#2B3440]/20 flex items-center justify-center group transform active:scale-95"
+                        className="h-20 px-12 bg-[#2B3440] text-white text-xs font-black rounded-[2.5rem] shadow-2xl hover:bg-black transition-all flex items-center transform hover:-translate-y-1 active:scale-95 duration-300 uppercase tracking-[0.2em]"
                     >
+                        <Zap className="mr-3 h-5 w-5 fill-white" />
                         Começar pelo DNA da Marca
-                        <Plus className="ml-4 h-5 w-5 group-hover:rotate-90 transition-transform duration-500" />
                     </button>
                     <Link href="/dashboard/knowledge" className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-[#2B3440] transition-colors border-b-2 border-transparent hover:border-[#2B3440] pb-1">
                         Carregar Repertório
@@ -94,30 +97,33 @@ export default function DashboardPage() {
 
             {/* System Status Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                {stats.map((item) => (
-                    <div key={item.name} className="stelar-card p-8 rounded-3xl relative overflow-hidden group">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-[#2B3440]">
-                                <item.icon className="h-5 w-5" />
+                {stats.map((item) => {
+                    const Icon = item.icon;
+                    const label = item.name;
+                    const value = item.value;
+                    return (
+                        <div key={label} className="stelar-card p-10 rounded-[3rem] group hover:border-[#2B3440] transition-all">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-gray-100 transition-colors">
+                                    <Icon className="h-6 w-6 text-[#2B3440]" />
+                                </div>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none bg-gray-50 px-3 py-1.5 rounded-full">Histórico</span>
                             </div>
-                            <span className="text-[10px] font-black text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">
-                                +{item.change}
-                            </span>
+                            <p className="text-5xl font-black text-gray-900 tracking-tighter mb-2">{value}</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{label}</p>
                         </div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-1">{item.name}</p>
-                        <h3 className="text-3xl font-black text-[#2B3440] tracking-tighter">{item.value}</h3>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Core Operation Row */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div className="lg:col-span-8 space-y-8">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-6">
-                        <h2 className="text-2xl font-black text-[#2B3440] tracking-tighter uppercase flex items-center gap-3">
+                    <div className="bg-white border-2 border-gray-200 p-12 rounded-[4rem] shadow-sm relative overflow-hidden">
+                        <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-10 flex items-center gap-3">
                             <Activity className="h-6 w-6" />
-                            Arquitetura de Conteúdo
-                        </h2>
+                            Esteira de Produção Ativa
+                        </h3>
                         <Link href="/dashboard/content" className="text-[10px] font-black text-gray-400 hover:text-[#2B3440] uppercase tracking-widest transition-colors">
                             Ver Esteira Completa
                         </Link>
@@ -161,46 +167,52 @@ export default function DashboardPage() {
 
                 {/* Side Intelligence Widget */}
                 <div className="lg:col-span-4">
-                    <div className="bg-[#2B3440] rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-                        <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-110 transition-transform duration-700">
-                            <Sparkles className="h-40 w-40" />
+                    {/* Insights Card - Support */}
+                    <div className="bg-gray-50 border border-gray-200 p-10 rounded-[3rem] group transition-all hover:bg-white hover:border-[#2B3440] shadow-sm">
+                        <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center mb-8 border border-gray-100 shadow-sm group-hover:scale-110 transition-transform">
+                            <Sparkles className="h-7 w-7 text-[#2B3440]" />
                         </div>
-                        <h3 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-[0.9]">Insights de Decisão</h3>
-                        <p className="text-gray-300 font-medium leading-relaxed mb-10 text-lg italic">
-                            O motor do sistema cruzou sua base de conhecimento com as tendências e identificou <span className="text-white font-bold">{statsData.topicsCount} novas oportunidades</span> estratégicas.
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter mb-4">Insights de Decisão</h3>
+                        <p className="text-sm text-gray-500 font-medium leading-relaxed mb-10">
+                            Pautas detectadas com base no seu repertório estratégico atual.
                         </p>
-                        <button
+                        <button 
                             onClick={() => router.push('/dashboard/ideas')}
-                            className="w-full h-18 bg-white text-[#2B3440] font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-gray-100 transition-all shadow-xl active:scale-95"
+                            className="w-full h-14 bg-white border-2 border-gray-200 text-[#2B3440] text-[10px] font-black rounded-2xl hover:border-[#2B3440] transition-all uppercase tracking-widest"
                         >
                             Estruturar Narrativas
                         </button>
                     </div>
                     
-                    <div className="mt-8 p-10 bg-gray-900 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-white/5">
-                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-125 transition-transform duration-700">
-                            <Sparkles className="h-40 w-40" />
+                    {/* Activation Card - PREMIUM */}
+                    <div className="mt-8 p-12 bg-[#2B3440] rounded-[3.5rem] shadow-2xl relative overflow-hidden group border border-white/5">
+                        <div className="absolute top-0 right-0 p-10 opacity-5 transform translate-x-4 translate-y-4 group-hover:rotate-12 transition-transform duration-1000">
+                            <Sparkles className="h-48 w-48 text-white" />
                         </div>
-                        <h3 className="text-2xl font-black relative text-white uppercase tracking-tighter">Ativação do Sistema</h3>
-                        <div className="mt-8 space-y-6 relative">
-                            {[
-                                { step: "1", title: "Configure seu DNA", desc: "A base de toda a arquitetura." },
-                                { step: "2", title: "Estruture sua base", desc: "Alimente com seu repertório." },
-                                { step: "3", title: "Ative o sistema", desc: "Gere narrativas de autoridade." }
-                            ].map((s) => (
-                                <div key={s.step} className="flex items-start gap-4">
-                                    <div className="h-6 w-6 rounded-full bg-white text-gray-900 flex items-center justify-center text-[10px] font-black shrink-0">
-                                        {s.step}
+                        <div className="relative">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none mb-2">ATIVAÇÃO DO <br/> SISTEMA</h3>
+                            <div className="h-1 w-12 bg-white/20 rounded-full mb-10" />
+                            
+                            <div className="space-y-8">
+                                {[
+                                    { step: "01", title: "Configure seu DNA", desc: "A base de toda a arquitetura." },
+                                    { step: "02", title: "Estruture sua base", desc: "Alimente com seu repertório." },
+                                    { step: "03", title: "Ativar Narrativas", desc: "Gere autoridade de verdade." }
+                                ].map((s) => (
+                                    <div key={s.step} className="flex items-start gap-5">
+                                        <div className="h-8 w-8 rounded-xl bg-white/10 text-white flex items-center justify-center text-[11px] font-black border border-white/10">
+                                            {s.step}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-white uppercase tracking-widest mb-1">{s.title}</p>
+                                            <p className="text-[10px] text-gray-300 font-medium leading-tight">{s.desc}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-xs font-black text-white uppercase tracking-widest">{s.title}</p>
-                                        <p className="text-[10px] text-gray-400 font-medium">{s.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
+               </div>
             </div>
         </div>
     );

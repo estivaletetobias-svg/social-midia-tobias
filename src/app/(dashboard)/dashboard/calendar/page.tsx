@@ -161,14 +161,14 @@ export default function EditorialCalendar() {
                     <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Editorial Calendar</h1>
                     <p className="mt-2 text-lg text-gray-500 font-medium">Plan and orchestrate your content distribution across all platforms.</p>
                 </div>
-                <div className="flex items-center space-x-3">
-                    <button className="inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm">
-                        <Filter className="mr-2 h-4 w-4" />
-                        Filters
+                <div className="flex items-center space-x-4">
+                    <button className="h-14 px-8 text-xs font-black text-gray-700 bg-white border-2 border-gray-200 rounded-2xl hover:bg-gray-50 hover:border-gray-900 transition-all shadow-sm uppercase tracking-widest">
+                        <Filter className="mr-2 h-4 w-4 inline" />
+                        Filtros
                     </button>
-                    <button className="inline-flex items-center px-4 py-2 text-sm font-bold text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        Schedule Post
+                    <button className="h-14 px-8 text-xs font-black text-white bg-[#2B3440] rounded-2xl hover:bg-black transition-all shadow-xl shadow-[#2B3440]/20 uppercase tracking-widest">
+                        <CalendarIcon className="mr-2 h-4 w-4 inline" />
+                        Agendar Peça
                     </button>
                 </div>
             </div>
@@ -221,13 +221,13 @@ export default function EditorialCalendar() {
                                         key={i}
                                         onDragOver={handleDragOver}
                                         onDrop={(e) => handleDrop(e, day, month, year)}
-                                        className={`min-h-[160px] bg-white p-4 transition-all hover:bg-gray-200/20 group ${!isCurrentMonth ? 'bg-gray-50/50' : ''}`}
+                                        className={`min-h-[160px] bg-white p-4 transition-all hover:bg-gray-50 group border border-gray-200 ${!isCurrentMonth ? 'opacity-30' : ''} ${isToday ? 'bg-gray-50 ring-2 ring-inset ring-[#2B3440]/10' : ''}`}
                                     >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className={`text-sm font-bold ${isToday ? 'text-primary-600 bg-primary-50 ring-4 ring-primary-50 rounded-full h-7 w-7 flex items-center justify-center' : 'text-gray-400'}`}>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className={`text-sm font-black ${isToday ? 'text-white bg-[#2B3440] h-8 w-8 flex items-center justify-center rounded-xl shadow-lg' : 'text-gray-400'}`}>
                                                 {day}
                                             </span>
-                                            {isToday && <div className="h-1.5 w-1.5 rounded-full bg-primary-600 shadow-sm" />}
+                                            {isToday && <div className="h-2 w-2 rounded-full bg-[#2B3440] animate-pulse" />}
                                         </div>
 
                                         <div className="space-y-2 mt-2">
@@ -240,14 +240,14 @@ export default function EditorialCalendar() {
                                                     className="transform transition-transform hover:scale-[1.02] active:scale-95 z-10 relative cursor-grab active:cursor-grabbing"
                                                 >
                                                     <Link href={`/dashboard/content/${post.id}`}>
-                                                        <div className={`p-2.5 rounded-xl border-l-[3px] group-hover:shadow-md transition-all ${
+                                                        <div className={`p-4 rounded-2xl border-2 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
                                                             deletingIds.has(post.id) ? 'opacity-20 pointer-events-none' : ''
-                                                        } ${post.platform.toLowerCase() === 'instagram' ? 'border-primary-500 bg-primary-50/50 hover:bg-primary-50' :
-                                                            post.platform.toLowerCase() === 'linkedin' ? 'border-blue-500 bg-blue-50/50 hover:bg-blue-50' :
-                                                                'border-gray-500 bg-gray-50 hover:bg-gray-100'
+                                                        } ${post.platform.toLowerCase() === 'instagram' ? 'border-[#2B3440]/10 bg-white hover:border-[#2B3440]' :
+                                                            post.platform.toLowerCase() === 'linkedin' ? 'border-blue-100 bg-white hover:border-blue-500' :
+                                                                'border-gray-100 bg-white hover:border-gray-500'
                                                             }`}>
-                                                            <div className="flex justify-between items-start">
-                                                                <p className={`text-[10px] font-black uppercase tracking-wide ${post.platform.toLowerCase() === 'instagram' ? 'text-primary-600' :
+                                                            <div className="flex justify-between items-start mb-3">
+                                                                <p className={`text-[9px] font-black uppercase tracking-widest ${post.platform.toLowerCase() === 'instagram' ? 'text-[#2B3440]' :
                                                                     post.platform.toLowerCase() === 'linkedin' ? 'text-blue-600' :
                                                                         'text-gray-600'
                                                                     }`}>

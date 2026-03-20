@@ -75,13 +75,13 @@ export default function AnalyticsDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 pb-12 border-b border-black/5">
                 <div className="space-y-6">
-                    <div className="flex items-center space-x-3 mb-2">
-                        <div className="h-12 w-12 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/50">
-                            <BarChart2 className="h-6 w-6" />
+                    <div className="flex items-center space-x-4 mb-4">
+                        <div className="h-16 w-16 bg-[#2B3440] rounded-3xl flex items-center justify-center text-white shadow-2xl">
+                            <BarChart2 className="h-8 w-8" />
                         </div>
-                        <span className="text-xs font-black text-primary-600 uppercase tracking-[0.2em]">Cérebro Visual & Estratégico</span>
+                        <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.3em]">Ambiente de Decisão Estratégica</span>
                     </div>
-                    <h1 className="text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-tight">Métricas de <span className="text-primary-500">Inteligência</span></h1>
+                    <h1 className="text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-tight uppercase">Métricas de <span className="text-[#2B3440] italic">Performance</span></h1>
                     <p className="text-xl text-gray-500/80 font-medium max-w-2xl leading-relaxed">
                         Análise de densidade técnica e evolução do seu banco de conhecimento. Otimizamos a produção antes de chegar ao primeiro clique.
                     </p>
@@ -91,19 +91,19 @@ export default function AnalyticsDashboard() {
             {/* Metric Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {metrics.map((m, i) => (
-                    <div key={i} className="glass-panel p-8 rounded-[40px] border-white/60 shadow-xl shadow-black/5 space-y-6">
+                    <div key={i} className="bg-white p-10 rounded-[4rem] border-2 border-gray-100 shadow-sm space-y-8 hover:border-[#2B3440] transition-all group">
                         <div className="flex items-center justify-between">
-                            <div className={`h-14 w-14 rounded-2xl bg-white shadow-sm flex items-center justify-center ${m.color}`}>
-                                <m.icon className="h-6 w-6" />
+                            <div className={`h-16 w-16 rounded-3xl bg-gray-50 flex items-center justify-center ${m.color} group-hover:bg-[#2B3440] group-hover:text-white transition-all`}>
+                                <m.icon className="h-7 w-7" />
                             </div>
-                            <div className="flex items-center space-x-1 text-emerald-500 font-black text-[10px] bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+                            <div className="flex items-center space-x-2 text-emerald-600 font-black text-[10px] bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 uppercase tracking-widest shadow-sm">
                                 <ArrowUpRight className="h-3 w-3" />
                                 <span>{m.trend}</span>
                             </div>
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{m.name}</p>
-                            <h3 className="text-3xl font-black text-gray-900">{m.value}</h3>
+                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{m.name}</p>
+                            <h3 className="text-4xl font-black text-gray-900 tracking-tighter">{m.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -148,13 +148,13 @@ export default function AnalyticsDashboard() {
                     </div>
 
                     <div className="space-y-8 py-10">
-                        <div className="space-y-3">
-                            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                <span>Conteúdo Estratégico</span>
-                                <span className="text-primary-500">{hasData ? "70%" : "0%"}</span>
+                        <div className="space-y-4">
+                            <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em]">
+                                <span className="text-gray-900">Conteúdo Estratégico</span>
+                                <span className="text-[#2B3440]">{hasData ? "70%" : "0%"}</span>
                             </div>
-                            <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div className={`h-full bg-primary-500 rounded-full transition-all duration-1000`} style={{ width: hasData ? '70%' : '0%' }} />
+                            <div className="h-4 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div className={`h-full bg-[#2B3440] rounded-full transition-all duration-1000`} style={{ width: hasData ? '70%' : '0%' }} />
                             </div>
                         </div>
                         <div className="space-y-3">

@@ -253,14 +253,12 @@ export default function IdeasLibrary() {
                             <Sparkles className="h-4 w-4 text-[#2B3440]" />
                             <span className="text-[10px] font-black uppercase tracking-[0.3em]">Qual o tema da próxima narrativa?</span>
                         </div>
-                        <div className="relative group/input">
                             <input 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Digite um tema, ideia ou URL estratégica aqui..."
-                                className="w-full h-24 pl-10 pr-10 bg-gray-50 border border-gray-100 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-[#2B3440]/5 focus:border-[#2B3440]/30 transition-all text-[#2B3440] text-3xl font-black placeholder:text-gray-300 shadow-inner"
+                                className="w-full h-24 pl-12 pr-12 bg-white border-2 border-gray-200 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-[#2B3440]/5 focus:border-[#2B3440] transition-all text-[#2B3440] text-3xl font-black placeholder:text-gray-300 shadow-xl"
                             />
-                        </div>
                     </div>
 
                     {/* BOTTOM LINE: DEPENDENT ACTIONS */}
@@ -334,7 +332,7 @@ export default function IdeasLibrary() {
                     filteredTopics.map((item, i) => {
                         const isNew = item.isNew;
                         return (
-                            <div key={item.id || i} className="group relative bg-white border border-gray-200 p-10 rounded-[48px] hover:shadow-xl hover:border-[#2B3440]/30 transition-all duration-700 flex flex-col h-full overflow-hidden shadow-sm">
+                            <div key={item.id || i} className="group relative bg-white border-2 border-gray-200 p-10 rounded-[48px] hover:shadow-2xl hover:border-[#2B3440] transition-all duration-700 flex flex-col h-full overflow-hidden shadow-sm">
                                 {isNew && (
                                     <div className="absolute -right-12 top-8 rotate-45 bg-[#2B3440] text-white text-[9px] font-black px-12 py-1.5 shadow-xl z-20 uppercase tracking-[0.2em] flex items-center justify-center">
                                         <Sparkles className="w-3 h-3 mr-1.5 fill-white" /> Novo
@@ -342,14 +340,14 @@ export default function IdeasLibrary() {
                                 )}
 
                                 <div className="relative z-10 flex items-center justify-between mb-8">
-                                    <div className="flex items-center space-x-2 bg-gray-50 text-[#2B3440] px-4 py-2 rounded-2xl border border-gray-100">
-                                        <Zap className="h-4 w-4 fill-[#2B3440]/20 text-[#2B3440]" />
-                                        <span className="text-[10px] font-black tracking-widest uppercase">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Sincronia</span>
+                                    <div className="flex items-center space-x-2 bg-gray-900 text-white px-5 py-2.5 rounded-2xl shadow-lg">
+                                        <Zap className="h-4 w-4 fill-white" />
+                                        <span className="text-[11px] font-black tracking-widest uppercase">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Sincronia</span>
                                     </div>
                                 </div>
 
-                                <h3 className="relative z-10 text-2xl font-black text-[#2B3440] leading-[1.1] mb-4 tracking-tight uppercase">{item.title}</h3>
-                                <p className="relative z-10 mt-6 text-gray-500 font-medium leading-relaxed flex-grow text-[15px] line-clamp-4 font-serif italic">{item.summary}</p>
+                                <h3 className="relative z-10 text-3xl font-black text-gray-900 leading-[1] mb-6 tracking-tight uppercase">{item.title}</h3>
+                                <p className="relative z-10 mt-2 text-gray-500 font-medium leading-relaxed flex-grow text-lg font-serif italic">{item.summary}</p>
 
                                 <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-gray-100 space-x-3">
                                     <button

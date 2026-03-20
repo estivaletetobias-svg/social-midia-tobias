@@ -19,7 +19,8 @@ import {
   MessageSquare,
   Info,
   Loader2,
-  X
+  X,
+  PenTool
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { signIn, useSession } from "next-auth/react";
@@ -238,145 +239,150 @@ export default function BrandDnaPage() {
         <button 
           onClick={handleSave}
           disabled={saving}
-          className={`flex items-center gap-2 px-8 py-4 ${refineApplied ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-600 hover:bg-primary-700'} text-white font-black rounded-2xl shadow-[0_8px_30px_rgb(29,78,216,0.15)] transition-all active:scale-95 disabled:opacity-50`}
+          className={`flex items-center gap-4 h-16 px-12 ${refineApplied ? 'bg-green-600 hover:bg-green-700' : 'bg-[#2B3440] hover:bg-black'} text-white font-black rounded-3xl shadow-2xl transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs`}
         >
-          {saving ? "Salvando..." : <><Save className="h-5 w-5" /> {refineApplied ? "Aprovar & Salvar DNA Refinado" : "Salvar Configurações"}</>}
+          {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Save className="h-5 w-5" /> {refineApplied ? "Consolidar Novo DNA" : "Salvar Arquitetura"}</>}
         </button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Lado Esquerdo: Identidade */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="lg:col-span-8 space-y-10">
           
           {/* Card: Essência */}
-          <section className="bg-white border border-gray-200 p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-sm relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-               <Sparkles className="h-40 w-40" />
+          <section className="bg-white border-2 border-gray-200 p-10 md:p-14 rounded-[4rem] shadow-sm relative overflow-hidden group transition-all hover:border-[#2B3440]">
+             <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
+               <Sparkles className="h-48 w-48" />
              </div>
              
-             <h2 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3 uppercase tracking-tighter">
-               <Info className="h-6 w-6 text-primary-500" />
-               Essência & Propósito
-             </h2>
-             
-             <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nome Fantasia ou Especialista</label>
-                  <input 
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Ex: Tobias Estivalete ou Academia SinSalarial"
-                    className="w-full bg-white/40 border border-white/60 rounded-2xl px-6 py-4 text-lg font-bold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                  />
-                </div>
+             <div className="relative z-10">
+                <h2 className="text-2xl font-black text-gray-900 mb-10 flex items-center gap-4 uppercase tracking-tighter">
+                  <PenTool className="h-7 w-7" />
+                  Arquitetura de Identidade
+                </h2>
                 
-                <div>
-                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio / Contexto Profissional (Para a IA)</label>
-                  <div className="relative group/field">
-                    <textarea 
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="Quem é você? Qual sua autoridade? O que o seu negócio resolve? (Sinta-se livre para colar textos longos aqui)."
-                      rows={8}
-                      className={`w-full bg-white/40 border ${refineApplied ? 'border-primary-400 ring-2 ring-primary-100' : 'border-white/60'} rounded-3xl px-8 py-6 text-base font-medium text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none leading-relaxed animate-in fade-in duration-1000`}
-                    />
-                    {refineApplied && (
-                      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-[#2B3440]/10 text-[#2B3440] rounded-full text-[10px] font-black uppercase tracking-widest">
-                        <Sparkles className="h-3 w-3" /> Sugestão do Sistema
-                      </div>
-                    )}
-                  </div>
-                  <p className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">DICA: Cole aqui a bio do seu site ou portfólio para que o STELAR absorva sua história.</p>
+                <div className="space-y-12">
+                   <div className="space-y-4">
+                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-4">Nome Fantasia ou Especialista</label>
+                     <input 
+                       value={name}
+                       onChange={e => setName(e.target.value)}
+                       placeholder="Ex: Tobias Estivalete ou Academia SinSalarial"
+                       className="w-full bg-gray-50 border-2 border-gray-100 rounded-3xl px-10 py-6 text-2xl font-black text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-[#2B3440] focus:bg-white transition-all shadow-inner"
+                     />
+                   </div>
+                   
+                   <div className="space-y-4">
+                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-4">Bio / Contexto Profissional (Cérebro do Sistema)</label>
+                     <div className="relative group/field">
+                       <textarea 
+                         value={description}
+                         onChange={e => setDescription(e.target.value)}
+                         placeholder="Quem é você? Qual sua autoridade? O que o seu negócio resolve? (Sinta-se livre para colar textos longos aqui)."
+                         rows={10}
+                         className={`w-full bg-gray-50 border-2 ${refineApplied ? 'border-[#2B3440] ring-4 ring-[#2B3440]/5' : 'border-gray-100'} rounded-[3rem] px-10 py-8 text-lg font-medium text-gray-700 placeholder:text-gray-200 focus:outline-none focus:border-[#2B3440] focus:bg-white transition-all shadow-inner resize-none leading-relaxed`}
+                       />
+                       {refineApplied && (
+                         <div className="absolute top-6 right-8 flex items-center gap-2 px-5 py-2 bg-[#2B3440] text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                           <Sparkles className="h-4 w-4 fill-white" /> Sugestão do Sistema
+                         </div>
+                       )}
+                     </div>
+                     <p className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-4 bg-gray-50 inline-block px-4 py-1.5 rounded-full border border-gray-100">DICA: Cole aqui a bio do seu site ou portfólio para que o STELAR absorva sua história.</p>
+                   </div>
                 </div>
              </div>
           </section>
 
           {/* Card: Canais & Redes Sociais */}
-          <section className="bg-white border border-gray-200 p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-sm">
-             <div className="flex items-center justify-between mb-10">
-               <h2 className="text-xl font-black text-gray-900 flex items-center gap-3 uppercase tracking-tighter">
-                 <ExternalLink className="h-6 w-6 text-primary-500" />
-                 Canais & Redes Sociais
+          <section className="bg-white border-2 border-gray-200 p-10 md:p-14 rounded-[4rem] shadow-sm">
+             <div className="flex items-center justify-between mb-12">
+               <h2 className="text-2xl font-black text-gray-900 flex items-center gap-4 uppercase tracking-tighter">
+                 <ExternalLink className="h-7 w-7" />
+                 Sincronização de Canais
                </h2>
+               <div className="h-1 flex-1 mx-8 bg-gray-50 rounded-full" />
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {platforms.map((platform) => {
                   const savedProfile = socialProfiles.find(p => p.platform === platform.id);
                   const isActive = savedProfile?.isActive ?? false;
-                  const isInstagram = platform.id === 'instagram';
 
                   return (
-                    <div key={platform.id} className={`p-6 rounded-[1.5rem] border transition-all ${isActive ? 'bg-gray-50/50 border-gray-200' : 'bg-gray-50/20 border-gray-100 grayscale opacity-60'}`}>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`relative p-2 rounded-xl bg-white shadow-sm ${platform.color}`}>
+                    <div key={platform.id} className={`p-8 rounded-[2.5rem] border-2 transition-all group ${isActive ? 'bg-white border-gray-100 shadow-xl' : 'bg-gray-50 border-gray-50 grayscale opacity-40'}`}>
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-5">
+                          <div className={`relative p-3 rounded-2xl bg-white border-2 border-gray-50 shadow-sm ${platform.color} group-hover:scale-110 transition-transform`}>
                             {isActive && savedProfile?.metadata?.profilePicture ? (
                               <img 
                                 src={savedProfile.metadata.profilePicture} 
                                 alt={platform.label}
-                                className="h-6 w-6 rounded-lg object-cover"
+                                className="h-8 w-8 rounded-xl object-cover"
                               />
                             ) : (
-                              <platform.icon className="h-5 w-5" />
+                              <platform.icon className="h-6 w-6" />
                             )}
                             {isActive && (
-                              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+                              <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-lg" />
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-gray-900 text-sm leading-tight">{platform.label}</span>
+                            <span className="font-black text-gray-900 text-lg leading-tight">{platform.label}</span>
                             {isActive && savedProfile?.handle && (
-                              <span className="text-[10px] text-gray-400 font-bold">@{savedProfile.handle}</span>
+                              <span className="text-[11px] text-gray-400 font-bold tracking-widest">@{savedProfile.handle}</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-
-                          <button 
-                            onClick={() => {
-                              const newProfiles = [...socialProfiles];
-                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
-                              if (idx >= 0) {
-                                newProfiles[idx].isActive = !newProfiles[idx].isActive;
-                              } else {
-                                newProfiles.push({ platform: platform.id, handle: '', url: '', isActive: true });
-                              }
-                              setSocialProfiles(newProfiles);
-                            }}
-                            className={`w-12 h-6 rounded-full relative transition-colors ${isActive ? 'bg-primary-600' : 'bg-gray-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isActive ? 'right-1' : 'left-1'}`} />
-                          </button>
-                        </div>
+                        <button 
+                          onClick={() => {
+                            const newProfiles = [...socialProfiles];
+                            const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                            if (idx >= 0) {
+                              newProfiles[idx].isActive = !newProfiles[idx].isActive;
+                            } else {
+                              newProfiles.push({ platform: platform.id, handle: '', url: '', isActive: true });
+                            }
+                            setSocialProfiles(newProfiles);
+                          }}
+                          className={`w-14 h-8 rounded-full relative transition-all shadow-inner ${isActive ? 'bg-[#2B3440]' : 'bg-gray-200'}`}
+                        >
+                          <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg transition-all ${isActive ? 'right-1' : 'left-1'}`} />
+                        </button>
                       </div>
 
                       {isActive && (
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                          <input 
-                            value={savedProfile?.handle || ""}
-                            onChange={e => {
-                              const newProfiles = [...socialProfiles];
-                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
-                              newProfiles[idx].handle = e.target.value;
-                              setSocialProfiles(newProfiles);
-                            }}
-                            placeholder="@usuario ou handle"
-                            className="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2 text-sm font-bold text-gray-900 focus:outline-none"
-                          />
-                          <input 
-                            value={savedProfile?.url || ""}
-                            onChange={e => {
-                              const newProfiles = [...socialProfiles];
-                              const idx = newProfiles.findIndex(p => p.platform === platform.id);
-                              newProfiles[idx].url = e.target.value;
-                              setSocialProfiles(newProfiles);
-                            }}
-                            placeholder={platform.id === 'site' ? "https://seusite.com.br" : "Link do perfil"}
-                            className="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2 text-sm font-medium text-gray-500 focus:outline-none"
-                          />
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black text-gray-300 uppercase tracking-widest ml-4">Handle / Username</label>
+                             <input 
+                               value={savedProfile?.handle || ""}
+                               onChange={e => {
+                                 const newProfiles = [...socialProfiles];
+                                 const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                                 newProfiles[idx].handle = e.target.value;
+                                 setSocialProfiles(newProfiles);
+                               }}
+                               placeholder="@usuario"
+                               className="w-full h-14 bg-gray-50 border-2 border-transparent rounded-2xl px-6 text-sm font-black text-gray-900 focus:border-[#2B3440] focus:bg-white outline-none transition-all"
+                             />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black text-gray-300 uppercase tracking-widest ml-4">URL Estratégica</label>
+                             <input 
+                               value={savedProfile?.url || ""}
+                               onChange={e => {
+                                 const newProfiles = [...socialProfiles];
+                                 const idx = newProfiles.findIndex(p => p.platform === platform.id);
+                                 newProfiles[idx].url = e.target.value;
+                                 setSocialProfiles(newProfiles);
+                               }}
+                               placeholder={platform.id === 'site' ? "https://seusite.com.br" : "Link do perfil"}
+                               className="w-full h-14 bg-gray-50 border-2 border-transparent rounded-2xl px-6 text-sm font-medium text-gray-500 focus:border-[#2B3440] focus:bg-white outline-none transition-all"
+                             />
+                          </div>
                         </div>
                       )}
                     </div>

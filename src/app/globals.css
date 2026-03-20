@@ -37,11 +37,12 @@
 }
 
 :root {
-  --background: #F4F4F2; /* Solid Paper */
+  --background: #F4F4F2;
   --foreground: #1e293b;
   --card-bg: #FFFFFF;
-  --card-border: #E2E8F0;
+  --card-border: #D1D5DB; /* Defined more clearly */
   --accent: #2B3440;
+  --accent-hover: #1e293b;
 }
 
 body {
@@ -52,37 +53,53 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* System Surfaces - Replacing Glassmorphism */
+/* System Surfaces - Authority & Action */
 .stelar-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stelar-card-hover:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
 .button-primary {
-  background: #2b3440;
+  background: var(--accent);
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: background 0.2s ease;
+  letter-spacing: 0.15em;
+  box-shadow: 0 8px 16px -4px rgba(43, 52, 64, 0.3);
+  transition: all 0.2s ease;
 }
 
 .button-primary:hover {
-  background: #3a4655;
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px -5px rgba(43, 52, 64, 0.4);
+}
+
+.input-dominant {
+  background: #FFFFFF;
+  border: 2px solid #D1D5DB;
+  transition: all 0.3s ease;
+}
+
+.input-dominant:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(43, 52, 64, 0.05);
+  transform: translateY(-1px);
 }
 
 .text-gradient {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(90deg, #1e293b, #2b3440);
+  background-image: linear-gradient(90deg, #1e293b, #0f172a);
 }
 
 .no-scrollbar::-webkit-scrollbar {
