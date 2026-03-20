@@ -216,21 +216,18 @@ export default function IdeasLibrary() {
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* 3-PATH INTELLIGENCE HUB HEADER */}
-            <div className="bg-[#0A0D14] rounded-[60px] p-10 lg:p-16 text-white relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/10">
-                {/* Visual Glows */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[130px] -mr-40 -mt-40 rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-600/10 blur-[130px] -ml-20 -mb-20 rounded-full" />
-                
-                <div className="relative z-10 space-y-12">
+            {/* 3-PATH INTELLIGENCE HUB HEADER */}
+            <div className="bg-white border border-gray-200 rounded-[3rem] p-10 lg:p-16 shadow-sm relative overflow-hidden">
+                <div className="relative z-10 space-y-16">
                     {/* TOP LINE: TITLE & RADAR */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                        <div className="space-y-3">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-gray-100 pb-12">
+                        <div className="space-y-4">
                             <div className="flex items-center space-x-3">
-                                <div className="h-1.5 w-10 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" />
-                                <span className="text-[11px] font-black text-orange-500 uppercase tracking-[0.5em]">Creative Engine</span>
+                                <div className="h-1.5 w-10 bg-[#2B3440] rounded-full" />
+                                <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Arquitetura Narrativa</span>
                             </div>
-                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase font-[family-name:var(--font-space)]">
-                                Biblioteca de <span className="text-white/20">Pautas</span>
+                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase text-[#2B3440]">
+                                Biblioteca de <span className="text-gray-300">Pautas</span>
                             </h1>
                         </div>
 
@@ -238,34 +235,31 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleDailyNews}
                             disabled={isSyncing}
-                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-indigo-500/10 border border-indigo-500/40 rounded-[35px] transition-all hover:-translate-y-1 hover:bg-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/20 disabled:opacity-50 backdrop-blur-sm"
+                            className="group relative flex items-center gap-6 p-6 lg:p-8 bg-gray-50 border border-gray-200 rounded-[35px] transition-all hover:bg-white hover:border-[#2B3440] hover:shadow-xl hover:shadow-[#2B3440]/5 disabled:opacity-50"
                         >
-                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-[0_0_25px_rgba(79,70,229,0.5)] group-hover:scale-110 transition-transform">
+                            <div className="p-4 bg-[#2B3440] rounded-2xl shadow-lg">
                                 <RefreshCcw className={`h-6 w-6 text-white ${isSyncing ? 'animate-spin' : ''}`} />
                             </div>
                             <div className="text-left">
-                                <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Radar do DNA</h3>
-                                <p className="text-xs text-indigo-100/80 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> nos seus pilares fixos</p>
+                                <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440] mb-1">Radar Estratégico</h3>
+                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-tight">Varredura automática <br/> vinculada ao seu DNA</p>
                             </div>
                         </button>
                     </div>
 
                     {/* MIDDLE LINE: INPUT COMMAND */}
                     <div className="relative space-y-6">
-                        <div className="flex items-center gap-3 ml-8 text-gray-400">
-                            <Sparkles className="h-4 w-4 text-orange-400" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] brightness-150">No que você está pensando agora?</span>
+                        <div className="flex items-center gap-3 ml-4 text-gray-400">
+                            <Sparkles className="h-4 w-4 text-[#2B3440]" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Qual o tema da próxima narrativa?</span>
                         </div>
                         <div className="relative group/input">
                             <input 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Digite um tema, ideia ou cole uma URL aqui..."
-                                className="w-full h-24 pl-12 pr-12 bg-white/5 border border-white/10 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-white/5 focus:border-white/30 transition-all text-white text-3xl font-bold placeholder:text-gray-400 shadow-inner"
+                                placeholder="Digite um tema, ideia ou URL estratégica aqui..."
+                                className="w-full h-24 pl-10 pr-10 bg-gray-50 border border-gray-100 rounded-[40px] focus:outline-none focus:ring-8 focus:ring-[#2B3440]/5 focus:border-[#2B3440]/30 transition-all text-[#2B3440] text-3xl font-black placeholder:text-gray-300 shadow-inner"
                             />
-                            {/* Connection Visuals */}
-                            <div className="absolute -bottom-12 left-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-orange-500/30" />
-                            <div className="absolute -bottom-12 right-1/4 w-[2px] h-12 bg-gradient-to-b from-white/10 to-emerald-500/30" />
                         </div>
                     </div>
 
@@ -275,17 +269,17 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleCommandSubmit}
                             disabled={!searchQuery.trim() || isGeneratingManual}
-                            className="group relative flex items-center gap-8 p-10 bg-orange-500/10 border border-orange-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-orange-500/20 hover:shadow-2xl hover:shadow-orange-500/20 disabled:opacity-50 backdrop-blur-sm"
+                            className="group relative flex items-center gap-8 p-10 bg-white border border-gray-200 rounded-[40px] transition-all hover:border-[#2B3440] hover:shadow-2xl hover:shadow-[#2B3440]/10 disabled:opacity-50"
                         >
-                            <div className="p-4 bg-orange-600 rounded-2xl shadow-[0_0_25px_rgba(249,115,22,0.5)] group-hover:rotate-12 transition-transform">
-                                <Zap className="h-6 w-6 text-white fill-white" />
+                            <div className="p-4 bg-gray-100 group-hover:bg-[#2B3440] text-gray-400 group-hover:text-white rounded-2xl transition-colors">
+                                <Zap className="h-6 w-6 fill-current" />
                             </div>
                             <div className="text-left">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="text-lg font-black uppercase tracking-tight text-white">Lapidar Ideia</h3>
-                                    <Plus className="h-4 w-4 text-orange-400 animate-pulse" />
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440]">Lapidar Ideia</h3>
+                                    <Plus className="h-4 w-4 text-gray-300" />
                                 </div>
-                                <p className="text-xs text-orange-100/80 font-bold uppercase tracking-widest leading-tight">Transforma seu comando <br/> em uma pauta estratégica</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">Converte seu comando em <br/> pauta de alta autoridade</p>
                             </div>
                         </button>
 
@@ -293,19 +287,20 @@ export default function IdeasLibrary() {
                         <button 
                             onClick={handleSyncRSS}
                             disabled={!searchQuery.trim() || isSyncing}
-                            className="group relative flex items-center gap-8 p-10 bg-emerald-500/10 border border-emerald-500/40 rounded-[40px] transition-all hover:-translate-y-1 hover:bg-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/20 disabled:opacity-50 backdrop-blur-sm"
+                            className="group relative flex items-center gap-8 p-10 bg-white border border-gray-200 rounded-[40px] transition-all hover:border-[#2B3440] hover:shadow-2xl hover:shadow-[#2B3440]/10 disabled:opacity-50"
                         >
-                            <div className="p-4 bg-emerald-600 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
-                                <Globe className="h-6 w-6 text-white" />
+                            <div className="p-4 bg-gray-100 group-hover:bg-[#2B3440] text-gray-400 group-hover:text-white rounded-2xl transition-colors">
+                                <Globe className="h-6 w-6" />
                             </div>
                             <div className="text-left">
-                                <h3 className="text-lg font-black uppercase tracking-tight text-white mb-1">Explorar na Web</h3>
-                                <p className="text-xs text-emerald-100/80 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e cria 5+ ganchos magnéticos</p>
+                                <h3 className="text-lg font-black uppercase tracking-tight text-[#2B3440] mb-1">Explorar Repertório Web</h3>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">Busca referências atuais <br/> e estrutura novas abordagens</p>
                             </div>
                         </button>
                     </div>
                 </div>
             </div>
+
 
             {/* Filter Bar */}
             <div className="flex items-center justify-between gap-6">
@@ -327,67 +322,63 @@ export default function IdeasLibrary() {
 
             {/* Topics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-                {isLoading && (
+                {isLoading ? (
                     <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 animate-pulse text-gray-400 font-black uppercase tracking-widest text-xs">
                         Sincronizando com o cérebro da marca...
                     </div>
-                )}
-
-                {!isLoading && topics.length === 0 && (
-                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-32 text-gray-300 font-black uppercase tracking-[0.2em] text-xs glass-panel rounded-[48px]">
+                ) : topics.length === 0 ? (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-32 text-gray-300 font-black uppercase tracking-[0.2em] text-xs bg-gray-50 border border-gray-100 rounded-[48px]">
                         O cofre está vazio. Use os caminhos acima para começar.
                     </div>
+                ) : (
+                    filteredTopics.map((item, i) => {
+                        const isNew = item.isNew;
+                        return (
+                            <div key={item.id || i} className="group relative bg-white border border-gray-200 p-10 rounded-[48px] hover:shadow-xl hover:border-[#2B3440]/30 transition-all duration-700 flex flex-col h-full overflow-hidden shadow-sm">
+                                {isNew && (
+                                    <div className="absolute -right-12 top-8 rotate-45 bg-[#2B3440] text-white text-[9px] font-black px-12 py-1.5 shadow-xl z-20 uppercase tracking-[0.2em] flex items-center justify-center">
+                                        <Sparkles className="w-3 h-3 mr-1.5 fill-white" /> Novo
+                                    </div>
+                                )}
+
+                                <div className="relative z-10 flex items-center justify-between mb-8">
+                                    <div className="flex items-center space-x-2 bg-gray-50 text-[#2B3440] px-4 py-2 rounded-2xl border border-gray-100">
+                                        <Zap className="h-4 w-4 fill-[#2B3440]/20 text-[#2B3440]" />
+                                        <span className="text-[10px] font-black tracking-widest uppercase">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}% Sincronia</span>
+                                    </div>
+                                </div>
+
+                                <h3 className="relative z-10 text-2xl font-black text-[#2B3440] leading-[1.1] mb-4 tracking-tight uppercase">{item.title}</h3>
+                                <p className="relative z-10 mt-6 text-gray-500 font-medium leading-relaxed flex-grow text-[15px] line-clamp-4 font-serif italic">{item.summary}</p>
+
+                                <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-gray-100 space-x-3">
+                                    <button
+                                        onClick={() => initiateApprove(item)}
+                                        disabled={isApproveLoading[item.id]}
+                                        className="flex-1 h-16 bg-[#2B3440] text-white text-[10px] font-black rounded-[20px] hover:bg-[#3a4655] transition-all duration-500 flex items-center justify-center uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        {isApproveLoading[item.id] ? (
+                                            <RefreshCcw className="h-5 w-5 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <CheckCircle2 className="mr-2.5 h-5 w-5" />
+                                                Aprovar Pauta
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleReject(item.id)}
+                                        className="h-16 w-16 bg-white border border-gray-100 text-gray-300 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-[20px] transition-all duration-500 flex items-center justify-center"
+                                    >
+                                        <XCircle className="h-6 w-6" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
                 )}
-
-                {!isLoading && filteredTopics.map((item, i) => {
-                    const isNew = item.isNew;
-                    return (
-                        <div key={item.id || i} className="group relative glass-panel p-10 rounded-[48px] hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2 transition-all duration-700 flex flex-col h-full overflow-hidden border-white/60 ring-1 ring-black/[0.02]">
-                            {isNew && (
-                                <div className="absolute -right-12 top-8 rotate-45 bg-orange-500 text-white text-[9px] font-black px-12 py-1.5 shadow-xl z-20 uppercase tracking-[0.2em] flex items-center justify-center">
-                                    <Sparkles className="w-3 h-3 mr-1.5 fill-white" /> Novo
-                                </div>
-                            )}
-
-                            <div className="relative z-10 flex items-center justify-between mb-8">
-                                <div className="flex items-center space-x-2 bg-gray-50 text-gray-900 px-4 py-2 rounded-2xl border border-gray-100">
-                                    <Zap className="h-4 w-4 fill-orange-500 text-orange-500" />
-                                    <span className="text-[10px] font-black tracking-widest uppercase">{item.relevanceScore ? (item.relevanceScore * 100).toFixed(0) : '95'}%</span>
-                                </div>
-                                <span className="text-[10px] font-black tracking-[0.2em] text-gray-400 bg-gray-50 px-4 py-2 rounded-full uppercase border border-gray-100">
-                                    {item.platform}
-                                </span>
-                            </div>
-
-                            <h3 className="relative z-10 text-2xl font-black text-gray-900 leading-tight group-hover:text-orange-600 transition-colors tracking-tight">{item.title}</h3>
-                            <p className="relative z-10 mt-6 text-gray-500 font-medium leading-relaxed flex-grow text-lg line-clamp-4">{item.summary}</p>
-
-                            <div className="relative z-10 mt-10 flex items-center pt-8 border-t border-black/[0.03] space-x-3">
-                                <button
-                                    onClick={() => initiateApprove(item)}
-                                    disabled={isApproveLoading[item.id]}
-                                    className="flex-1 h-16 bg-white border border-gray-100 shadow-sm text-gray-900 text-[10px] font-black rounded-[20px] hover:bg-orange-500 hover:border-orange-500 hover:text-white hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-500 flex items-center justify-center uppercase tracking-widest disabled:opacity-50"
-                                >
-                                    {isApproveLoading[item.id] ? (
-                                        <RefreshCcw className="h-5 w-5 animate-spin" />
-                                    ) : (
-                                        <>
-                                            <CheckCircle2 className="mr-2.5 h-5 w-5" />
-                                            Aprovar
-                                        </>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => handleReject(item.id)}
-                                    className="h-16 w-16 bg-white border border-gray-100 shadow-sm text-gray-300 hover:text-red-500 hover:bg-red-50 hover:border-red-100 rounded-[20px] transition-all duration-500 flex items-center justify-center"
-                                >
-                                    <XCircle className="h-6 w-6" />
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
             </div>
+
 
             {/* Modal Aprovação */}
             {topicToApprove && (

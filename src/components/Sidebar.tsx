@@ -260,7 +260,7 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
 
                 <div className="border-t border-gray-100 pt-5 pb-2 text-center">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">
-                        Desenvolvido por <Link href="https://www.tobiasestivalete.com.br" target="_blank" className="text-[#2B3440] hover:underline">Tobias Estivalete</Link>
+                        Desenvolvido por <Link href="https://www.tobiasestivalete.com.br" target="_blank" className="text-[#2B3440] hover:underline whitespace-nowrap">Tobias Estivalete</Link>
                     </p>
                 </div>
             </div>
