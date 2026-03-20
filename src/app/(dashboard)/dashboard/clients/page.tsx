@@ -95,7 +95,37 @@ export default function ClientsPage() {
     const [copied, setCopied] = useState(false);
     const handleCopyToClipboard = () => {
         if (!inviteResult) return;
-        const text = `Olá! Seu acesso ao STELAR - The Social Architect System está pronto.\n\n🔗 Link: ${window.location.origin}/login\n📧 Email: ${inviteResult.email}\n🔑 Senha Provisória: ${inviteResult.tempPassword}\n\nAo entrar, o primeiro passo é configurar o DNA da sua marca para treinarmos sua IA.`;
+        const text = `Seu acesso ao STELAR foi ativado.
+
+🔗 Acesse:
+${window.location.origin}/login
+
+📧 Email:
+${inviteResult.email}
+
+🔑 Senha provisória:
+${inviteResult.tempPassword}
+
+Por segurança, altere sua senha no primeiro acesso.
+
+—
+
+Primeiro passo:
+
+Estruture o DNA da sua marca dentro do sistema.
+
+É a partir disso que o STELAR passa a operar com base no seu repertório e não em conteúdo genérico.
+
+—
+
+O STELAR não é uma ferramenta de posts.
+
+É a estrutura da sua presença digital.
+
+Qualquer dúvida, me chama por aqui.
+
+Use com intenção.
+Consistência sem estrutura não gera autoridade.`;
         
         navigator.clipboard.writeText(text);
         setCopied(true);
