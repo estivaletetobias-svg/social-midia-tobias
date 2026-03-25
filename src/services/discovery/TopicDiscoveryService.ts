@@ -26,12 +26,12 @@ export class TopicDiscoveryService {
       You are a high-level content strategist for ${brand.name}.
       
       Business Description: ${brand.description}
-      Target Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
-      Editorial Pillars: ${brand.editorialPillars.map((p: any) => p.title).join(', ')}
+      Target Audience: ${brand.audienceSegments.map((s: { name: string }) => s.name).join(', ')}
+      Editorial Pillars: ${brand.editorialPillars.map((p: { title: string }) => p.title).join(', ')}
       Tone of Voice: ${brand.toneOfVoice}
       
       Recent Knowledge Reference:
-      ${brand.knowledgeItems.map((k: any) => `- ${k.title}: ${k.content.substring(0, 300)}`).join('\n')}
+      ${brand.knowledgeItems.map((k: { title: string; content: string }) => `- ${k.title}: ${k.content.substring(0, 300)}`).join('\n')}
       
       TASK: Generate ${count} unique social media topic suggestions.
       Each topic must be strategically aligned with the brand and non-generic. ALL content must be written in Brazilian Portuguese (PT-BR).
@@ -40,7 +40,7 @@ export class TopicDiscoveryService {
       - summary: Brief strategic reasoning (PT-BR).
       - relevanceScore: 0-1.
       - alignmentScore: 0-1.
-      - recommendedPipeline: One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'}. (CRITICAL: Only use platforms active in the brand DNA).
+      - recommendedPipeline: One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: { platform: string }) => p.platform).join(', ') : '"Instagram", "LinkedIn"'}. (CRITICAL: Only use platforms active in the brand DNA).
       - recommendedFormat: "carousel", "short post", "article", or "video script".
       - Structure the text well. Break down complex ideas into bullet points or actionable protocols if suitable.
       - USE MARKDOWN FORMATTING: Use **bold** for key concepts (highly encouraged), headers (###), and bullet points to make the text scannable and premium.
@@ -60,7 +60,7 @@ export class TopicDiscoveryService {
 
         // Persist candidates in the database
         const savedCandidates = await Promise.all(
-            suggestions.map((s: any) =>
+            suggestions.map((s: { title: string; summary: string; relevanceScore: number; alignmentScore: number; recommendedPipeline: string; recommendedFormat: string }) =>
                 prisma.topicCandidate.create({
                     data: {
                         brandProfileId,
@@ -99,8 +99,8 @@ export class TopicDiscoveryService {
             You are the ultimate Gatekeeper & Content Strategist for ${brand.name}.
             
             Brand DNA: ${brand.description}
-            Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
-            Editorial Pillars: ${brand.editorialPillars.map((p: any) => p.title).join(', ')}
+            Audience: ${brand.audienceSegments.map((s: { name: string }) => s.name).join(', ')}
+            Editorial Pillars: ${brand.editorialPillars.map((p: { title: string }) => p.title).join(', ')}
 
             EXTERNAL NEWS/EVENT:
             """
@@ -119,7 +119,7 @@ export class TopicDiscoveryService {
                 "proposedHeadline": "Título atraente (PT-BR)",
                 "proposedSummary": "Por que a marca deve falar sobre isso de forma estratégica (PT-BR)",
                 "score": 0.0 to 1.0 (float),
-                "recommendedPlatform": One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: any) => p.platform).join(', ') : '"Instagram", "LinkedIn"'},
+                "recommendedPlatform": One of these specific values: ${brand.socialProfiles.length > 0 ? brand.socialProfiles.map((p: { platform: string }) => p.platform).join(', ') : '"Instagram", "LinkedIn"'},
                 "recommendedFormat": "short post" or "article" or "carousel"
             }
         `;
@@ -139,5 +139,41 @@ export class TopicDiscoveryService {
             where: { id: topicId },
             data: { status: 'approved' }
         });
+    }
+
+    /**
+     * Extracts optimized search keywords from a complex brand pillar or name.
+     * Prevents empty search results from overly long or specific pillar titles.
+     */
+    static async extractSearchKeywords(brandName: string, pillarTitle: string): Promise<string[]> {
+        if (!pillarTitle || pillarTitle.trim().length < 5) return [brandName];
+
+        const prompt = `
+            Identify up to 2 specific, neutral, and searchable keywords or short phrases for Google News based on this brand pillar:
+            """
+            ${pillarTitle}
+            """
+            
+            Brand context: ${brandName}
+            
+            Return ONLY a comma-separated list of keywords. Keep them short, in Brazilian Portuguese.
+            Example: "Innovação em agronegócio" or "Trabalho remoto, produtividade".
+        `;
+
+        try {
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4o-mini', // Faster and cheaper for simple extraction
+                messages: [{ role: 'system', content: prompt }],
+                temperature: 0.1,
+            });
+
+            const content = response.choices[0].message.content || '';
+            const keywords = content.split(',').map(k => k.trim()).filter(k => k.length > 0);
+            
+            return keywords.length > 0 ? keywords : [pillarTitle.substring(0, 30)];
+        } catch (error) {
+            console.error('Keyword extraction failed:', error);
+            return [pillarTitle.substring(0, 30)];
+        }
     }
 }

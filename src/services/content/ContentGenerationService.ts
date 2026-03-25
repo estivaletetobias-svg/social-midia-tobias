@@ -22,7 +22,15 @@ export class ContentGenerationService {
      */
     static async generateDraft(request: GenerationRequest) {
         // Fetch brand profile with tone of voice and knowledge base
-        const brand: any = await prisma.brandProfile.findUnique({
+        const brand: { 
+            id: string; 
+            name: string; 
+            description: string | null; 
+            toneOfVoice: string | null; 
+            writingRules: string[]; 
+            audienceSegments: { name: string }[]; 
+            editorialPillars: { title: string }[] 
+        } | null = await prisma.brandProfile.findUnique({
             where: { id: request.brandProfileId },
             include: {
                 editorialPillars: true,
@@ -40,12 +48,12 @@ export class ContentGenerationService {
         // Step 0: RAG - Fetch relevant knowledge
         const contextResults = await VectorService.searchKnowledge(
             brand.id,
-            `${topic?.title || ''} ${request.goal || ''} ${brand.editorialPillars.map((p: any) => p.title).join(' ')}`,
+            `${topic?.title || ''} ${request.goal || ''} ${brand.editorialPillars.map((p: { title: string }) => p.title).join(' ')}`,
             4 // Limit to 4 relevant items to stay within TPM limits
         );
 
         const knowledgeContext = contextResults.length > 0
-            ? contextResults.map((k: any) => `[${k.title}]\n${k.content.substring(0, 3000)}...`).join('\n\n')
+            ? contextResults.map((k: { title: string; content: string }) => `[${k.title}]\n${k.content.substring(0, 3000)}...`).join('\n\n')
             : 'No direct reference materials found.';
 
         // Step 1: Define Goal & Audience Strategy (System-driven)
@@ -73,7 +81,7 @@ export class ContentGenerationService {
         };
     }
 
-    private static async generateStrategy(request: GenerationRequest, brand: any, topic: any, knowledgeContext: string) {
+    private static async generateStrategy(request: GenerationRequest, brand: { name: string, toneOfVoice: string | null, editorialPillars: { title: string }[] }, topic: { title: string; summary: string } | null, knowledgeContext: string) {
         const prompt = `
       You are a senior social media strategist. 
       Brand: ${brand.name}
@@ -114,14 +122,20 @@ export class ContentGenerationService {
         return this.askAI(prompt, request.provider || 'OPENAI', true);
     }
 
-    private static extractText(content: any): string {
+    private static extractText(content: string | string[] | Record<string, unknown> | null | undefined): string {
         if (!content) return '';
         if (typeof content === 'string') return content;
         if (Array.isArray(content)) {
-            return content.map(item => this.extractText(item.content || item.text || item)).join('\n\n');
+            return content.map(item => {
+                if (typeof item === 'string') return item;
+                if (typeof item === 'object' && item !== null) {
+                    return this.extractText((item as Record<string, unknown>).content as string | string[] | Record<string, unknown> || (item as Record<string, unknown>).text as string | string[] | Record<string, unknown> || item as Record<string, unknown>);
+                }
+                return String(item);
+            }).join('\n\n');
         }
-        if (typeof content === 'object') {
-            return this.extractText(content.content || content.text || content.body || JSON.stringify(content));
+        if (typeof content === 'object' && content !== null) {
+            return this.extractText(content.content as string | string[] | Record<string, unknown> || content.text as string | string[] | Record<string, unknown> || content.body as string | string[] | Record<string, unknown> || JSON.stringify(content));
         }
         return String(content);
     }
@@ -140,7 +154,7 @@ export class ContentGenerationService {
       
       Brand Voice: ${brand.toneOfVoice}
       Specific Rules: ${brand.writingRules ? brand.writingRules.join(', ') : 'Direct, authoritative, dense, and sophisticated.'}
-      Target Audience: ${brand.audienceSegments.map((s: any) => s.name).join(', ')}
+      Target Audience: ${brand.audienceSegments.map((s: { name: string }) => s.name).join(', ')}
       Format: ${request.format}
       Structure: ${JSON.stringify(structure.sections)}
       
@@ -235,12 +249,14 @@ export class ContentGenerationService {
         try {
             return JSON.parse(cleaned);
         } catch (initialError) {
+            // eslint-disable-next-line no-control-regex
             const hardClean = cleaned.replace(/[\x00-\x1F\x7F-\x9F]/g, " "); 
             return JSON.parse(hardClean);
         }
     }
 
     private static async callGemini(prompt: string, isJson: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { VertexAI } = require('@google-cloud/vertexai');
         
         const project = process.env.GCP_PROJECT_ID;
@@ -249,7 +265,7 @@ export class ContentGenerationService {
 
         if (!project) throw new Error('GOOGLE CONFIG MISSING: Please add GCP_PROJECT_ID to your Vercel/Env variables');
 
-        let authOptions: any = { project, location };
+        const authOptions: { project: string; location: string; googleAuthOptions?: { credentials: any } } = { project, location };
 
         if (serviceAccountJson) {
             try {
@@ -263,9 +279,7 @@ export class ContentGenerationService {
 
         const vertex_ai = new VertexAI(authOptions);
         
-        // Restore your specific project model if 2.5-flash was intended, 
-        // fallback to standard 1.5-flash if needed.
-        let modelName = 'gemini-2.0-flash'; // Fallback starting point
+        // From user logs, it seems they had 2.5-flash originally
         
         // From user logs, it seems they had 2.5-flash originally
         const tryModels = ['gemini-2.5-flash', 'gemini-1.5-flash-002', 'gemini-1.5-flash-001', 'gemini-1.5-flash'];

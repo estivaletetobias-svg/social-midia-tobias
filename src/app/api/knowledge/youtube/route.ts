@@ -15,7 +15,7 @@ import { authOptions } from "@/lib/auth";
 function extractVideoId(url: string): string | null {
     console.log(`[YouTube] URL recebida para extração: "${url}"`);
     const match = url.match(
-        /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([^"&?\/\s]{11})/
+        /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([^"&?/\s]{11})/
     );
     return match ? match[1] : null;
 }
@@ -30,7 +30,9 @@ async function fetchVideoMeta(videoId: string): Promise<{ title: string; author:
             const data = await res.json();
             return { title: data.title || `Vídeo ${videoId}`, author: data.author_name || '' };
         }
-    } catch (e) { }
+    } catch (e) {
+        console.warn(`[YouTube Meta] Failed for ${videoId}:`, e instanceof Error ? e.message : e);
+    }
     return { title: `Vídeo ${videoId}`, author: '' };
 }
 
@@ -278,7 +280,9 @@ async function tier5_DirectScrape(videoId: string): Promise<string | null> {
                 const text = data.events.filter((e: any) => e.segs).map((e: any) => e.segs.map((s: any) => s.utf8).join('')).join(' ').replace(/\s+/g, ' ').trim();
                 if (text.length > 50) return text;
             }
-        } catch { }
+        } catch (e) {
+            console.warn(`[YouTube Tier 5] Failed for lang ${l}:`, e instanceof Error ? e.message : e);
+        }
     }
     return null;
 }
@@ -318,7 +322,7 @@ export async function POST(req: Request) {
         // ── Cascata de Tiers ──
         let transcript: string | null = null;
         let tierUsed = '';
-        let errors: string[] = [];
+        const errors: string[] = [];
 
         console.log(`[YouTube] 1. Tentando Supadata (Tier 1)...`);
         try {

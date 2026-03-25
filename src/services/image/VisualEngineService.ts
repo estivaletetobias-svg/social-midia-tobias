@@ -208,7 +208,6 @@ export class VisualEngineService {
             sampleCount: 1,
         });
 
-        // @ts-ignore - fixing type mismatch with vertex SDK
         const [response] = await client.predict({
             endpoint,
             instances,

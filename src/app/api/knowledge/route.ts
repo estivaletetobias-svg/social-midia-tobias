@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json().catch(() => ({}));
-        let { title, content, sourceUrl, type, tags, brandId } = body;
+        const { title, content, sourceUrl, type, tags, brandId } = body;
 
         const targetBrandId = brandId || (session.user as any).brandId;
 

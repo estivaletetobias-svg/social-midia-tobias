@@ -30,10 +30,8 @@ export async function GET(req: Request) {
         });
 
         // Mark them as not new anymore (asynchronously for better performance)
-        // @ts-ignore
-        const newIds = topics.filter(t => (t as any).isNew).map(t => t.id);
+        const newIds = topics.filter(t => t.isNew).map(t => t.id);
         if (newIds.length > 0) {
-            // @ts-ignore
             prisma.topicCandidate.updateMany({
                 where: { id: { in: newIds } },
                 data: { isNew: false }

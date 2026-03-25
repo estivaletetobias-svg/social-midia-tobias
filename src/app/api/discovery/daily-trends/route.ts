@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { RssDiscoveryService } from '@/services/discovery/RssDiscoveryService';
+import { TopicDiscoveryService } from '@/services/discovery/TopicDiscoveryService';
 
 export async function POST(req: Request) {
     try {
@@ -39,14 +40,19 @@ export async function POST(req: Request) {
 
         // Processar os 3 primeiros pilares (evitar timeout em requisições serverless)
         for (const term of searchTerms.slice(0, 3)) {
-            const googleNewsUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(term)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+            // Extrair palavras-chave otimizadas para busca
+            const keywords = await TopicDiscoveryService.extractSearchKeywords(brand.name, term);
+            
+            for (const keyword of keywords) {
+                const googleNewsUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(keyword)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
 
-            try {
-                const result = await RssDiscoveryService.ingestNews(brand.id, googleNewsUrl);
-                totalScraped += result.scraped;
-                totalSaved += result.savedToLibrary;
-            } catch (err) {
-                console.error(`Erro ao processar pilar ${term}:`, err);
+                try {
+                    const result = await RssDiscoveryService.ingestNews(brand.id, googleNewsUrl);
+                    totalScraped += result.scraped;
+                    totalSaved += result.savedToLibrary;
+                } catch (err) {
+                    console.error(`Erro ao processar termo ${keyword}:`, err);
+                }
             }
         }
 
