@@ -80,7 +80,7 @@ export default function ContentPipeline() {
                         <div className="pulse-indicator" />
                         <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Motor de Produção Ativo</span>
                     </div>
-                    <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
+                    <h1 className="text-4xl sm:text-5xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.9] lg:leading-[0.85] uppercase">
                         Esteira <br />
                         <span className="text-gradient">de Produção</span>
                     </h1>
@@ -91,12 +91,12 @@ export default function ContentPipeline() {
                 <div className="shrink-0">
                     <button
                         onClick={() => alert("Em breve! Por enquanto deixe a Inteligência Artificial trabalhar por você aprovando ideias!")}
-                        className="button-primary h-22 px-14 rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden shadow-2xl shadow-[#2B3440]/20"
+                        className="button-primary h-14 lg:h-22 px-8 lg:px-14 rounded-[2rem] lg:rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden shadow-2xl shadow-[#2B3440]/20"
                     >
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <PenTool className="mr-5 h-6 w-6 fill-white" />
+                        <PenTool className="mr-3 h-5 w-5 fill-white" />
                         <span className="uppercase tracking-[0.2em] text-xs font-black">Arquitetar Conteúdo</span>
-                        <FastForward className="ml-5 h-6 w-6 transform group-hover:translate-x-1 transition-transform" />
+                        <FastForward className="ml-3 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
             </div>
@@ -145,7 +145,7 @@ export default function ContentPipeline() {
                     </div>
                 ) : (
                     pieces.map((piece) => (
-                        <div key={piece.id} className="stelar-card p-12 group hover:translate-y-[-8px] transition-all duration-700 shadow-3xl flex flex-col gap-10 border-2 border-transparent hover:border-[#2B3440]/10">
+                        <div key={piece.id} className="stelar-card p-6 lg:p-12 group hover:translate-y-[-4px] lg:hover:translate-y-[-8px] transition-all duration-700 shadow-3xl flex flex-col gap-6 lg:gap-10 border-2 border-transparent hover:border-[#2B3440]/10">
                             
                             <div className="flex items-start justify-between">
                                 <div className="space-y-4">

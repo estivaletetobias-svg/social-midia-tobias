@@ -343,21 +343,21 @@ export default function ContentEditor() {
                             {piece.format}
                         </span>
                     </div>
-                    <h1 className="text-3xl lg:text-5xl font-black tracking-tighter text-gray-900 leading-tight">
+                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black tracking-tighter text-gray-900 leading-tight">
                         {piece.title}
                     </h1>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center flex-wrap gap-3">
                     <button
                         onClick={() => alert("Texto salvo na nuvem com sucesso!")}
-                        className="h-14 px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
+                        className="h-12 lg:h-14 px-5 lg:px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
                         <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                        Salvar Rascunho
+                        Salvar
                     </button>
                     <button
                         onClick={handleApprove}
-                        className="h-14 px-8 min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
+                        className="h-12 lg:h-14 px-6 lg:px-8 flex-1 lg:flex-none lg:min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         <CheckCircle2 className="mr-3 h-5 w-5 text-primary-400" />
                         <span className="relative z-10 whitespace-nowrap">APROVAR E AVANÇAR</span>
@@ -668,27 +668,29 @@ export default function ContentEditor() {
                                 )}
                             </div>
 
-                            {/* Interaction/Refinement Box */}
-                            <div className="mt-6 p-6 bg-primary-50/30 rounded-3xl border border-primary-100/50 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-primary-600 flex items-center">
-                                        <Wand2 className="mr-2 h-4 w-4" />
+                            {/* Interaction/Refinement Box - AI Chat Panel */}
+                            <div className="mt-6 p-5 lg:p-6 bg-primary-50/30 rounded-3xl border border-primary-100/50 space-y-4">
+                                <div className="flex items-start justify-between gap-4">
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-primary-600 flex items-center flex-1">
+                                        <Wand2 className="mr-2 h-4 w-4 shrink-0" />
                                         Interagir com a IA (Refinar)
                                     </h4>
-                                    <span className="text-[10px] font-bold text-gray-400">Use comandos abertos como "faça mais curto" ou "mude o tom"</span>
+                                    <span className="text-[10px] font-bold text-gray-400 text-right leading-tight hidden sm:block">Use comandos abertos como "faça mais curto" ou "mude o tom"</span>
                                 </div>
-                                <div className="flex gap-3">
+                                <p className="text-[10px] font-bold text-gray-400 sm:hidden">Use comandos abertos como "faça mais curto" ou "mude o tom"</p>
+                                {/* Mobile: stack vertically. Desktop: side-by-side */}
+                                <div className="flex flex-col sm:flex-row gap-3">
                                     <TextareaAutosize
                                         value={refinementText}
                                         onChange={(e) => setRefinementText(e.target.value)}
                                         placeholder="Ex: Deixe mais autoritário e foque no problema da biomecânica..."
                                         className="flex-1 bg-white border border-gray-100 rounded-2xl px-5 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all resize-none shadow-inner"
-                                        minRows={1}
+                                        minRows={2}
                                     />
                                     <button 
                                         onClick={handleRefineText}
                                         disabled={isRefining || !refinementText.trim()}
-                                        className="h-auto px-6 bg-gray-900 text-white text-[10px] font-black rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl flex items-center uppercase tracking-widest whitespace-nowrap"
+                                        className="w-full sm:w-auto h-12 sm:h-auto px-6 bg-gray-900 text-white text-[10px] font-black rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl flex items-center justify-center uppercase tracking-widest"
                                     >
                                         {isRefining ? 'Ajustando...' : 'Pedir Ajuste'}
                                     </button>

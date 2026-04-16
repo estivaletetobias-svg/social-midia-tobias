@@ -65,59 +65,59 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
+        <div className="max-w-7xl mx-auto space-y-10 py-6 lg:py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* Header - Dominant Level */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 border-b border-gray-100 pb-16">
-                <div className="space-y-6 flex-1">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-12 border-b border-gray-100 pb-8 lg:pb-16">
+                <div className="space-y-4 lg:space-y-6 flex-1">
                     <div className="flex items-center gap-3">
                         <div className="pulse-indicator" />
                         <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">STELAR Engine Active</span>
                     </div>
-                    <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
+                    <h1 className="text-4xl sm:text-5xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.9] lg:leading-[0.85] uppercase">
                         Sua Marca <br />
                         <span className="text-gradient">Codificada.</span>
                     </h1>
-                    <p className="text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
+                    <p className="text-base lg:text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
                         Arquitetura de autoridade construída com inteligência proprietária. O sistema opera 100% sobre o seu repertório estratégico.
                     </p>
                 </div>
                 <div className="shrink-0">
                     <button 
                         onClick={() => router.push('/dashboard/brand')}
-                        className="button-primary h-22 px-14 rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden"
+                        className="button-primary h-14 lg:h-22 px-8 lg:px-14 rounded-[2rem] lg:rounded-[2.5rem] text-[11px] flex items-center group relative overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <Zap className="mr-5 h-6 w-6 fill-white" />
+                        <Zap className="mr-3 lg:mr-5 h-5 w-5 fill-white" />
                         Começar pelo DNA da Marca
-                        <ArrowUpRight className="ml-5 h-6 w-6 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        <ArrowUpRight className="ml-3 lg:ml-5 h-5 w-5 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     </button>
                 </div>
             </div>
 
             {/* System Status Stats - Support Level */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {stats.map((item, i) => (
-                    <div key={i} className="stelar-card stelar-card-hover p-10 group overflow-hidden relative">
+                    <div key={i} className="stelar-card stelar-card-hover p-5 lg:p-10 group overflow-hidden relative">
                         <div className="absolute -right-4 -top-4 w-32 h-32 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 -z-0" />
                         <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-10">
-                                <div className="h-16 w-16 rounded-[2rem] bg-gray-50 flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all duration-500 shadow-sm">
-                                    <item.icon className="h-7 w-7" />
+                            <div className="flex items-center justify-between mb-4 lg:mb-10">
+                                <div className="h-10 w-10 lg:h-16 lg:w-16 rounded-2xl lg:rounded-[2rem] bg-gray-50 flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all duration-500 shadow-sm">
+                                    <item.icon className="h-5 w-5 lg:h-7 lg:w-7" />
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-full border border-gray-100">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.change}</span>
                                 </div>
                             </div>
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{item.name}</p>
-                            <h3 className="text-5xl font-black text-gray-900 tracking-tighter">{item.value}</h3>
+                            <p className="text-[9px] lg:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] lg:tracking-[0.2em] mb-1 lg:mb-2 leading-tight">{item.name}</p>
+                            <h3 className="text-3xl lg:text-5xl font-black text-gray-900 tracking-tighter">{item.value}</h3>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Core Operation Row - Action Oriented */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
                 <div className="lg:col-span-7 space-y-10">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -143,23 +143,22 @@ export default function DashboardPage() {
                                 <button 
                                     key={piece.id}
                                     onClick={() => piece.status === 'idea' ? router.push('/dashboard/content') : router.push(`/dashboard/content/${piece.id}`)}
-                                    className="w-full text-left p-8 stelar-card stelar-card-hover rounded-[3rem] flex items-center justify-between group"
+                                    className="w-full text-left p-5 lg:p-8 stelar-card stelar-card-hover rounded-2xl lg:rounded-[3rem] flex items-center justify-between group active:scale-[0.98]"
                                 >
-                                    <div className="flex items-center gap-8">
-                                        <div className="h-16 w-16 bg-gray-50 rounded-[1.5rem] flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all shadow-sm">
-                                            <PenTool className="h-7 w-7" />
+                                    <div className="flex items-center gap-4 lg:gap-8 min-w-0 flex-1">
+                                        <div className="h-12 w-12 lg:h-16 lg:w-16 shrink-0 bg-gray-50 rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-[#2B3440] group-hover:bg-[#2B3440] group-hover:text-white transition-all shadow-sm">
+                                            <PenTool className="h-5 w-5 lg:h-7 lg:w-7" />
                                         </div>
-                                        <div>
-                                            <h4 className="text-xl font-black text-gray-900 tracking-tight mb-2 group-hover:text-[#2B3440] transition-colors">{piece.title}</h4>
-                                            <div className="flex items-center gap-5">
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{piece.platform} · {piece.format}</span>
-                                                <div className="h-2 w-2 rounded-full bg-blue-500/20 group-hover:bg-blue-500 transition-colors" />
-                                                <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-widest">{statusLabels[piece.status] || piece.status}</span>
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="text-base lg:text-xl font-black text-gray-900 tracking-tight mb-1 lg:mb-2 group-hover:text-[#2B3440] transition-colors truncate">{piece.title}</h4>
+                                            <div className="flex items-center gap-2 lg:gap-5 flex-wrap">
+                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{piece.platform} · {piece.format}</span>
+                                                <span className="text-[9px] font-black text-[#2B3440] uppercase tracking-widest">{statusLabels[piece.status] || piece.status}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#2B3440] group-hover:text-white transition-all transform group-hover:rotate-45">
-                                        <ArrowUpRight className="h-5 w-5" />
+                                    <div className="h-10 w-10 lg:h-12 lg:w-12 shrink-0 ml-3 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#2B3440] group-hover:text-white transition-all transform group-hover:rotate-45">
+                                        <ArrowUpRight className="h-4 w-4 lg:h-5 lg:w-5" />
                                     </div>
                                 </button>
                             ))
@@ -169,7 +168,7 @@ export default function DashboardPage() {
 
                 <div className="lg:col-span-5 space-y-8">
                     {/* Activation Card - PREMIUM DESIGN */}
-                    <div className="p-14 bg-gray-900 rounded-[4rem] shadow-3xl relative overflow-hidden group border border-white/5">
+                    <div className="p-8 lg:p-14 bg-gray-900 rounded-[2.5rem] lg:rounded-[4rem] shadow-3xl relative overflow-hidden group border border-white/5">
                         <div className="absolute top-0 right-0 p-12 opacity-10 transform translate-x-8 translate-y-8 group-hover:rotate-12 transition-transform duration-1000">
                             <Sparkles className="h-56 w-56 text-white" />
                         </div>

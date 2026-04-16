@@ -16,6 +16,18 @@ export const metadata: Metadata = {
     },
     manifest: "/manifest.json",
     themeColor: "#000000",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "black-translucent",
+        title: "STELAR",
+    },
+};
+
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: "cover", // Critical for iPhone X+ safe areas (tab bar, notch)
 };
 
 export default function RootLayout({

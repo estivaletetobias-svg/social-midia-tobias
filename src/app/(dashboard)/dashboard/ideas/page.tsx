@@ -225,7 +225,7 @@ export default function IdeasLibrary() {
                         <div className="pulse-indicator" />
                         <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Arquitetura Narrativa Ativa</span>
                     </div>
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-gray-900 leading-[0.9] uppercase">
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight text-gray-900 leading-[0.9] uppercase">
                         Biblioteca <br />
                         <span className="text-gradient">Estratégica</span>
                     </h1>
@@ -237,7 +237,7 @@ export default function IdeasLibrary() {
                     <button
                         onClick={handleDailyNews}
                         disabled={isSyncing}
-                        className="button-primary h-22 px-12 rounded-[2.5rem] flex items-center justify-center gap-4 group relative overflow-hidden disabled:opacity-50"
+                        className="button-primary h-14 lg:h-22 px-8 lg:px-12 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center gap-3 lg:gap-4 group relative overflow-hidden disabled:opacity-50"
                     >
                         {isSyncing ? (
                             <RefreshCcw className="h-6 w-6 animate-spin" />
@@ -297,12 +297,12 @@ export default function IdeasLibrary() {
 
             {/* Filter Bar */}
             <div className="flex items-center justify-between gap-6">
-                <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-[24px] border border-gray-100 shadow-sm">
+                <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar bg-gray-50 p-2 rounded-3xl border border-gray-100 shadow-sm">
                     {categories.map((cat) => (
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`px-6 py-3 text-[10px] font-black rounded-[18px] transition-all uppercase tracking-widest ${activeCategory === cat ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-900 border border-transparent"}`}
+                            className={`shrink-0 px-4 py-2.5 text-[9px] font-black rounded-[18px] transition-all uppercase tracking-widest ${activeCategory === cat ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-900 border border-transparent"}`}
                         >
                             {cat}
                         </button>

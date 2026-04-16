@@ -1,5 +1,5 @@
 import { Sidebar } from "@/components/Sidebar";
-import { MobileNav } from "@/components/MobileNav";
+import { BottomTabBar } from "@/components/BottomTabBar";
 
 export default function DashboardLayout({
     children,
@@ -8,10 +8,16 @@ export default function DashboardLayout({
 }) {
     return (
         <div className="flex h-full min-h-screen">
-            <MobileNav />
+            {/* Desktop Sidebar - hidden on mobile */}
             <Sidebar />
-            <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">
-                <div className="p-4 sm:p-6 lg:p-10 lg:pl-0 max-w-8xl mx-auto w-full">
+            {/* Native mobile bottom tab bar */}
+            <BottomTabBar />
+            <main className="flex-1 overflow-y-auto">
+                {/* 
+                  - Mobile: p-4 top + extra bottom padding (pb-24) to clear the tab bar
+                  - Desktop: original lg:p-10 lg:pl-0, no extra bottom pad 
+                */}
+                <div className="p-4 pb-28 sm:p-6 sm:pb-28 lg:p-10 lg:pl-0 lg:pb-10 max-w-8xl mx-auto w-full">
                     {children}
                 </div>
             </main>
