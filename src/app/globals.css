@@ -49,9 +49,10 @@
 
 @layer base {
   html {
-    /* Eliminate lateral slide / bounce on mobile */
+    /* Eliminate lateral slide / bounce on mobile — permanently */
     overscroll-behavior: none;
     overscroll-behavior-x: none;
+    overflow-x: hidden;
     /* Smooth scroll globally */
     scroll-behavior: smooth;
   }
@@ -63,6 +64,9 @@
       radial-gradient(at 50% 0%, rgba(6, 182, 212, 0.02) 0, transparent 50%);
     position: relative;
     min-height: 100vh;
+    /* Kill horizontal overflow globally */
+    overflow-x: hidden;
+    max-width: 100vw;
     /* Native app feel: remove tap highlight on mobile */
     -webkit-tap-highlight-color: transparent;
     /* Prevent text size adjustment on orientation change */

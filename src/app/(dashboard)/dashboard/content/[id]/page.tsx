@@ -327,7 +327,7 @@ export default function ContentEditor() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
+        <div className="max-w-7xl mx-auto space-y-8 lg:space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20 overflow-x-hidden">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between pb-8 border-b border-black/5 gap-6">
                 <div>
@@ -348,19 +348,20 @@ export default function ContentEditor() {
                     </h1>
                 </div>
 
-                <div className="flex items-center flex-wrap gap-3">
+                {/* Mobile: stack buttons vertically. Desktop: side-by-side */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                     <button
                         onClick={() => alert("Texto salvo na nuvem com sucesso!")}
-                        className="h-12 lg:h-14 px-5 lg:px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
+                        className="h-12 w-full sm:w-auto px-5 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center group">
                         <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                        Salvar
+                        Salvar Rascunho
                     </button>
                     <button
                         onClick={handleApprove}
-                        className="h-12 lg:h-14 px-6 lg:px-8 flex-1 lg:flex-none lg:min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
+                        className="h-12 w-full sm:w-auto px-6 bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.1em] font-black rounded-2xl shadow-lg transition-all flex items-center justify-center active:scale-95 group overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <CheckCircle2 className="mr-3 h-5 w-5 text-primary-400" />
-                        <span className="relative z-10 whitespace-nowrap">APROVAR E AVANÇAR</span>
+                        <CheckCircle2 className="mr-2 h-4 w-4 text-primary-400" />
+                        <span className="relative z-10">APROVAR E AVANÇAR</span>
                     </button>
                 </div>
             </div>
@@ -368,31 +369,36 @@ export default function ContentEditor() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left Column: Visual AI Prompt & Image Preview */}
                 <div className="col-span-1 lg:col-span-5 space-y-8">
-                    <div className="glass-panel p-8 rounded-[40px] border-white/60 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden">
+                    <div className="glass-panel p-5 lg:p-8 rounded-3xl lg:rounded-[40px] border-white/60 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <div className="relative z-10 flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-black text-gray-900 flex items-center">
-                                <ImageIcon className="mr-3 h-6 w-6 text-primary-500" />
+                        {/* Header: title left, icon buttons right — no text labels on mobile */}
+                        <div className="relative z-10 flex items-center justify-between mb-5">
+                            <h3 className="text-base lg:text-xl font-black text-gray-900 flex items-center">
+                                <ImageIcon className="mr-2 h-5 w-5 text-primary-500" />
                                 Biblioteca de Mídia
                             </h3>
-                            <div className="flex space-x-2">
+                            <div className="flex gap-2">
+                                {/* Copy prompt — icon only */}
                                 <button
                                     onClick={() => copyToClipboard(version.imagePrompt)}
-                                    title="Copiar prompt para usar em outra IA"
-                                    className="h-10 px-3 bg-white border-2 border-gray-100 text-gray-500 rounded-lg hover:border-primary-500 hover:text-primary-600 transition-all flex items-center shadow-sm">
+                                    title="Copiar prompt"
+                                    className="h-9 w-9 bg-white border border-gray-200 text-gray-500 rounded-xl hover:border-primary-500 hover:text-primary-600 transition-all flex items-center justify-center shadow-sm">
                                     <Copy className="h-4 w-4" />
                                 </button>
-                                <label className="cursor-pointer h-10 px-4 bg-primary-500 text-white text-xs font-black rounded-lg hover:bg-black transition-all flex items-center shadow-lg transform hover:-translate-y-0.5">
-                                    <UploadCloud className="mr-2 h-4 w-4" />
-                                    Subir Foto
+                                {/* Upload — icon + label on lg, icon only on mobile */}
+                                <label className="cursor-pointer h-9 w-9 lg:w-auto lg:px-4 bg-primary-500 text-white text-xs font-black rounded-xl hover:bg-black transition-all flex items-center justify-center shadow-sm">
+                                    <UploadCloud className="h-4 w-4 lg:mr-2" />
+                                    <span className="hidden lg:inline">Subir Foto</span>
                                     <input type="file" accept="image/*" className="hidden" onChange={handleManualImageUpload} />
                                 </label>
+                                {/* Search — icon + label on lg, icon only on mobile */}
                                 <button
                                     onClick={() => setIsGoogleModalOpen(true)}
-                                    className="h-10 px-4 bg-white border-2 border-gray-100 text-gray-700 text-xs font-black rounded-lg hover:border-primary-500 hover:text-primary-600 transition-all flex items-center shadow-sm">
-                                    <Search className="mr-2 h-4 w-4" />
-                                    Buscar Real
+                                    title="Buscar foto"
+                                    className="h-9 w-9 lg:w-auto lg:px-4 bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-xl hover:border-primary-500 hover:text-primary-600 transition-all flex items-center justify-center shadow-sm">
+                                    <Search className="h-4 w-4 lg:mr-2" />
+                                    <span className="hidden lg:inline">Buscar Real</span>
                                 </button>
                             </div>
                         </div>
@@ -561,37 +567,40 @@ export default function ContentEditor() {
                         </div>
                     )}
 
-                    <div className="glass-panel p-8 rounded-[40px] border-white/60 hover:shadow-2xl transition-all duration-500 relative">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-black text-gray-900 flex items-center">
-                                <Edit3 className="mr-3 h-6 w-6 text-primary-500" />
-                                Cópia & Texto (Copywriting)
-                            </h3>
-                            <div className="flex items-center space-x-2">
-                                <div className="text-xs font-bold tracking-widest uppercase text-primary-500 bg-primary-50 px-3 py-1 rounded-full">
-                                    Tom Autoritário
-                                </div>
+                    <div className="glass-panel p-5 lg:p-8 rounded-3xl lg:rounded-[40px] border-white/60 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                        {/* Section title + controls — stack on mobile */}
+                        <div className="flex flex-col gap-3 mb-5">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-base lg:text-xl font-black text-gray-900 flex items-center">
+                                    <Edit3 className="mr-2 h-5 w-5 text-primary-500" />
+                                    Cópia &amp; Texto
+                                </h3>
+                                {/* Preview toggle */}
                                 <button 
                                     onClick={() => setIsPreviewMode(!isPreviewMode)}
-                                    className={`ml-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border transition-all ${isPreviewMode ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-400 border-gray-100 hover:border-primary-200'}`}
+                                    className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all ${isPreviewMode ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-400 border-gray-200 hover:border-primary-200'}`}
                                 >
-                                    {isPreviewMode ? 'Sair do Preview' : 'Visualizar Formatado'}
+                                    {isPreviewMode ? 'Editar' : 'Preview'}
                                 </button>
                             </div>
+                            <div className="text-[9px] font-black tracking-widest uppercase text-primary-500 bg-primary-50 px-3 py-1 rounded-full self-start">
+                                Tom Autoritário
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-3 mb-8">
+                        {/* Action buttons — stacked on mobile */}
+                        <div className="flex flex-col sm:flex-row gap-2 mb-6">
                             <button
                                 onClick={handleSaveManual}
-                                className="h-14 px-6 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-2xl hover:bg-gray-50 transition-all flex items-center group">
-                                <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                                className="h-11 w-full sm:w-auto px-5 bg-white border border-gray-200 shadow-sm text-gray-700 text-sm font-black rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center group">
+                                <Save className="mr-2 h-4 w-4" />
                                 Salvar Rascunho
                             </button>
                             <button
                                 onClick={handleApprove}
-                                className="h-14 px-8 min-w-[240px] bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white text-[11px] tracking-[0.2em] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-primary-500/20 transition-all flex items-center justify-center transform hover:-translate-y-1 active:scale-95 group overflow-hidden relative">
+                                className="h-11 w-full sm:w-auto flex-1 px-5 bg-gradient-to-r from-gray-900 to-black text-white text-[11px] tracking-[0.1em] font-black rounded-xl shadow-lg transition-all flex items-center justify-center active:scale-95 group overflow-hidden relative">
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <CheckCircle2 className="mr-3 h-5 w-5 text-primary-400" />
-                                <span className="relative z-10 whitespace-nowrap">APROVAR E AVANÇAR</span>
+                                <CheckCircle2 className="mr-2 h-4 w-4 text-primary-400" />
+                                <span className="relative z-10">APROVAR E AVANÇAR</span>
                             </button>
                         </div>
 
@@ -605,31 +614,32 @@ export default function ContentEditor() {
                                     value={hook}
                                     onChange={(e) => setHook(e.target.value)}
                                     minRows={2}
-                                    className="w-full text-lg font-black text-gray-900 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
+                                    className="w-full text-sm lg:text-lg font-bold lg:font-black text-gray-900 bg-white p-4 lg:p-5 rounded-2xl border border-gray-100 shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all resize-none"
                                 />
                             </div>
 
                             <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center">
+                                {/* Label row — stacks on mobile to avoid overflow */}
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                    <label className="text-[10px] font-black tracking-widest uppercase text-gray-400">
                                         Corpo Principal do Post
                                     </label>
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 scale-90">
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
                                             <button 
                                                 onClick={() => setTextProvider('OPENAI')}
-                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'OPENAI' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                                className={`px-2.5 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'OPENAI' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                             >GPT-4o</button>
                                             <button 
                                                 onClick={() => setTextProvider('GOOGLE')}
-                                                className={`px-3 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'GOOGLE' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                                className={`px-2.5 py-1 text-[8px] font-black rounded-md transition-all ${textProvider === 'GOOGLE' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                             >GEMINI</button>
                                         </div>
                                         <button
                                             onClick={handleRegenerateText}
                                             disabled={isGeneratingText}
-                                            className="h-8 px-3 bg-primary-500/10 text-primary-600 text-[10px] font-black rounded-lg hover:bg-primary-500 hover:text-white transition-all flex items-center disabled:opacity-50">
-                                            <Wand2 className={`mr-2 h-3.5 w-3.5 ${isGeneratingText ? 'animate-pulse' : ''}`} />
+                                            className="h-8 px-2.5 bg-primary-500/10 text-primary-600 text-[10px] font-black rounded-lg hover:bg-primary-500 hover:text-white transition-all flex items-center disabled:opacity-50">
+                                            <Wand2 className={`mr-1.5 h-3 w-3 ${isGeneratingText ? 'animate-pulse' : ''}`} />
                                             {isGeneratingText ? 'REESCREVENDO...' : 'REFAZER'}
                                         </button>
                                     </div>
