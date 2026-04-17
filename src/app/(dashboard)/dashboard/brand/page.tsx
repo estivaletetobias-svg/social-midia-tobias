@@ -19,7 +19,9 @@ import {
   Loader2,
   PenTool,
   ArrowUpRight,
-  Users
+  Users,
+  Layers,
+  X
 } from "lucide-react";
 import Link from "next/link";
 
@@ -190,23 +192,24 @@ export default function BrandDnaPage() {
   if (loading) return <div className="p-12 animate-pulse text-gray-500 font-bold uppercase tracking-widest text-sm">Carregando DNA da Marca...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
+    <div className="max-w-7xl mx-auto space-y-16 py-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-32 lg:pb-20">
       {/* Header - Authority Level */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 border-b border-gray-100 pb-16">
-        <div className="space-y-6 flex-1">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 border-b border-gray-100 pb-10 lg:pb-16">
+        <div className="space-y-4 lg:space-y-6 flex-1">
           <div className="flex items-center gap-3">
             <div className="pulse-indicator" />
             <span className="text-[10px] font-black text-[#2B3440] uppercase tracking-[0.4em]">Núcleo de Identidade Ativo</span>
           </div>
-          <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
+          <h1 className="text-5xl lg:text-8xl font-black tracking-tight text-gray-900 leading-[0.85] uppercase">
             Arquitetura <br />
             <span className="text-gradient">de Marca</span>
           </h1>
-          <p className="text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
+          <p className="text-base lg:text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
             Configure os parâmetros profundos do seu DNA. O sistema STELAR calibra toda a produção narrativa com base nestas definições estratégicas.
           </p>
         </div>
-        <div className="shrink-0">
+        {/* Desktop save button */}
+        <div className="hidden lg:block shrink-0">
           <button
             onClick={handleSave}
             disabled={saving}
@@ -376,106 +379,159 @@ export default function BrandDnaPage() {
         </div>
 
         {/* Right: Strategy & Pillars */}
-        <div className="lg:col-span-4 space-y-12">
+        <div className="lg:col-span-4 space-y-8 lg:space-y-12">
           
-          {/* Editorial Pillars Module */}
-          <div className="stelar-card p-12 shadow-3xl">
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-xl bg-gray-50 flex items-center justify-center text-[#2B3440] shadow-sm">
-                  <ShieldCheck className="h-5 w-5" />
+          {/* Editorial Pillars Module — UX Upgraded */}
+          <div className="stelar-card p-8 lg:p-12 shadow-3xl">
+            <div className="flex items-center justify-between mb-6 lg:mb-10">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="h-10 w-10 rounded-xl bg-[#2B3440]/5 flex items-center justify-center text-[#2B3440] shadow-sm">
+                  <Layers className="h-5 w-5" />
                 </div>
-                <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Pilares</h2>
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Pilares</h2>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Toque para editar</p>
+                </div>
               </div>
               <button 
                 onClick={addPillar}
-                className="h-10 w-10 rounded-xl bg-[#2B3440] text-white flex items-center justify-center hover:bg-black transition-all shadow-lg"
+                className="flex items-center gap-2 h-10 px-4 rounded-xl bg-[#2B3440] text-white hover:bg-black transition-all shadow-lg text-[11px] font-black uppercase tracking-wider"
+                aria-label="Adicionar novo pilar"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Novo</span>
               </button>
             </div>
 
-            <div className="space-y-6">
+            {/* Empty State */}
+            {pillars.length === 0 && (
+              <button
+                onClick={addPillar}
+                className="w-full border-2 border-dashed border-gray-200 rounded-[2rem] p-10 flex flex-col items-center gap-3 text-gray-400 hover:border-[#2B3440] hover:text-[#2B3440] transition-all group"
+              >
+                <div className="h-12 w-12 rounded-2xl bg-gray-50 group-hover:bg-[#2B3440]/5 flex items-center justify-center transition-all">
+                  <Layers className="h-6 w-6" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-wider">Adicionar Primeiro Pilar</span>
+                <span className="text-xs font-medium text-center leading-relaxed max-w-[200px] text-gray-300">
+                  Defina os temas editoriais que guiam sua comunicação
+                </span>
+              </button>
+            )}
+
+            <div className="space-y-4">
               {pillars.map((pillar, idx) => (
-                <div key={idx} className="p-8 bg-gray-50/50 border border-gray-100 rounded-[2rem] group relative">
-                  <button 
-                    onClick={() => removePillar(idx)}
-                    className="absolute top-4 right-4 p-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <input 
-                    value={pillar.title}
-                    onChange={e => {
-                      const newPil = [...pillars];
-                      newPil[idx].title = e.target.value;
-                      setPillars(newPil);
-                    }}
-                    placeholder="Nome do Pilar"
-                    className="w-full bg-transparent border-none p-0 text-lg font-black text-gray-900 placeholder:text-gray-300 focus:ring-0 mb-2"
-                  />
-                  <textarea 
-                    value={pillar.description}
-                    onChange={e => {
-                      const newPil = [...pillars];
-                      newPil[idx].description = e.target.value;
-                      setPillars(newPil);
-                    }}
-                    placeholder="O que este pilar cobre?"
-                    className="w-full bg-transparent border-none p-0 text-xs font-medium text-gray-400 placeholder:text-gray-200 focus:ring-0 resize-none"
-                    rows={2}
-                  />
+                <div 
+                  key={idx} 
+                  className="border-2 border-gray-100 rounded-[1.5rem] overflow-hidden focus-within:border-[#2B3440] focus-within:shadow-lg transition-all duration-200"
+                >
+                  {/* Pillar header */}
+                  <div className="flex items-center gap-3 px-5 pt-4 pb-2">
+                    <span className="flex-shrink-0 h-6 w-6 rounded-lg bg-[#2B3440] text-white text-[10px] font-black flex items-center justify-center">
+                      {idx + 1}
+                    </span>
+                    <input 
+                      value={pillar.title}
+                      onChange={e => {
+                        const newPil = [...pillars];
+                        newPil[idx].title = e.target.value;
+                        setPillars(newPil);
+                      }}
+                      placeholder="Nome do Pilar"
+                      className="flex-1 min-w-0 bg-transparent border-none p-0 text-base font-black text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none"
+                    />
+                    <button 
+                      onClick={() => removePillar(idx)}
+                      className="flex-shrink-0 h-7 w-7 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-all"
+                      aria-label="Remover pilar"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {/* Pillar description */}
+                  <div className="px-5 pb-4">
+                    <textarea 
+                      value={pillar.description}
+                      onChange={e => {
+                        const newPil = [...pillars];
+                        newPil[idx].description = e.target.value;
+                        setPillars(newPil);
+                      }}
+                      placeholder="Descreva o que este pilar cobre..."
+                      className="w-full bg-gray-50 rounded-xl border-none px-3 py-2.5 text-xs font-medium text-gray-500 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none focus:bg-gray-100 transition-all"
+                      rows={2}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Audience Summary */}
-          <div className="stelar-card p-12 shadow-3xl">
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-4">
+          {/* Audience Segments — UX Upgraded */}
+          <div className="stelar-card p-8 lg:p-12 shadow-3xl">
+            <div className="flex items-center justify-between mb-6 lg:mb-10">
+              <div className="flex items-center gap-3 lg:gap-4">
                 <div className="h-10 w-10 rounded-xl bg-gray-50 flex items-center justify-center text-[#2B3440] shadow-sm">
                   <Users className="h-5 w-5" />
                 </div>
-                <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Segmentos</h2>
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Segmentos</h2>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Toque para editar</p>
+                </div>
               </div>
               <button 
                 onClick={addAudience}
-                className="h-10 w-10 rounded-xl bg-gray-50 text-[#2B3440] flex items-center justify-center hover:bg-gray-100 transition-all border border-gray-100"
+                className="flex items-center gap-2 h-10 px-4 rounded-xl bg-gray-50 text-[#2B3440] hover:bg-gray-100 transition-all border border-gray-200 text-[11px] font-black uppercase tracking-wider"
+                aria-label="Adicionar segmento de audiência"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Novo</span>
               </button>
             </div>
 
-            <div className="space-y-6">
+            {/* Empty State */}
+            {audience.length === 0 && (
+              <button
+                onClick={addAudience}
+                className="w-full border-2 border-dashed border-gray-200 rounded-[2rem] p-10 flex flex-col items-center gap-3 text-gray-400 hover:border-[#2B3440] hover:text-[#2B3440] transition-all group"
+              >
+                <div className="h-12 w-12 rounded-2xl bg-gray-50 group-hover:bg-[#2B3440]/5 flex items-center justify-center transition-all">
+                  <Users className="h-6 w-6" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-wider">Adicionar Segmento</span>
+                <span className="text-xs font-medium text-center leading-relaxed max-w-[200px] text-gray-300">
+                  Defina os públicos que você deseja impactar
+                </span>
+              </button>
+            )}
+
+            <div className="space-y-4">
               {audience.map((aud, idx) => (
-                <div key={idx} className="p-8 bg-gray-900 text-white rounded-[2rem] shadow-2xl relative group overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
-                    <Sparkles className="h-20 w-20" />
+                <div key={idx} className="bg-gray-900 text-white rounded-[1.5rem] shadow-2xl overflow-hidden">
+                  <div className="flex items-center justify-between px-6 pt-5 pb-3">
+                    <input 
+                      value={aud.name}
+                      onChange={e => {
+                        const newAud = [...audience];
+                        newAud[idx].name = e.target.value;
+                        setAudience(newAud);
+                      }}
+                      placeholder="Nome do Segmento"
+                      className="flex-1 min-w-0 bg-transparent border-none p-0 text-lg font-black text-white placeholder:text-gray-600 focus:ring-0 focus:outline-none"
+                    />
+                    <button 
+                      onClick={() => removeAudience(idx)} 
+                      className="flex-shrink-0 h-7 w-7 rounded-lg bg-white/5 text-white/30 hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition-all"
+                      aria-label="Remover segmento"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-4">
-                      <input 
-                        value={aud.name}
-                        onChange={e => {
-                          const newAud = [...audience];
-                          newAud[idx].name = e.target.value;
-                          setAudience(newAud);
-                        }}
-                        placeholder="Nome do Segmento"
-                        className="bg-transparent border-none p-0 text-xl font-black text-white placeholder:text-gray-700 focus:ring-0"
-                      />
-                      <button onClick={() => removeAudience(idx)} className="text-white/20 hover:text-red-400">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                  <div className="px-6 pb-5">
                     <div className="flex flex-wrap gap-2">
                        {aud.painPoints?.map((p, pi) => (
                          <span key={pi} className="px-3 py-1 bg-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/60">{p}</span>
                        ))}
-                       <button className="h-6 w-6 rounded-lg bg-white/5 flex items-center justify-center text-white/20 hover:bg-white/10">
-                          <Plus className="h-3 w-3" />
-                       </button>
                     </div>
                   </div>
                 </div>
@@ -484,7 +540,7 @@ export default function BrandDnaPage() {
           </div>
 
           {/* Pro Context Indicator */}
-          <div className="p-10 bg-gray-50 border-2 border-gray-100 rounded-[3rem] text-center space-y-6">
+          <div className="p-8 lg:p-10 bg-gray-50 border-2 border-gray-100 rounded-[2rem] lg:rounded-[3rem] text-center space-y-5">
              <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center mx-auto text-[#2B3440] shadow-sm border border-gray-100">
                 <ShieldCheck className="h-6 w-6" />
              </div>
@@ -499,6 +555,23 @@ export default function BrandDnaPage() {
              </Link>
           </div>
         </div>
+      </div>
+
+      {/* ─── MOBILE STICKY SAVE BAR ─────────────────────────────────────────── */}
+      {/* Visible only on mobile so the save action is never lost */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 py-3 bg-white/95 backdrop-blur border-t border-gray-100 shadow-2xl shadow-black/10">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full h-14 rounded-2xl bg-[#2B3440] text-white flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] text-sm disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-[#2B3440]/20"
+        >
+          {saving ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Save className="h-5 w-5" />
+          )}
+          {saving ? "Consolidando DNA..." : "Consolidar e Salvar DNA"}
+        </button>
       </div>
     </div>
   );
