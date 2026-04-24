@@ -338,8 +338,8 @@ export default function KnowledgeBase() {
                     )}
 
                     {!isLoading && items.map((item) => (
-                        <div key={item.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-10 p-10 items-center transition-all group ${selectedIds.includes(item.id) ? 'bg-[#2B3440]/5' : 'hover:bg-gray-50/50'}`}>
-                            <div className="col-span-1 flex items-center justify-center">
+                        <div key={item.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 p-6 lg:p-10 items-center transition-all group ${selectedIds.includes(item.id) ? 'bg-[#2B3440]/5' : 'hover:bg-gray-50/50'}`}>
+                            <div className="col-span-1 flex items-center justify-start lg:justify-center">
                                 <button 
                                     onClick={() => toggleSelect(item.id)}
                                     className={`h-7 w-7 rounded-lg border-2 flex items-center justify-center transition-all ${selectedIds.includes(item.id) ? 'bg-[#2B3440] border-[#2B3440]' : 'border-gray-200 bg-white group-hover:border-gray-300'}`}
@@ -347,26 +347,26 @@ export default function KnowledgeBase() {
                                     {selectedIds.includes(item.id) && <CheckCircle2 className="h-4 w-4 text-white" />}
                                 </button>
                             </div>
-                            <div className="col-span-5 flex items-center gap-6">
-                                <div className="h-14 w-14 rounded-2xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center text-[#2B3440] group-hover:bg-white group-hover:border-[#2B3440] group-hover:shadow-lg transition-all duration-500">
-                                    <FileText className="h-6 w-6" />
+                            <div className="col-span-5 flex items-start lg:items-center gap-4 lg:gap-6 overflow-hidden">
+                                <div className="h-12 w-12 lg:h-14 lg:w-14 shrink-0 rounded-2xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center text-[#2B3440] group-hover:bg-white group-hover:border-[#2B3440] group-hover:shadow-lg transition-all duration-500">
+                                    <FileText className="h-5 w-5 lg:h-6 lg:w-6" />
                                 </div>
-                                <div>
-                                    <h4 className="text-xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#2B3440] transition-colors line-clamp-1">{item.title}</h4>
+                                <div className="min-w-0 flex-1">
+                                    <h4 className="text-lg lg:text-xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#2B3440] transition-colors break-words whitespace-normal">{item.title}</h4>
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Ref ID: {item.id?.substring(0,8)}</p>
                                 </div>
                             </div>
                             <div className="col-span-2">
                                 <span className="premium-badge text-[9px] bg-white border-2 border-gray-100">{item.type}</span>
                             </div>
-                            <div className="col-span-4 flex items-center justify-end gap-3">
+                            <div className="col-span-4 flex flex-wrap items-center justify-start lg:justify-end gap-3 mt-2 lg:mt-0">
                                 {(item.tags && item.tags.length > 0 ? item.tags : ['ESTRATÉGIA']).map((tag: string, i: number) => (
-                                    <span key={i} className="px-4 py-2 bg-gray-50 border-2 border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:border-gray-200 transition-all">{tag}</span>
+                                    <span key={i} className="px-4 py-2 bg-gray-50 border-2 border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:border-gray-200 transition-all whitespace-nowrap">{tag}</span>
                                 ))}
                                 <button
                                     onClick={() => handleMultiplex(item.id)}
                                     disabled={isMultiplexing === item.id}
-                                    className="ml-4 h-12 px-6 bg-[#2B3440]/5 text-[#2B3440] text-[10px] font-black rounded-xl hover:bg-[#2B3440] hover:text-white transition-all flex items-center gap-3 uppercase tracking-widest disabled:opacity-50"
+                                    className="lg:ml-4 h-12 px-6 bg-[#2B3440]/5 text-[#2B3440] text-[10px] font-black rounded-xl hover:bg-[#2B3440] hover:text-white transition-all flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 whitespace-nowrap"
                                 >
                                     {isMultiplexing === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-4 w-4" />}
                                     Multiplicar
