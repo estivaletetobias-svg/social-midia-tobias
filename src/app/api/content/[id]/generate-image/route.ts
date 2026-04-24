@@ -6,7 +6,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     try {
         const { id } = await params;
         const body = await req.json().catch(() => ({}));
-        const { provider = 'OPENAI', slideIndex } = body;
+        const { provider = 'OPENAI', slideIndex, customPrompt } = body;
 
         const contentPiece = await prisma.contentPiece.findUnique({
             where: { id },
@@ -21,15 +21,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
         const latestVersion = contentPiece.versions[0];
 
-        // Ensure metadata has the provider
+        // Ensure metadata has the provider and custom prompt if passed
+        const updateData: any = {
+            metadata: {
+                ...(latestVersion.metadata as object || {}),
+                provider
+            }
+        };
+
+        if (customPrompt) {
+            updateData.imagePrompt = customPrompt;
+        }
+
         await prisma.contentVersion.update({
             where: { id: latestVersion.id },
-            data: {
-                metadata: {
-                    ...(latestVersion.metadata as object || {}),
-                    provider
-                }
-            }
+            data: updateData
         });
 
         // Use our universal Visual Engine with optional slide support

@@ -8,6 +8,7 @@ import {
     PenTool,
     BrainCircuit,
     BarChart2,
+    BookOpen
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -18,6 +19,7 @@ function cn(...inputs: ClassValue[]) {
 
 const tabs = [
     { name: "Visão", href: "/dashboard", icon: Home },
+    { name: "Base", href: "/dashboard/knowledge", icon: BookOpen },
     { name: "Ideias", href: "/dashboard/ideas", icon: Zap },
     { name: "Esteira", href: "/dashboard/content", icon: PenTool },
     { name: "DNA", href: "/dashboard/brand", icon: BrainCircuit },

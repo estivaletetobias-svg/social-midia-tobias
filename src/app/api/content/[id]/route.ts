@@ -96,6 +96,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
                     body: body.body,
                     cta: body.cta,
                     caption: body.caption,
+                    imagePrompt: body.imagePrompt,
                     metadata: {
                         ...(typeof currentVersion?.metadata === 'object' ? currentVersion.metadata as any : {}),
                         selectedAssetId: body.assetId

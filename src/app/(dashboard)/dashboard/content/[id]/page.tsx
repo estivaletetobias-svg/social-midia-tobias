@@ -97,7 +97,8 @@ export default function ContentEditor() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     provider: imageProvider,
-                    slideIndex: slideIndex
+                    slideIndex: slideIndex,
+                    customPrompt: version.imagePrompt
                 })
             });
             const data = await res.json();
@@ -269,6 +270,7 @@ export default function ContentEditor() {
                     body,
                     cta,
                     caption,
+                    imagePrompt: version.imagePrompt,
                     assetId: asset?.id
                 })
             });
@@ -407,8 +409,16 @@ export default function ContentEditor() {
                             {asset ? (
                                 <>
                                     <img src={asset.url} alt="Selected visual" className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105" />
-                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                        <button onClick={() => setIsGoogleModalOpen(true)} className="bg-white text-gray-900 px-4 py-2 rounded-xl font-black text-xs shadow-xl">Trocar Imagem</button>
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex flex-col sm:flex-row items-center justify-center gap-2">
+                                        <button onClick={() => setIsGoogleModalOpen(true)} className="bg-white text-gray-900 px-4 py-2 rounded-xl font-black text-xs shadow-xl hover:bg-gray-100">Trocar Imagem</button>
+                                        <button onClick={() => {
+                                            const a = document.createElement('a');
+                                            a.href = asset.url;
+                                            a.download = `stelar-image-${Date.now()}.png`;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                        }} className="bg-primary-500 text-white px-4 py-2 rounded-xl font-black text-xs shadow-xl hover:bg-primary-600">Download</button>
                                     </div>
                                 </>
                             ) : isGeneratingImg ? (
@@ -459,9 +469,10 @@ export default function ContentEditor() {
                                     <label className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">Prompt Técnico ({imageProvider})</label>
                                     <div className="relative group">
                                         <textarea
-                                            readOnly
-                                            className="w-full text-[10px] font-mono text-gray-500 bg-gray-50 p-3 rounded-xl border border-transparent focus:outline-none resize-none h-24"
-                                            value={version.imagePrompt || "Prompt ainda não gerado."}
+                                            className="w-full text-[10px] font-mono text-gray-700 bg-gray-50 p-3 rounded-xl border border-transparent focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none h-24"
+                                            value={version.imagePrompt || ""}
+                                            onChange={(e) => setVersion({ ...version, imagePrompt: e.target.value })}
+                                            placeholder="Prompt ainda não gerado."
                                         />
                                         <button
                                             onClick={() => copyToClipboard(version.imagePrompt)}
